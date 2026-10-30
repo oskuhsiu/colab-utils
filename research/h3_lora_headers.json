@@ -1,0 +1,65 @@
+{
+  "checked": "2026-09-23",
+  "repo": "lightx2v/Minimax-h3-Turbo",
+  "revision": "3ec17a324ced54151364f24f8b5fb6bf7e26414f",
+  "adapters": [
+    {
+      "file": "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors",
+      "metadata": {
+        "alpha": "128",
+        "key_format": "minimax-h3-diffusers",
+        "format": "pt",
+        "floating_dtype": "bfloat16"
+      },
+      "ranks": [
+        128
+      ],
+      "tensor_count": 624,
+      "native_scale": 1.0
+    },
+    {
+      "file": "minimax_h3_fl2v_turbo_4step_v1.2_768p_bf16.safetensors",
+      "metadata": {
+        "alpha": "8",
+        "format": "pt",
+        "floating_dtype": "bfloat16",
+        "key_format": "minimax-h3-diffusers"
+      },
+      "ranks": [
+        128
+      ],
+      "tensor_count": 624,
+      "native_scale": 0.0625
+    },
+    {
+      "file": "minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors",
+      "metadata": {
+        "floating_dtype": "bfloat16",
+        "format": "pt",
+        "key_format": "minimax-h3-diffusers",
+        "alpha": "8"
+      },
+      "ranks": [
+        128
+      ],
+      "tensor_count": 624,
+      "native_scale": 0.0625
+    }
+  ],
+  "scaling_source_revision": "4ff8267e7ca09a30dace323f3c024529de7d4a30",
+  "scaling_source_url": "https://github.com/ModelTC/LightX2V/blob/4ff8267e7ca09a30dace323f3c024529de7d4a30/lightx2v/models/networks/minimax_h3/lora.py",
+  "official_comfy_corroboration": {
+    "file": "minimax_h3_fl2v_turbo_8step_v1.0_768p_comfyui_bf16.safetensors",
+    "metadata": {
+      "target_format": "ComfyUI generic LoRA",
+      "base_model": "Comfy-Org/MiniMax-H3 minimax_h3_fl2va_bf16.safetensors",
+      "training_alpha": "8.0",
+      "format": "pt",
+      "training_scale": "0.0625",
+      "training_rank": "128",
+      "qkv_fusion": "block diagonal B; concat A; alpha multiplied by 3",
+      "swi_glu_mapping": "Diffusers [value;gate] -> ComfyUI [gate;value]",
+      "source_format": "Diffusers PEFT LoRA"
+    }
+  }
+}

@@ -1,0 +1,781 @@
+[
+  {
+    "id": "PROD01",
+    "topic": "openmontage-canonical-repository-provenance",
+    "title": "GitHub API: calesthio/OpenMontage",
+    "url": "https://api.github.com/repos/calesthio/OpenMontage",
+    "publisher": "GitHub / calesthio",
+    "source_date": "2026-03-29",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The API identifies the repository as calesthio/OpenMontage, with owner calesthio and fork=false.",
+      "The API reports AGPL-3.0, created_at 2026-03-29, updated_at 2026-10-10, pushed_at 2026-10-03, and no archived or disabled flag.",
+      "The API reports no GitHub release metadata in the repository object; the repository page itself exposes the current source tree and documentation."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": null
+    },
+    "limitations": "Repository metadata does not establish runtime behavior, benchmark conditions, or provider availability.",
+    "artifact_urls": [
+      "https://github.com/calesthio/OpenMontage",
+      "https://github.com/calesthio/OpenMontage/blob/main/docs/ARCHITECTURE.md"
+    ],
+    "framework": "canonical repository provenance",
+    "release": "No GitHub release listed in the API object; source pushed 2026-10-03"
+  },
+  {
+    "id": "PROD02",
+    "topic": "openmontage-agent-first-orchestration-and-runtime-contract",
+    "title": "OpenMontage ARCHITECTURE.md",
+    "url": "https://raw.githubusercontent.com/calesthio/OpenMontage/main/docs/ARCHITECTURE.md",
+    "publisher": "calesthio / OpenMontage",
+    "source_date": "2026-03-28",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The architecture document describes OpenMontage as an agent-orchestrated platform in which an LLM coding assistant reads pipeline manifests and skills, calls Python tools, writes JSON checkpoints, self-reviews, and can request human approval; it says there is no runtime Python orchestrator.",
+      "The repository layout includes Python infrastructure, video tools, YAML pipeline definitions, JSON schemas for artifacts/checkpoints/pipelines/styles/tools, Markdown skills, Remotion composer, and tests.",
+      "The checked config.yaml exposes LLM provider fields for anthropic, openai, gemini, openrouter, ollama, mistral, and minimax; the architecture document separately says the coding assistant is the control plane, so the field list does not by itself prove a runtime LLM API call.",
+      "Tool contracts include dependencies, input/output schemas, fallback_tools, agent_skills, resource_profile, retry_policy, seed, and model.",
+      "The stated required system dependencies are Python >=3.10 and FFmpeg; optional dependencies include Node.js for Remotion, GPU/CUDA for local generation, Piper, ManimCE, and Mermaid CLI. Python core packages include pyyaml, pydantic, jsonschema, and python-dotenv.",
+      "Checkpoints persist stage, status, artifacts, review, and cost_snapshot; the document states that schema validation occurs before checkpoint writing and that a failed stage can resume from the last checkpoint."
+    ],
+    "resources": {
+      "gpu": "Only local video/image generation requires GPU/CUDA; orchestration and FFmpeg path are not assigned a GPU requirement",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "research -> proposal -> script -> scene_plan -> assets -> edit -> compose"
+    },
+    "limitations": "The architecture document is a design and source exploration document; it does not provide L4/A100 end-to-end timing, peak RAM/VRAM, or independent quality scores.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/calesthio/OpenMontage/main/docs/ARCHITECTURE.md",
+      "https://raw.githubusercontent.com/calesthio/OpenMontage/main/config.yaml",
+      "https://github.com/calesthio/OpenMontage/tree/main/pipeline_defs",
+      "https://github.com/calesthio/OpenMontage/tree/main/schemas"
+    ],
+    "dependencies": ["Python >=3.10", "FFmpeg", "pyyaml", "pydantic", "jsonschema", "python-dotenv", "Node.js optional", "CUDA optional"],
+    "backends": ["agent coding assistant", "Python tool registry", "JSON checkpoint persistence"],
+    "providers": ["provider selectors and fallback tools are declared in tool contracts"]
+  },
+  {
+    "id": "PROD03",
+    "topic": "openmontage-production-pipelines-quality-gates-and-demos",
+    "title": "OpenMontage README",
+    "url": "https://github.com/calesthio/OpenMontage",
+    "publisher": "calesthio / OpenMontage",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The README lists complete pipelines including Animated Explainer, Animation, Avatar Spokesperson, Cinematic, Clip Factory, Documentary Montage, Hybrid, Localization & Dub, Podcast Repurpose, Screen Demo, and Talking Head.",
+      "Each pipeline follows research -> proposal -> script -> scene_plan -> assets -> edit -> compose; the agent reads stage-director skills, self-reviews, checkpoints, and asks for human approval at creative decision points.",
+      "The README says reference videos can be analyzed for transcript, pacing, scenes, keyframes, and style, then returned with concepts, tool route, cost estimates, and a sample before full production.",
+      "The documented governance includes human gates, pre-compose validation for delivery promise/slideshow risk/renderer family, post-render ffprobe/frame/audio/subtitle checks, provider decision trails, and budget estimate/reserve/reconcile controls.",
+      "README demo claims include The Last Banana as a 60-second short using six Kling v3 clips via fal.ai, Google Chirp3-HD narration, captions, Remotion, and total cost $1.33; Void as four GPT Image images, TTS, music, WhisperX subtitles, and total cost $0.69."
+    ],
+    "resources": {
+      "gpu": "Only provider-specific local generation paths require GPU; Remotion/FFmpeg composition can be local CPU paths",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Built-in profiles include 1920x1080, 3840x2160, 1080x1920, 1080x1080, and 2560x1080",
+      "frames": null,
+      "duration_s": "Demo claims include 30s, 45s, 60s, and 90s examples",
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "agent reads manifest and skills -> tools -> self-review -> checkpoint -> human gate -> render"
+    },
+    "limitations": "Demo durations and costs are author claims; this report did not rerun them or independently inspect video quality.",
+    "artifact_urls": [
+      "https://github.com/calesthio/OpenMontage",
+      "https://github.com/calesthio/OpenMontage/blob/main/AGENT_GUIDE.md",
+      "https://github.com/calesthio/OpenMontage/blob/main/PROMPT_GALLERY.md"
+    ],
+    "cost_fields": {
+      "default_total_cap_usd": 10.0,
+      "default_single_action_approval_usd": 0.5,
+      "demo_claims": ["The Last Banana $1.33", "Void $0.69"]
+    },
+    "providers": ["Kling", "Runway Gen-4", "Google Veo", "Grok Imagine", "Higgsfield", "MiniMax/H3", "HeyGen", "WAN 2.1/2.2", "Hunyuan", "CogVideo", "LTX-Video", "Pexels", "Pixabay", "Wikimedia Commons"]
+  },
+  {
+    "id": "PROD04",
+    "topic": "openmontage-provider-adapters-local-comfyui-and-vram-metadata",
+    "title": "OpenMontage PROVIDERS.md",
+    "url": "https://raw.githubusercontent.com/calesthio/OpenMontage/main/docs/PROVIDERS.md",
+    "publisher": "calesthio / OpenMontage",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The ComfyUI video tool accepts a local ComfyUI server URL and bundled or caller-supplied workflows; the document explicitly lists a MiniMax H3 official open-weight local workflow with pruned INT8 diffusion model, Qwen3-VL text encoder, video VAE, and audio VAE.",
+      "ComfyUI Partner Node entries are separate hosted execution paths: Gemini Omni Flash about $0.146/sec, Seedance 2.5 about $0.148/sec at 480p or $0.333/sec at 720p, and MiniMax H3 API about $0.129/sec at 768P or $0.186/sec at 2K; the local MiniMax H3 graph is listed as no API charge.",
+      "Partner Nodes require current ComfyUI, network access, a logged-in Comfy account, and prepaid credits; actual metered usage is authoritative.",
+      "The local video section lists CUDA tools wan_video, hunyuan_video, cogvideo_video, and ltx_video_local. The model table lists Wan2.2 TI2V-5B 12GB, Wan2.1 1.3B 6GB, Wan2.1 14B 24GB, Hunyuan 1.5 12GB, LTX-2 8GB, CogVideo 5B 10GB, and CogVideo 2B 6GB classes.",
+      "The document describes Wan clips as roughly five-second passes, with longer duration implemented by chaining segments and dropping the duplicated seam frame; it warns that chaining can drift in contrast and colour.",
+      "For a 12GB path, the document records a measured 1.97GB peak for sequential offload at 704x480, with approximately 4 seconds per denoising step of PCIe traffic; this is a provider-document example, not an L4/A100 benchmark."
+    ],
+    "resources": {
+      "gpu": "NVIDIA CUDA required for local video generation; ComfyUI local graph runs on the ComfyUI machine",
+      "vram_gb": 12,
+      "ram_gb": null,
+      "resolution": "704x480 example; local table also labels 720p @ 24fps for Wan2.2 TI2V-5B",
+      "frames": null,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": "~4 seconds per denoising step of PCIe traffic in the 12GB sequential-offload example",
+      "precision": "Local H3 pruned INT8 stack; local video precision auto/bf16/int8/int4 options",
+      "workflow": "comfyui_video local workflow or hosted Partner Node; wan_video text/image/video/first_last_frame operations"
+    },
+    "limitations": "VRAM numbers are documented model classes or one provider example; no same-condition L4 24GB/A100 40GB/A100 80GB full-pipeline benchmark or quality acceptance is reported.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/calesthio/OpenMontage/main/docs/PROVIDERS.md",
+      "https://docs.comfy.org/tutorials/video/minimax/minimax-h3",
+      "https://github.com/calesthio/OpenMontage/tree/main/tools/video"
+    ],
+    "dependencies": ["CUDA for local video", "Diffusers", "Transformers", "Accelerate", "Torch", "FFmpeg", "ComfyUI optional/required for comfyui_video"],
+    "providers": ["MiniMax H3 local/API", "Wan2.2", "Wan2.1", "Hunyuan", "LTX-2", "CogVideo", "ComfyUI Partner Nodes"],
+    "cost_fields": {
+      "local_h3_api_charge": 0,
+      "partner_node_gemini_omni_flash_usd_per_s": 0.146,
+      "partner_node_seedance_25_usd_per_s_480p": 0.148,
+      "partner_node_seedance_25_usd_per_s_720p": 0.333,
+      "partner_node_minimax_h3_usd_per_s_768p": 0.129,
+      "partner_node_minimax_h3_usd_per_s_2k": 0.186
+    }
+  },
+  {
+    "id": "PROD05",
+    "topic": "openmontage-prompt-gallery-and-complete-video-artifacts",
+    "title": "OpenMontage Prompt Gallery",
+    "url": "https://raw.githubusercontent.com/calesthio/OpenMontage/main/PROMPT_GALLERY.md",
+    "publisher": "calesthio / OpenMontage",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The gallery lists zero-key Remotion demos: world-in-numbers 45s, code-to-screen 50s, and focusflow-pitch 40s; commands are make demo or render-demo.sh.",
+      "Zero-key full-agent prompts are estimated at 5–15 minutes and $0 for 45–90 second explainers using Piper, stock media, and Remotion.",
+      "FAL_KEY image prompts are estimated at 10–20 minutes and about $0.60–$1.00; the animation pipeline lists 30-second image-animation videos at 10–15 minutes and about $0.15.",
+      "HyperFrames examples are estimated at 3–12 minutes and $0; premium cinematic examples using Veo/Kling/Runway plus ElevenLabs/Suno are estimated at 15–40 minutes and about $1.50–$2.50.",
+      "The gallery says prompts are community-maintained and tested, but the page provides no independent quality score or hardware log."
+    ],
+    "resources": {
+      "gpu": "Zero-key Remotion and HyperFrames examples are described as local composition paths; premium provider hardware is remote/unspecified",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": "40–90 for zero-key examples; 30 for image-animation example",
+      "steps": null,
+      "time_s": "3–40 minutes estimated by gallery",
+      "precision": null,
+      "workflow": "prompt -> research/script/assets -> Remotion or HyperFrames -> FFmpeg output"
+    },
+    "limitations": "Time and cost values are author/gallery estimates; no seed, VRAM, host RAM, or reproducible quality test is given.",
+    "artifact_urls": [
+      "https://github.com/calesthio/OpenMontage/blob/main/render-demo.sh",
+      "https://github.com/calesthio/OpenMontage/tree/main/remotion-composer",
+      "https://github.com/calesthio/OpenMontage/blob/main/PROMPT_GALLERY.md"
+    ],
+    "cost_fields": {
+      "zero_key_usd": 0,
+      "image_animation_usd": 0.15,
+      "premium_cinematic_usd": 2.5
+    }
+  },
+  {
+    "id": "PROD06",
+    "topic": "openmontage-app-repository-identity-and-release",
+    "title": "Open-Montage-app/OpenMontage repository and release page",
+    "url": "https://github.com/Open-Montage-app/OpenMontage",
+    "publisher": "Open-Montage-app",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The fetched repository page identifies owner Open-Montage-app, lists MIT license, 2 commits, and top-level assets/, lib/, LICENSE, and README.md entries.",
+      "The repository page does not show a forked-from banner or a redirect to calesthio/OpenMontage in the fetched content.",
+      "Its release page lists an OpenMontage release published 23 Sep (year not displayed) by djangowspider at commit f2aed56 with three assets."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": null
+    },
+    "limitations": "The page repeats OpenMontage product descriptions but exposes only a small downloader/package-shaped tree in the fetched source; it was not counted as a second production benchmark.",
+    "artifact_urls": [
+      "https://github.com/Open-Montage-app/OpenMontage/releases",
+      "https://github.com/Open-Montage-app/OpenMontage/blob/main/README.md"
+    ],
+    "framework": "separate package/download repository; provenance only"
+  },
+  {
+    "id": "PROD07",
+    "topic": "firered-openstoryline-agent-editing-framework",
+    "title": "FireRed-OpenStoryline README",
+    "url": "https://raw.githubusercontent.com/FireRedTeam/FireRed-OpenStoryline/main/README.md",
+    "publisher": "FireRedTeam",
+    "source_date": "2026-02-10",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The README describes smart media search/organization, clip segmentation/content understanding, script generation, mood/beat-based music and voiceover recommendations, natural-language refinement, and reusable editing Skills.",
+      "The repository structure includes MCP server, video processing nodes, skills, storage/agent memory, agent.py, config.py, CLI, FastAPI UI, resources, and Dockerfile.",
+      "The README news records official open sourcing on 2026-02-10, an ASR rough-cut skill on 2026-03-22, OpenClaw integration on 2026-03-12, and AI transition generation on 2026-04-02.",
+      "The author warns that AI transitions call third-party AIGC video generation services, are relatively expensive, and can be unpredictable.",
+      "The TODO list still includes image/video generation and editing capabilities and GPU-accelerated rendering/highlight selection."
+    ],
+    "resources": {
+      "gpu": "README does not document a completed local GPU video-generation path; GPU rendering is listed in TODO",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Demos preserve original resolution by default and support custom dimensions, according to README note",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "natural-language intent -> LLM/VLM planning -> MCP nodes -> media search/understanding -> script/voice/BGM/timeline -> render"
+    },
+    "limitations": "The README feature list and TODO do not establish local video-model inference or L4/A100 resource requirements.",
+    "artifact_urls": [
+      "https://github.com/FireRedTeam/FireRed-OpenStoryline",
+      "https://fireredteam.github.io/demos/firered_openstoryline/",
+      "https://github.com/FireRedTeam/FireRed-OpenStoryline/tree/main/src/open_storyline/nodes"
+    ],
+    "dependencies": ["Python >=3.11", "MoviePy", "FFmpeg", "LangChain", "MCP", "FastAPI", "torchaudio optional/local ASR"],
+    "providers": ["Pexels", "MiniMax TTS", "Bytedance TTS", "302.ai TTS", "MiniMax Hailuo transitions", "Alibaba Wan transitions"],
+    "license": "Apache-2.0"
+  },
+  {
+    "id": "PROD08",
+    "topic": "firered-config-providers-retries-and-dependencies",
+    "title": "FireRed-OpenStoryline config.toml, requirements, and API key guide",
+    "url": "https://raw.githubusercontent.com/FireRedTeam/FireRed-OpenStoryline/main/config.toml",
+    "publisher": "FireRedTeam",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The config has user-configurable LLM and VLM model/base_url/api_key/timeout/max_retries fields; both LLM and VLM max_retries default to 2.",
+      "The MCP server exposes nodes including LoadMediaNode, SearchMediaNode, SplitShotsNode, LocalASRNode, SpeechRoughCutNode, GenerateAITransitionNode, UnderstandClipsNode, Filter/GroupClipsNode, GenerateScriptNode, GenerateVoiceoverNode, SelectBGMNode, PlanTimeline nodes, and RenderVideoNode.",
+      "Shot segmentation uses TransNetV2 on CPU by default; clip understanding samples 2 fps and caps a clip at 64 frames; grouping has parse retry controls and token caps.",
+      "TTS provider config sections include MiniMax, Bytedance, and 302; AI transition sections include DashScope Wan and MiniMax Hailuo.",
+      "The requirements pin FastAPI, Uvicorn, LangChain, MCP, librosa, TransNetV2, ffmpeg-python, MoviePy, AV, sentence-transformers, FAISS CPU, OpenAI, FunASR, and torchaudio. The Dockerfile uses python:3.11-slim and installs FFmpeg, wget, unzip, git, git-lfs, and curl.",
+      "The API guide documents DeepSeek as an LLM example, Gemini/Claude/ChatGPT recommendations outside China, GLM-4.6V and Qwen3-VL VLM settings, MiniMax/Bytedance/302 TTS keys, Pexels, and MiniMax Hailuo or Alibaba Wan transition keys."
+    ],
+    "resources": {
+      "gpu": "TransNetV2 and core shot/clip analysis default to CPU; no completed local generation GPU requirement is documented",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 64,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "MCP server with stateful HTTP transport at local port 8001; FastAPI UI example at port 8005; Docker exposes 7860"
+    },
+    "limitations": "Provider keys and config fields prove integration points, not successful account access, billing, local GPU support, or exact output quality.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/FireRedTeam/FireRed-OpenStoryline/main/config.toml",
+      "https://raw.githubusercontent.com/FireRedTeam/FireRed-OpenStoryline/main/requirements.txt",
+      "https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/main/docs/source/en/api-key.md",
+      "https://raw.githubusercontent.com/FireRedTeam/FireRed-OpenStoryline/main/Dockerfile"
+    ],
+    "dependencies": ["Python 3.11", "FFmpeg", "wget", "unzip", "git", "git-lfs", "curl", "MoviePy", "TransNetV2", "torchaudio optional/local ASR"],
+    "providers": ["DeepSeek", "Gemini", "Claude", "ChatGPT", "GLM-4.6V", "Qwen3-VL", "MiniMax", "Bytedance", "302.ai", "DashScope Wan", "MiniMax Hailuo", "Pexels"],
+    "retry_fields": {
+      "llm_max_retries": 2,
+      "vlm_max_retries": 2,
+      "group_clips_max_parse_retries": 2
+    }
+  },
+  {
+    "id": "PROD09",
+    "topic": "firered-user-workflow-partial-redo-and-skills",
+    "title": "OpenStoryline User Guide",
+    "url": "https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/main/docs/source/en/guide.md",
+    "publisher": "FireRedTeam",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Users can upload their own images/videos and describe an editing goal, or provide only a theme/mood; automatic asset retrieval is powered by Pexels and requires a Pexels API key.",
+      "The guide says a user can request a change after a step completes and the agent will rerun only the needed step instead of restarting from the beginning.",
+      "The guide says a running task can be interrupted without clearing current progress, and executed tool results remain available.",
+      "A polished edit can be summarized and saved as a personal Editing Skill for reuse with similar media."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "upload or describe theme -> conversational tool calls -> partial redo/interruption -> save Editing Skill"
+    },
+    "limitations": "The guide describes workflow behavior but does not quantify edit quality, generation latency, provider cost, or hardware use.",
+    "artifact_urls": [
+      "https://github.com/FireRedTeam/FireRed-OpenStoryline/blob/main/docs/source/en/guide.md",
+      "https://www.pexels.com/api/"
+    ],
+    "providers": ["Pexels"]
+  },
+  {
+    "id": "PROD10",
+    "topic": "pixelle-automated-short-video-pipeline-and-provider-adapters",
+    "title": "Pixelle-Video README_EN",
+    "url": "https://github.com/ATH-MaaS/Pixelle-Video/blob/main/README_EN.md",
+    "publisher": "ATH-MaaS (page reached from AIDC-AI/Pixelle-Video)",
+    "source_date": "2026-06-01",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The original AIDC-AI/Pixelle-Video URL redirects to a GitHub page whose owner is ATH-MaaS; the README describes the same Pixelle-Video project.",
+      "The pipeline is Script Generation -> Image Planning -> Frame-by-Frame Processing -> Video Composition; one topic can generate script, images/videos, voice narration, BGM, and final video.",
+      "The WebUI can configure Qwen/GPT/DeepSeek-style LLMs, local ComfyUI at http://127.0.0.1:8188, RunningHub, or direct API providers including OpenAI/GPT Image, DashScope/Wan/HappyHorse, Volcengine ARK/Seedream/Seedance, and Kling.",
+      "TTS workflows include Edge-TTS and Index-TTS; users can upload reference audio for workflows that support voice cloning.",
+      "Dynamic API video generation supports model-aware resolution/aspect/duration/watermark/native-audio options, network/download retry, prompt-neutralization retry after content inspection failure, and neighboring segment information for continuity hints.",
+      "The README states that an Ollama local LLM plus local ComfyUI can be a zero-cost path; direct cloud APIs require the corresponding provider credentials."
+    ],
+    "resources": {
+      "gpu": "Local ComfyUI path can use a local GPU; API/RunningHub paths are remote or hosted",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Image default 1024x1024; video dimensions are model/template-configured",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": "README says first generation typically takes a few minutes, dependent on frames/network/inference speed",
+      "precision": null,
+      "workflow": "topic or fixed script -> LLM script -> per-frame image/video -> TTS -> template/FFmpeg composition -> output/"
+    },
+    "limitations": "Official README does not provide L4/A100 VRAM, host RAM, peak memory, or controlled end-to-end timing; provider names are adapter claims and do not establish every model variant is supported.",
+    "artifact_urls": [
+      "https://github.com/AIDC-AI/Pixelle-Video",
+      "https://github.com/ATH-MaaS/Pixelle-Video",
+      "https://aidc-ai.github.io/Pixelle-Video/"
+    ],
+    "dependencies": ["uv", "FFmpeg", "Streamlit", "ComfyUI optional", "RunningHub optional"],
+    "backends": ["local ComfyUI", "RunningHub", "direct provider APIs"],
+    "providers": ["Qwen", "GPT", "DeepSeek", "Ollama", "OpenAI/GPT Image", "DashScope/Wan/HappyHorse", "Volcengine ARK/Seedream/Seedance", "Kling", "Edge-TTS", "Index-TTS"],
+    "retry_fields": ["network/download retry", "content-review prompt-neutralization retry", "neighboring-segment continuity hint"]
+  },
+  {
+    "id": "PROD11",
+    "topic": "pixelle-source-dependencies-and-container-runtime",
+    "title": "Pixelle-Video pyproject.toml and Dockerfile",
+    "url": "https://github.com/ATH-MaaS/Pixelle-Video/blob/main/pyproject.toml",
+    "publisher": "ATH-MaaS / Pixelle-Video",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The checked pyproject reports package version 0.2.0, requires-python >=3.11, and Apache-2.0 license text.",
+      "Dependencies include fastmcp, pydantic, PyYAML, edge-tts 7.2.7, ffmpeg-python, Pillow, Streamlit, OpenAI, FastAPI, python-multipart, ComfyKit, MoviePy 1.0.3, Playwright, DashScope, requests, JWT, and numpy.",
+      "The Dockerfile uses python:3.11-slim, installs system FFmpeg and fonts-noto-cjk, installs uv, installs the project, installs Playwright Chromium, creates output/data/temp directories, and exposes ports 8000 and 8501."
+    ],
+    "resources": {
+      "gpu": "Dockerfile does not declare a GPU base image or GPU requirement",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Docker/API service on 8000 plus Streamlit UI on 8501"
+    },
+    "limitations": "Dependency manifests do not establish model weight size, peak memory, or whether a specific local ComfyUI workflow fits a target GPU.",
+    "artifact_urls": [
+      "https://github.com/ATH-MaaS/Pixelle-Video/blob/main/pyproject.toml",
+      "https://github.com/ATH-MaaS/Pixelle-Video/blob/main/Dockerfile",
+      "https://github.com/ATH-MaaS/Pixelle-Video/blob/main/docker-compose.yml"
+    ],
+    "dependencies": ["Python >=3.11", "uv", "FFmpeg", "fonts-noto-cjk", "Playwright Chromium", "Streamlit", "FastAPI", "ComfyKit", "MoviePy", "DashScope"],
+    "release": "pyproject version 0.2.0"
+  },
+  {
+    "id": "PROD12",
+    "topic": "pixelle-release-history-and-feature-additions",
+    "title": "Pixelle-Video GitHub releases",
+    "url": "https://github.com/AIDC-AI/Pixelle-Video/releases",
+    "publisher": "ATH-MaaS / Pixelle-Video (redirect target)",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The fetched release page redirects to ATH-MaaS/Pixelle-Video and lists v0.1.15 as the latest displayed release; its page date is shown as 27 Jan without a year.",
+      "The page lists v0.1.14 with motion transfer and local workflows, v0.1.12 with digital human, audio-visual image-to-video, multilingual TTS, and RunningHub 24G/48G choices, and v0.1.11 with ComfyUI API key, RunningHub concurrency, and structured LLM output changes.",
+      "The v0.1.8 entry lists custom media upload, video understanding, Index-TTS2 and Wan2.2 workflows, audio merge/duration adjustment, and pipeline UI restructuring.",
+      "The current checked pyproject says 0.2.0 while the release page's latest displayed tag is v0.1.15; this version mismatch is preserved as source context rather than resolved."
+    ],
+    "resources": {
+      "gpu": "Release notes mention RunningHub 24G/48G choices but do not report local GPU measurements",
+      "vram_gb": "24/48 for RunningHub machine choices in v0.1.12 note",
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Windows package or source/Docker release; local workflows and API workflows evolve by tag"
+    },
+    "limitations": "Release page dates omit year in the fetched rendering; feature notes are release claims and do not include controlled quality/latency evidence.",
+    "artifact_urls": [
+      "https://github.com/ATH-MaaS/Pixelle-Video/releases",
+      "https://github.com/AIDC-AI/Pixelle-Video/releases/tag/v0.1.14",
+      "https://github.com/AIDC-AI/Pixelle-Video/releases/tag/v0.1.8"
+    ],
+    "release": "Latest displayed v0.1.15; current pyproject reports 0.2.0"
+  },
+  {
+    "id": "PROD13",
+    "topic": "waoowaoo-preview-models-storage-and-license",
+    "title": "waoowaoo README",
+    "url": "https://github.com/waooAI/waoowaoo",
+    "publisher": "waooAI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The README describes an AI creative workspace where an Assistant develops briefs and assets, users upload references, and generated images/videos are organized and refined on a canvas.",
+      "The preview exposes model-aware aspect ratios, durations, resolutions, first-frame/first-last-frame/reference-image roles, and versioned refinement.",
+      "The preview exposes OpenRouter configuration with GPT Image 2, Nano Banana variants, Seedance variants, MiniMax H3, and MiniMax H3 Max; H3 Max currently accepts a single first frame, not a first/last pair, and preview music/voiceover controls are absent.",
+      "The README says provider calls are paid through the user's own OpenRouter account, while project data/media use local database and private MinIO storage.",
+      "The stack is Next.js 16 + React 19, MySQL + Prisma, Temporal, Redis, MinIO S3, Tailwind, and NextAuth.",
+      "Starting with v0.5.0-beta.1, the repository states Elastic License 2.0 and labels the distribution source-available rather than OSI-approved open source."
+    ],
+    "resources": {
+      "gpu": "No local GPU requirement or local model weights are stated; preview model calls are via OpenRouter",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Model-aware resolution is exposed by UI; no fixed value is stated",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Assistant brief/reference upload -> model provider call -> project/canvas version refinement -> local MinIO/database persistence"
+    },
+    "limitations": "Preview status means bugs/rough edges remain; source does not provide L4/A100 timing, RAM/VRAM requirements, or independent output-quality measurements.",
+    "artifact_urls": [
+      "https://github.com/waooAI/waoowaoo",
+      "https://github.com/waooAI/waoowaoo/blob/main/LICENSE"
+    ],
+    "backends": ["OpenRouter", "local MySQL", "local Temporal", "local Redis", "local MinIO", "Docker Compose"],
+    "providers": ["GPT Image 2", "Nano Banana variants", "Seedance variants", "MiniMax H3", "MiniMax H3 Max"],
+    "cost_fields": {
+      "provider_billing": "paid through user's OpenRouter account",
+      "local_storage": "local database and private MinIO storage"
+    },
+    "license": "Elastic License 2.0 from v0.5.0-beta.1; source-available, not OSI-approved"
+  },
+  {
+    "id": "PROD14",
+    "topic": "waoowaoo-self-hosted-preview-installation-and-release",
+    "title": "waoowaoo INSTALL.md and release page",
+    "url": "https://github.com/waooAI/waoowaoo/blob/main/docs/INSTALL.md",
+    "publisher": "waooAI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The install guide names the v0.5.0-beta.1 preview release as the source for versioned self-hosted installation; the release page marks it pre-release and shows 05 Sep without a year in the fetched view.",
+      "Required host tools are Docker Engine/Desktop with Linux containers and Compose 2.24.4 or newer, Git, POSIX shell, and flock; prebuilt images must match host architecture.",
+      "The Compose path starts MySQL, Redis, Temporal, application schema, private MinIO, Caddy, and the Temporal worker; the browser entry is HTTPS localhost:1443 and HTTP 13000 redirects.",
+      "The guide says host installation does not need Node.js, MySQL, Redis, Temporal, or FFmpeg for the prebuilt Docker path; source development requires Node.js 22+ and npm.",
+      "The guide requires an OpenRouter key for account configuration and says APIs need Internet access and provider funds; it gives no GPU/VRAM/RAM minimum."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "versioned Docker Compose self-hosted preview; source dev path uses Node.js 22+ and npm"
+    },
+    "limitations": "The release date year is omitted in the fetched page; install requirements are infrastructure requirements, not video generation performance evidence.",
+    "artifact_urls": [
+      "https://github.com/waooAI/waoowaoo/blob/main/docs/INSTALL.md",
+      "https://github.com/waooAI/waoowaoo/releases",
+      "https://github.com/waooAI/waoowaoo/releases/tag/v0.5.0-beta.1"
+    ],
+    "dependencies": ["Docker Engine/Desktop", "Docker Compose >=2.24.4", "Git", "POSIX shell", "flock", "Node.js 22+ and npm for source development"],
+    "backends": ["Docker Compose", "Caddy", "Temporal worker", "MySQL", "Redis", "MinIO"],
+    "release": "v0.5.0-beta.1 self-hosted preview"
+  },
+  {
+    "id": "PROD15",
+    "topic": "video-autopilot-kit-editkin-contract-and-qa",
+    "title": "video-autopilot-kit README",
+    "url": "https://github.com/Hao0321/video-autopilot-kit",
+    "publisher": "Hao0321 Studio",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The current editor contract is Editkin v4: source evidence -> plan -> audit -> atomic apply -> render; Python/FFmpeg are analysis, normalization, and QA support, not a second editor runtime.",
+      "The durable controller includes workflow_contract.py, workflow_state.py, receipts, source-byte binding, per-media evidence, edit-plan/v4, audit, atomic apply, render, human review, and outcome in a resumable DAG.",
+      "Longform, Shorts/vlog, and interview lines share the Editkin v4 contract; helper modules cover word-timestamp captions, screen cleanup, rhythm gates, 9:16 scanning, BGM/subtitles, and interview gates.",
+      "Examples include a synthetic 1080x1920 vertical Short, a complete Editkin v4 DAG self-test, Shorts gate tests, and interview plan gates; examples use disposable/synthetic media rather than private media.",
+      "The public requirements list Python 3.9+, ffmpeg/ffprobe, Pillow, numpy, and opencv-contrib-python-headless; OCR packages are optional. AI assistants such as Claude/ChatGPT are optional for generating profiles.",
+      "The README requires reconciliation when apply status is unknown and says technical QA is followed by human review; machines may not fill the certified field."
+    ],
+    "resources": {
+      "gpu": "No GPU requirement is stated for the public Python/FFmpeg support layer; actual Editkin execution environment is external",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Example 1080x1920 vertical Short",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "SETUP/profiles -> workflow run -> next/receipts -> audit -> apply -> render -> technical QA -> human review"
+    },
+    "limitations": "The kit does not supply a video-generation model or local L4/A100 generation benchmark; an Editkin-compatible client/server environment is required for structured execution.",
+    "artifact_urls": [
+      "https://github.com/Hao0321/video-autopilot-kit/tree/main/examples",
+      "https://github.com/Hao0321/video-autopilot-kit/blob/main/src/workflow_contract.py",
+      "https://github.com/Hao0321/video-autopilot-kit/blob/main/src/media_delivery_qa.py"
+    ],
+    "dependencies": ["Python >=3.9", "FFmpeg", "ffprobe", "Pillow", "numpy", "opencv-contrib-python-headless", "Editkin v4 environment"],
+    "backends": ["Editkin v4 structured execution"],
+    "providers": [],
+    "license": "MIT"
+  },
+  {
+    "id": "PROD16",
+    "topic": "video-autopilot-kit-release-history-and-architecture-claims",
+    "title": "video-autopilot-kit releases",
+    "url": "https://github.com/Hao0321/video-autopilot-kit/releases",
+    "publisher": "Hao0321 Studio",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The release page lists v0.23.0 as the latest displayed release; the page shows a 27 Aug date but not the year in the fetched rendering.",
+      "The v0.19.0 release describes a delivery boundary in which completed current.mp4 resolves to a hash-matching publishing package and says compatible installs receive bounded automatic updates and non-destructive schema migration.",
+      "The v0.13.1 release describes five planes, long-form/Shorts/interview/short-drama lines, Quality-95 review, human timestamp review, negative-case corpus, Publish Hub, token-aware routing, and protected local data; release notes also report author-run health/acceptance checks.",
+      "The release page records release archive SHA-256 values and claims clean-install, migration, release-manager, or full health tests for the listed versions."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "versioned public kit releases with install/upgrade, backup, rollback, receipts, QA, and publishing lifecycle"
+    },
+    "limitations": "Release QA statements are author-reported release checks, not independent reproduction; dates omit year in the fetched page.",
+    "artifact_urls": [
+      "https://github.com/Hao0321/video-autopilot-kit/releases",
+      "https://github.com/Hao0321/video-autopilot-kit/releases/tag/v0.23.0",
+      "https://github.com/Hao0321/video-autopilot-kit/releases/tag/v0.19.0"
+    ],
+    "release": "Latest displayed v0.23.0"
+  },
+  {
+    "id": "PROD17",
+    "topic": "h3lite-agent-skill-local-h3-routing-and-hardware-evidence",
+    "title": "H3 Lite README",
+    "url": "https://github.com/Rimagination/h3lite",
+    "publisher": "Rimagination",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "H3 Lite is a Codex/WorkBuddy skill for local MiniMax H3 generation through ComfyUI; the agent chooses a route, prepares components, generates native-audio video, and checks results.",
+      "The main supported route is Windows + NVIDIA + ComfyUI; macOS is a community route, Linux + NVIDIA is experimental, and no claim is made for a general remote endpoint.",
+      "The skill routes T2VA, I2VA, FL2VA, and Ref2VA tasks and saves anchor cards in anchors.json while manifest.json records the path; anchor_qa checks first/middle/last frames and human review is still required for identity/clothing/composition.",
+      "Set A uses W4A8 diffusion plus a 4B INT4 text encoder; Set B uses a 4B FP8 text encoder. The default fast profile is 4 steps, 640x352, native audio; balanced is 6 steps and quality is 8 steps.",
+      "With the same Set B, compatible workflow, prompt, seed, 640x352, and 4 steps, the README reports RTX 4060 Ti 16GB + 32GB RAM at about 77.08s and RTX 4070 Laptop 8GB + 32GB RAM at about 591.22s.",
+      "The README lists a first validation as a 5-second simple red-ball video and says multi-shot tasks should first run at low resolution; it includes sample MP4 artifacts and an assets-rolling-redball release."
+    ],
+    "resources": {
+      "gpu": "RTX 4060 Ti 16GB and RTX 4070 Laptop 8GB author-reported rows",
+      "vram_gb": "8 and 16",
+      "ram_gb": 32,
+      "resolution": "640x352 default; README also lists 864x480 and larger profiles",
+      "frames": null,
+      "duration_s": 5,
+      "steps": 4,
+      "time_s": "77.08s on RTX 4060 Ti 16GB; 591.22s on RTX 4070 Laptop 8GB",
+      "precision": "Set A W4A8/INT4; Set B FP8 text encoder",
+      "workflow": "Codex/WorkBuddy skill -> ComfyUI route -> anchors/manifest -> fastpath -> anchor_qa -> human review"
+    },
+    "limitations": "No L4 24GB or A100 40/80GB measurement is reported; supported route is Windows/NVIDIA and Linux is marked experimental; timings are single author conditions, not controlled quality scores.",
+    "artifact_urls": [
+      "https://github.com/Rimagination/h3lite",
+      "https://github.com/Rimagination/h3lite/releases/tag/assets-rolling-redball",
+      "https://github.com/Rimagination/h3lite/tree/main/references"
+    ],
+    "dependencies": ["ComfyUI", "MiniMax H3 component set", "Codex or WorkBuddy agent", "Windows + NVIDIA for main support route"],
+    "backends": ["ComfyUI local H3 workflow"],
+    "providers": ["MiniMax H3 local weights"],
+    "license": "H3 Lite MIT; MiniMax weights, ComfyUI, custom nodes, and upstream materials have separate licenses"
+  },
+  {
+    "id": "PROD18",
+    "topic": "pixelle-secondary-deployment-and-hardware-guide",
+    "title": "Pixelle-Video secondary deployment guide",
+    "url": "https://blog.mushroom.cv/blog/pixelle-video-ai-short-video-engine-guide/",
+    "publisher": "Mycelium Protocol Blog",
+    "source_date": "2026-07-08",
+    "checked_date": "2026-10-10",
+    "source_type": "secondary",
+    "access": "full-text",
+    "claims": [
+      "The guide describes three paths: Windows all-in-one package, source plus cloud APIs with no GPU, and a local NVIDIA/ComfyUI stack.",
+      "The guide reports local minimum/recommended VRAM of 6/8GB for image generation, 16/24GB for Wan2.1 video, and 4/8GB for Index-TTS; it recommends about 50GB disk for downloaded models.",
+      "The guide estimates about 3–8 minutes for API image workflows, 5–15 minutes for local ComfyUI image workflows, and 10–30 minutes for API video workflows; it gives a Qwen + DashScope + Edge-TTS example below CNY 0.50/video.",
+      "The guide describes API-only operation as no-GPU and local ComfyUI operation as GPU-dependent."
+    ],
+    "resources": {
+      "gpu": "NVIDIA GPU for local path; no GPU for API-only path",
+      "vram_gb": "16 minimum / 24 recommended for Wan2.1 video; 6/8 for image; 4/8 for Index-TTS",
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": "3–8min API image; 5–15min local image; 10–30min API video",
+      "precision": null,
+      "workflow": "topic -> LLM script -> ComfyUI/API media -> TTS -> FFmpeg merge -> output/"
+    },
+    "limitations": "This is a secondary guide, not the Pixelle upstream repository or an independently controlled benchmark; no seed, exact model revision, peak VRAM, host RAM, or quality score is provided.",
+    "artifact_urls": [
+      "https://github.com/AIDC-AI/Pixelle-Video",
+      "https://aidc-ai.github.io/Pixelle-Video/zh",
+      "https://www.bilibili.com/"
+    ],
+    "cost_fields": {
+      "secondary_guide_example_cny_per_video": "<0.50"
+    }
+  },
+  {
+    "id": "PROD19",
+    "topic": "openmontage-social-demo-and-community-discovery",
+    "title": "Repo Dispatch OpenMontage field note",
+    "url": "https://repodispatch.online/en/dispatches/118-calesthio-openmontage/",
+    "publisher": "Repo Dispatch",
+    "source_date": "2026-08-31",
+    "checked_date": "2026-10-10",
+    "source_type": "secondary",
+    "access": "full-text",
+    "claims": [
+      "The secondary article points to the OpenMontage official YouTube channel at https://www.youtube.com/@OpenMontage and author X account https://x.com/calesthioailabs.",
+      "It summarizes the README's claim that each official video includes prompt, pipeline, tools, and cost, and links a local-fork tutorial and Hacker News threads.",
+      "The article says it did not verify the scope of the official site's waitlisted beta and reports no npm/PyPI/Docker Hub publication in its own search."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": null
+    },
+    "limitations": "YouTube and X direct pages were blocked in this research tool; the social URLs are discovery/artifact links only and their content was not treated as primary evidence.",
+    "artifact_urls": [
+      "https://www.youtube.com/@OpenMontage",
+      "https://x.com/calesthioailabs",
+      "https://youtu.be/FyM-0sJYIR8",
+      "https://news.ycombinator.com/item?id=48616398"
+    ]
+  },
+  {
+    "id": "PROD20",
+    "topic": "firered-official-demo-architecture-and-human-in-the-loop",
+    "title": "FireRed-OpenStoryline official demo page",
+    "url": "https://fireredteam.github.io/demos/firered_openstoryline/",
+    "publisher": "FireRed Team",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The official abstract says raw footage and abstract intent are processed by an Agent Client whose LLM/VLM performs intent routing and structured tool calls.",
+      "The page describes a state-aware middleware layer, persistent Agent Memory, an MCP server exposing modular editing primitives, reusable Style Skills, semantic media retrieval, shot-level understanding, rhythm-aware subtitles, mood-matched BGM, beat-synced cutting, and voiceovers.",
+      "The page presents demos for Zhongcao, Humorous, Product Picks, Artistic, Unboxing, Talking Pet, Travel Vlog, and Year-in-Review styles."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Agent Client LLM/VLM -> state-aware middleware/Agent Memory -> MCP editing nodes -> output"
+    },
+    "limitations": "The page is an abstract/demo page and does not supply hardware measurements, provider billing, or model-specific inference details.",
+    "artifact_urls": [
+      "https://fireredteam.github.io/demos/firered_openstoryline/",
+      "https://github.com/FireRedTeam/FireRed-OpenStoryline"
+    ],
+    "backends": ["Agent Client", "state-aware middleware", "MCP server", "Agent Memory"]
+  }
+]

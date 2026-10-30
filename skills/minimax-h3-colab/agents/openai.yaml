@@ -1,0 +1,4 @@
+interface:
+  display_name: "MiniMax H3 on Colab"
+  short_description: "Official H3 prompts with Colab workflows and tested pitfalls"
+  default_prompt: "使用 $minimax-h3-colab，先依官方格式核對 H3 模式、參照與分鏡，再在目前授權範圍內製作或診斷影片；以人物、服裝、動作和接續驗收，並更新有證據的新坑。"

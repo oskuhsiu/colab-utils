@@ -1,0 +1,4 @@
+interface:
+  display_name: "Colab Video Studio"
+  short_description: "以人物基準、分鏡控制與影片證據驗收製作 Colab 影片"
+  default_prompt: "使用 $colab-video-studio 把我的影片要求做成分鏡、控制素材與 Colab 影片，逐段驗收後交付。"

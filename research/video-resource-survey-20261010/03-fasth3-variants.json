@@ -1,0 +1,827 @@
+[
+  {
+    "id": "FH301",
+    "topic": "FastH3 v0.2 4-step contract",
+    "title": "FastVideo-Minimax-FastH3-Preview-v0.2 model card",
+    "url": "https://huggingface.co/FastVideo/FastVideo-Minimax-FastH3-Preview-v0.2",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": "2026-08-28",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "v0.2 is a data-free DMD2 4-step distillation of the 33B MiniMax-H3 video+audio DiT.",
+      "The trained ladder is [999, 749, 500, 250] with video shift 12 and audio shift 3; each ladder entry is one forward.",
+      "The student was trained with VSA 64-token tiles and 90% video-tile sparsity; the card warns that high-motion detail and some audio remain below base H3.",
+      "Only transformer weights differ from base and the student is BF16; the text encoder, VAEs, tokenizer, processor and schedulers are base copies.",
+      "Training summary records 2900/4000 steps, 1344x768, 124 frames, about 5 seconds, synchronized audio, global batch 64 and 32 NVIDIA GB200 GPUs.",
+      "The packaged checkpoint is T2VA-only; transformer_ref is not packaged as a distilled student."
+    ],
+    "resources": {
+      "gpu": "32x NVIDIA GB200 (training)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1344x768",
+      "frames": 124,
+      "duration_s": 5,
+      "steps": 4,
+      "time_s": null,
+      "precision": "BF16",
+      "workflow": "FastVideo VideoGenerator / basic_fasth3.py"
+    },
+    "limitations": "Training hardware and model-card operating point are not an L4/A100 inference benchmark; alternate ladders and step counts are off-distribution.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-Minimax-FastH3-Preview-v0.2",
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/examples/inference/basic/basic_fasth3.py"
+    ]
+  },
+  {
+    "id": "FH302",
+    "topic": "FastH3 v1 variants and B200 benchmark",
+    "title": "FastVideo FastH3 V1: Open-Weight 4-Step Sparse Distilled Minimax H3",
+    "url": "https://haoailab.com/blogs/fasth3-preview/",
+    "publisher": "FastVideo Team / Hao AI Lab",
+    "source_date": "2026-08-27",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The recommended VSA/Data-Free v1 uses prompt-only mixed-shape training, 90% sparsity, tile64 and training step1300; it uses four DiT calls.",
+      "The published ablations are VSA/Synthetic/Step1300, VSA/Synthetic/Step1900 and Dense/Data-Free; the synthetic runs use Base-H3 generated videos, while Dense/Data-Free uses dense FA4 and step1000.",
+      "All Preview v1 checkpoints are T2VA-only; FL2VA and Ref2VA were not trained as students.",
+      "Warm E2E at 1344x768, 24fps with audio, 1x B200 VSA/Data-Free is 16.2/31.1/47.2 seconds for 5/10/15 seconds; 4x is 6.1/12.0/15.5 seconds and 8x is 6.84/11.66/12.88 seconds.",
+      "The matched base Dense FA4 1x B200 times are 132.5/377.4/678.7 seconds for 5/10/15 seconds; author speedup uses matched hardware and duration."
+    ],
+    "resources": {
+      "gpu": "1x/4x/8x NVIDIA B200",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1344x768 @ 24fps",
+      "frames": null,
+      "duration_s": [5, 10, 15],
+      "steps": 4,
+      "time_s": {
+        "VSA_DataFree_1x": [16.2, 31.1, 47.2],
+        "VSA_DataFree_4x": [6.1, 12.0, 15.5],
+        "VSA_DataFree_8x": [6.84, 11.66, 12.88],
+        "Base_Dense_FA4_1x": [132.5, 377.4, 678.7]
+      },
+      "precision": null,
+      "workflow": "FastVideo v1 launcher / run_fasth3_lora_preview_vsa_datafree.sh"
+    },
+    "limitations": "The table is warm FastVideo on B200; no L4/A100 result and no independent latency for the three ablations. Author explicitly retains motion, detail and audio limitations.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/collections/fastvideo-fasth3",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-Synthetic-Step1300",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-Synthetic-Step1900",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-Dense-DataFree"
+    ]
+  },
+  {
+    "id": "FH303",
+    "topic": "FastH3 v1 recommended checkpoint",
+    "title": "FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": "2026-09-04",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The recommended v1 checkpoint is step1300, data-free DMD2, four transformer forwards, VSA-H3 90% sparsity.",
+      "It requires the matching VSA-H3 backend; the card's tested defaults use four B200 GPUs and the trained four-forward schedule.",
+      "On other multi-GPU CUDA systems the card tells users to use Triton and --no-fa4; GPU count must divide H3's 56 heads.",
+      "It supports T2VA only; FL2VA and Ref2VA were not distilled."
+    ],
+    "resources": {
+      "gpu": "4x NVIDIA B200 (tested default)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 4,
+      "time_s": null,
+      "precision": null,
+      "workflow": "basic_fasth3.py / matching LoRA"
+    },
+    "limitations": "The model card does not give an L4/A100 E2E time or host-RAM peak.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-LoRA"
+    ]
+  },
+  {
+    "id": "FH304",
+    "topic": "FastH3 8-Step V2",
+    "title": "FastVideo-FastH3-8-Step-V2 model card",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": "2026-09-15",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "V2 is a step1300, data-free DMD2 checkpoint with eight transformer forwards and VSA-H3 at 80% sparsity.",
+      "Its video scheduler shift is 10 rather than base H3's 12 and the model requires the VSA-H3 attention backend.",
+      "The tested defaults use four B200 GPUs; on other multi-GPU CUDA systems the card specifies --vsa-kernel triton and --no-fa4.",
+      "Scope is text-to-audio-video; FL2VA and Ref2VA were not distilled; difficult motion, fine detail and some audio may remain below base H3."
+    ],
+    "resources": {
+      "gpu": "4x NVIDIA B200 (tested default)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "BF16",
+      "workflow": "basic_fasth3_8step.py"
+    },
+    "limitations": "The public model card does not report release-specific L4/A100 time, VRAM, host RAM or quality metrics.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2",
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/examples/inference/basic/basic_fasth3_8step.py"
+    ]
+  },
+  {
+    "id": "FH305",
+    "topic": "FastH3 schedule contract and OmniRef PDD",
+    "title": "FastH3 distilled checkpoint schedules",
+    "url": "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/fasth3-distilled.md",
+    "publisher": "FastVideo",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "V2 contract records DMD rungs [999,874,749,624,500,375,250,125], num_inference_steps 9, transformer_forwards 8, video shift 10 and audio shift 3; uniform nine-point grid is not a substitute.",
+      "The OmniRef PDD-8 student is a Ref2VA transformer_ref with 32 heads sampled in eight blocks of four.",
+      "PDD contract records pdd_steps 32, step indices [0,4,8,12,16,20,24,28,32], 8 inference steps/forwards, shifts 12/3, guidance 1.0, VSA sparsity .9, tile128, p2_multi_region and reference keep .1.",
+      "Every reference video is tiled as its own sparse region; text, audio and image references stay dense."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Example 480x832",
+      "frames": 124,
+      "duration_s": 5,
+      "steps": 8,
+      "time_s": null,
+      "precision": null,
+      "workflow": "basic_fasth3_omniref_pdd.py"
+    },
+    "limitations": "The schedule document is an execution contract, not a quality claim; base model revision and export metadata must match.",
+    "artifact_urls": [
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/fasth3-distilled.md",
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/examples/inference/basic/basic_fasth3_omniref_pdd.py"
+    ]
+  },
+  {
+    "id": "FH306",
+    "topic": "OmniRef PDD hardware boundary",
+    "title": "FastH3 OmniRef PDD runner hardware and measurements",
+    "url": "https://github.com/hao-ai-lab/FastVideo/blob/main/examples/inference/basic/basic_fasth3_omniref_pdd.py",
+    "publisher": "FastVideo",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The PDD runner states that tile128 runs only on sm100a/sm103a CUDA block-sparse kernels for B200/B300/GB200/GB300 and raises when missing; there is no Triton fallback for tile128.",
+      "The runner says lossless acceleration with resident encoders needs about 125GB per GPU at four B200/B300-class GPUs.",
+      "On GB200, 480x832x124 eight forwards take about 54 seconds and device memory peaks near 103GiB.",
+      "A 768x1344x345 request with four GPUs takes about 36 seconds for eight forwards; peak allocated is about 66GiB per GPU and about 95GiB in-use per GPU when sharded."
+    ],
+    "resources": {
+      "gpu": "GB200; 4x GB200 for large example",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "480x832; 768x1344",
+      "frames": 124,
+      "duration_s": 5,
+      "steps": 8,
+      "time_s": {"480x832x124": 54, "768x1344x345_4gpu": 36},
+      "precision": null,
+      "workflow": "basic_fasth3_omniref_pdd.py"
+    },
+    "limitations": "The reported 103GiB is device memory in-use for GB200; model loading and decoding are extra, and no 24GB path is established.",
+    "artifact_urls": [
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/examples/inference/basic/basic_fasth3_omniref_pdd.py",
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/fasth3-distilled.md"
+    ]
+  },
+  {
+    "id": "FH307",
+    "topic": "FastVideo support matrix",
+    "title": "FastVideo compatibility matrix for H3 modes",
+    "url": "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/support_matrix.md",
+    "publisher": "FastVideo",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The base MiniMax-H3 registration lists T2VA, FL2VA and Ref2VA, all with stereo audio.",
+      "Distilled Ref2VA PDD students are run with basic_fasth3_omniref_pdd.py and reference videos are sparse VSA regions.",
+      "FastH3 V1 and V2 MLX entries are marked T2VA-only; V1 supports 480p/720p, 124 frames, 4-step DMD2 and optional VSA; V2 supports 480p/720p, 124 frames, 8-step DMD2 and trained VSA .8/tile64."
+    ],
+    "resources": {
+      "gpu": "Apple M4 Max for MLX rows; CUDA hardware not specified in matrix",
+      "vram_gb": null,
+      "ram_gb": 36,
+      "resolution": "480p/720p",
+      "frames": 124,
+      "duration_s": 5,
+      "steps": "4 (V1) or 8 (V2)",
+      "time_s": null,
+      "precision": "INT8/INT6/INT4 weight-only (MLX rows)",
+      "workflow": "FastVideo MLX source runtime"
+    },
+    "limitations": "A support matrix row is compatibility documentation, not an L4/A100 benchmark or quality comparison.",
+    "artifact_urls": [
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/support_matrix.md"
+    ]
+  },
+  {
+    "id": "FH308",
+    "topic": "FastH3 Trim architecture and benchmark",
+    "title": "FastH3 on Consumer Hardware: RTX GPUs, DGX Spark and Macs, Plus FastH3 Trim",
+    "url": "https://haoailab.com/blogs/fasth3-rtx/",
+    "publisher": "FastVideo Team / Hao AI Lab",
+    "source_date": "2026-10-06",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "FastH3 Trim removes eight of 50 transformer blocks, replaces each block's timestep projection with a shared rank-16 basis, and is trained with 8-step DMD2 at checkpoint300; it keeps VSA at 80% sparse.",
+      "Author says Trim is 4.2x smaller than base H3 and may use as little as 8GB GPU memory, while busy scenes may show less detail than V2.",
+      "The benchmark is warm end-to-end from prompt to MP4, includes text encoding, 8 denoising steps, video/audio decoding and export, and is median of two runs for each of two prompts.",
+      "5s 832x480 / 1344x768 times: RTX5090 14.8/38.6s V2 and 13.4/35.4s Trim; RTX4090 54.6/154.6s V2 and 43.9/132.8s Trim; RTX PRO6000 13.5/36.5s V2 and 12.0/32.5s Trim.",
+      "The 4090 memory-cap rows are 16GB: 79.9/153.7s V2 and 72.1/139.9s Trim; 12GB: 91.2/170.7s V2 and 74.1/147.1s Trim; 8GB: Trim 82.0s at 480p."
+    ],
+    "resources": {
+      "gpu": "RTX 5090 32GB; RTX 4090 24GB/capped 16/12/8GB; RTX PRO 6000 96GB",
+      "vram_gb": [32, 24, 16, 12, 8, 96],
+      "ram_gb": null,
+      "resolution": "832x480 and 1344x768",
+      "frames": null,
+      "duration_s": 5,
+      "steps": 8,
+      "time_s": {
+        "V2_5090_480p_768p": [14.8, 38.6],
+        "Trim_5090_480p_768p": [13.4, 35.4],
+        "V2_4090_480p_768p": [54.6, 154.6],
+        "Trim_4090_480p_768p": [43.9, 132.8],
+        "V2_PRO6000_480p_768p": [13.5, 36.5],
+        "Trim_PRO6000_480p_768p": [12.0, 32.5]
+      },
+      "precision": "NVFP4 or FP8 depending on GPU",
+      "workflow": "FastVideo consumer VideoGenerator config"
+    },
+    "limitations": "16/12/8GB rows are emulated memory caps on one RTX4090; host RAM was not fully reported. The author explicitly calls Trim experimental and lower detail in busy scenes.",
+    "artifact_urls": [
+      "https://haoailab.com/blogs/fasth3-rtx/",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-8-Step",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-Comfy"
+    ]
+  },
+  {
+    "id": "FH309",
+    "topic": "Trim FP8 resource tier",
+    "title": "FastVideo-FastH3-Trim-8-Step-FP8 model card",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-8-Step-FP8",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Trim FP8 is the 42-block, rank-16, 8-step V2-derived experimental variant with 20% tile keep.",
+      "The transformer is 19.9 GiB; attention and MLP linears use FP8 E4M3 with one scale per output channel and runtime per-token activation quantization.",
+      "The card targets RTX4090, RTX3090 and smaller GPUs, and says layerwise offload can run within 16GB and 12GB tiers.",
+      "Full-quality counterpart is V2 FP8; the card says pruning costs some quality."
+    ],
+    "resources": {
+      "gpu": "RTX 4090 / RTX 3090 and smaller (target)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "FP8 E4M3 transformer",
+      "workflow": "Diffusers / FastVideo"
+    },
+    "limitations": "No L4/A100 timing, peak VRAM, host RAM or audio quality metric is given.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-8-Step-FP8",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-FP8"
+    ]
+  },
+  {
+    "id": "FH310",
+    "topic": "Trim NVFP4 resource tier",
+    "title": "FastVideo-FastH3-Trim-8-Step-NVFP4 model card",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-8-Step-NVFP4",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Trim NVFP4 keeps the 8-step ladder [999,874,749,624,500,375,250,125] and VSA keep20%.",
+      "The text encoder is NVFP4 Qwen3-VL trimmed to the 50 layers H3 reads; video VAE is LynnReal with Kijai INT8 weights and audio VAE remains H3.",
+      "The transformer is 11.1 GiB and is targeted at RTX5090, RTX PRO6000 and DGX Spark; the card states calibration used 1,000 prompts across all eight steps."
+    ],
+    "resources": {
+      "gpu": "RTX 5090 / RTX PRO 6000 / DGX Spark (target)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "NVFP4 transformer; INT8 lightweight video VAE",
+      "workflow": "FastVideo VideoGenerator"
+    },
+    "limitations": "The card does not establish L4/A100 support or quality equivalence to BF16 V2.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-8-Step-NVFP4",
+      "https://haoailab.com/blogs/fasth3-rtx/"
+    ]
+  },
+  {
+    "id": "FH311",
+    "topic": "V2 FP8 quantization",
+    "title": "FastVideo-FastH3-8-Step-V2-FP8 model card",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-FP8",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "V2 FP8 retains 50 blocks and eight-step synchronized audio/video, with attention and MLP linears in FP8 E4M3; everything else remains BF16.",
+      "The card targets GPUs without FP4 tensor cores, including RTX4090 and RTX3090, plus 16GB and 12GB tiers.",
+      "The text encoder is trimmed NVFP4 Qwen3-VL and the VAE is LynnReal with Kijai INT8 weights."
+    ],
+    "resources": {
+      "gpu": "RTX 4090 / RTX 3090 and lower-memory tiers (target)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "FP8 E4M3 linears; BF16 remainder; NVFP4 text encoder",
+      "workflow": "Diffusers / FastVideo"
+    },
+    "limitations": "No A100 or L4 benchmark is supplied; target GPU names do not prove architecture-specific FastH3 VSA kernel behavior.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-FP8"
+    ]
+  },
+  {
+    "id": "FH312",
+    "topic": "V2 NVFP4 deployment quantization",
+    "title": "FastVideo-FastH3-8-Step-V2-NVFP4 model card",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-NVFP4",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The UniServe derivative applies calibrated NVIDIA Model Optimizer NVFP4 W4A4 to fused gate/up and down projections in 50 H3 denoiser MLPs and to projections in 36 Video VAE decoder transformer blocks; denoiser attention, BF16 text encoder, token refiner, modulation, normalization, boundaries, convolutions, residual/affine paths and audio decoder remain BF16/FP32.",
+      "Calibration used 1,000 prompts with complete eight-forward denoising trajectories and deployment-distribution VAE decoding.",
+      "It keeps source V2's VSA-H3 contract, video shift10 and VSA sparsity .8, and targets the four-B200 execution contract.",
+      "Five 5-second, 1344x768 same-prompt/seed pairs yielded mean RGB PSNR 11.92dB, SSIM .3647, LPIPS .5184 and audio log-mel cosine .9346 versus quality-reference samples."
+    ],
+    "resources": {
+      "gpu": "4x NVIDIA B200 (source execution contract)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1344x768",
+      "frames": null,
+      "duration_s": 5,
+      "steps": 8,
+      "time_s": null,
+      "precision": "NVFP4 W4A4 selected layers; BF16/FP32 remainder",
+      "workflow": "UniServe"
+    },
+    "limitations": "The card says calibration-source prompts are trajectory-drift/generation-viability evidence, not held-out perceptual quality acceptance; no L4/A100 result.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-NVFP4"
+    ]
+  },
+  {
+    "id": "FH313",
+    "topic": "V2 NVFP4 consumer packaging",
+    "title": "FastH3 V2 8-step NVFP4 for one Blackwell GPU",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-NVFP4-Consumer",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The consumer package is for a single RTX5090, RTX PRO6000 or DGX Spark; transformer attention projections and sparse gates are NVFP4, text encoder is trimmed NVFP4, and VAE uses LynnReal lightweight video VAE with INT8 weights plus H3 audio VAE.",
+      "For machines with less than 64GB system RAM, a 155MB precomputed AdaLN table avoids loading 26GB BF16 AdaLN timestep projections; the table only covers the shipped eight-step schedule."
+    ],
+    "resources": {
+      "gpu": "RTX 5090 / RTX PRO 6000 / DGX Spark",
+      "vram_gb": null,
+      "ram_gb": 64,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "NVFP4 transformer and text encoder; INT8 video VAE",
+      "workflow": "FastVideo VideoGenerator"
+    },
+    "limitations": "System-RAM value is a threshold in the card, not a benchmark requirement for L4/A100; alternate timesteps are rejected by the AdaLN table path.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-NVFP4-Consumer"
+    ]
+  },
+  {
+    "id": "FH324",
+    "topic": "ComfyUI NVFP4 repack",
+    "title": "FastVideo-FastH3-8-Step-V2-NVFP4-Comfy model card",
+    "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-NVFP4-Comfy",
+    "publisher": "FastVideo / Hugging Face",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "This is a ComfyUI repack of FastH3 V2 with transformer quantized to NVFP4 for NVIDIA Blackwell GPUs: RTX 50 series, RTX PRO6000 and DGX Spark.",
+      "The stated diffusion file is 13.6GB and the template keeps 8 steps, res_multistep/simple, video shift10 and audio shift3.",
+      "The repository lists BF16, INT8 ConvRot and NVFP4 text encoders and FP16/INT8 ConvRot video VAEs as selectable Comfy assets."
+    ],
+    "resources": {
+      "gpu": "RTX 50 series / RTX PRO 6000 / DGX Spark",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "NVFP4 diffusion; BF16/INT8/NVFP4 text encoder options",
+      "workflow": "ComfyUI 0.36.0+ FastVideo FastH3 Text to Video template"
+    },
+    "limitations": "The card targets Blackwell and reports no L4/A100 timing or quality measurement.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-NVFP4-Comfy",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-Comfy"
+    ]
+  },
+  {
+    "id": "FH314",
+    "topic": "ComfyUI official FastH3 path",
+    "title": "FastVideo FastH3 ComfyUI workflow docs",
+    "url": "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/minimax/minimax-h3-fastvideo.mdx",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "ComfyUI ships FastH3 V2 as an 8-step DMD2 checkpoint with synchronized native audio and shared base H3 text encoder/video/audio VAEs.",
+      "The distilled Comfy path supports T2VA and first/last-frame FL2VA; Ref2VA multi-reference was not distilled.",
+      "Template settings are VSA keep_percent 10 starting at 20% schedule, sigma shift video10/audio3, 17n+5 frame grid at 24fps, and res_multistep/simple at 8 steps.",
+      "The docs explicitly say changing step count degrades quality."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "768px short-edge cap; max 768x1344",
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": null,
+      "workflow": "ComfyUI 0.36.0+ FastVideo FastH3 T2V/I2V templates"
+    },
+    "limitations": "Official Comfy template support is not evidence that a T2VA student has Ref2VA fidelity; no A100/L4 timing in these docs.",
+    "artifact_urls": [
+      "https://github.com/Comfy-Org/workflow_templates/blob/main/templates/video_fastvideo_fasth3_t2v.json",
+      "https://github.com/Comfy-Org/workflow_templates/blob/main/templates/video_fastvideo_fasth3_i2v.json",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-Comfy"
+    ]
+  },
+  {
+    "id": "FH315",
+    "topic": "FastVideo architecture and precision gates",
+    "title": "FastVideo optimization docs: FP8, FA4, VSA compile",
+    "url": "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/optimizations.md",
+    "publisher": "FastVideo",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "FA4 is gated below sm90 for calls it cannot serve and routes those calls to FA2; FA4 packed-varlen is disabled by default and does not apply to Preview sparse VSA blocks.",
+      "FP8 weight quantization requires sm89+ for hardware FP8 compute; on GPUs older than sm89 FastVideo automatically uses a BF16 dequant path.",
+      "NVFP4 FA4 is Blackwell-only (sm100a/sm103a), and Attn-QAT FP4 targets sm120a/sm121a with a runtime fallback to Flash Attention on other GPUs.",
+      "Regional MiniMax-H3 compile supports only the inference-only sm100a tile64 route; unsupported devices stay eager."
+    ],
+    "resources": {
+      "gpu": "Architecture gates: sm89+, sm100a/sm103a, sm120a/sm121a",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP8 / BF16 dequant fallback / NVFP4 depending on architecture",
+      "workflow": "FastVideo backend selection"
+    },
+    "limitations": "This is backend documentation, not a complete FastH3 L4/A100 run; VSA Triton and native tile64 behavior still depend on the installed kernel build.",
+    "artifact_urls": [
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/optimizations.md",
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/examples/inference/basic/basic_fasth3.py"
+    ]
+  },
+  {
+    "id": "FH316",
+    "topic": "GPU compute capability mapping",
+    "title": "CUDA GPU Compute Capability",
+    "url": "https://developer.nvidia.com/cuda/gpus",
+    "publisher": "NVIDIA Developer",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "NVIDIA maps L4 to compute capability 8.9 and A100 to compute capability 8.0.",
+      "The CUDA table lists FP8 Tensor Core input support for 8.9 but not for 8.0."
+    ],
+    "resources": {
+      "gpu": "NVIDIA L4 / NVIDIA A100",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "CC 8.9 FP8 input support; CC 8.0 no FP8 Tensor Core input row",
+      "workflow": null
+    },
+    "limitations": "Compute capability mapping does not establish that a particular FastVideo VSA kernel is available or fast on either GPU.",
+    "artifact_urls": [
+      "https://developer.nvidia.com/cuda/gpus"
+    ]
+  },
+  {
+    "id": "FH317",
+    "topic": "GPU memory and FP8 hardware resource table",
+    "title": "Google Cloud GPU machine types and Tensor Core table",
+    "url": "https://docs.cloud.google.com/compute/docs/gpus/",
+    "publisher": "Google Cloud",
+    "source_date": "2026-10-08",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Google Cloud lists L4 with 24GB memory, A100 Ultra with 80GB and A100 Standard with 40GB.",
+      "Its Tensor Core table lists L4 FP8 121 TFLOPS and A100 40GB/80GB FP8 N/A; this is hardware data, not FastH3 timing."
+    ],
+    "resources": {
+      "gpu": "L4; A100 40GB; A100 80GB",
+      "vram_gb": [24, 40, 80],
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "L4 FP8 121 TFLOPS; A100 FP8 N/A",
+      "workflow": null
+    },
+    "limitations": "Cloud instance memory/throughput tables do not prove FastVideo kernel compatibility or end-to-end FastH3 performance.",
+    "artifact_urls": [
+      "https://docs.cloud.google.com/compute/docs/gpus/"
+    ]
+  },
+  {
+    "id": "FH318",
+    "topic": "Cold/warm local FastH3 benchmark",
+    "title": "FastVideo FastH3 Goes Local: DGX Spark and Apple Silicon",
+    "url": "https://haoailab.com/blogs/fasth3-local/",
+    "publisher": "FastVideo Team / Hao AI Lab",
+    "source_date": "2026-09-02",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The same recipe is 832x480, 124 frames, four-step FastH3, full VAE; author distinguishes first generation from repeat and says the GB200 server was loaded.",
+      "Reported paired values are M4 Max 504/465s, DGX Spark 264/243s and 4xGB200 10.2/5.1s for first-or-cold versus repeat-or-warm presentation.",
+      "DGX Spark is GB10 with 128GB unified memory; a 768x1344x124 run is 374s on one Spark and 292s on two; 345 frames is 581s on two Sparks.",
+      "The author also reports model-load reduction on one GB10 from 445s to 39s and 768x1344x124 generation from 772s to 336s after changing phased loading."
+    ],
+    "resources": {
+      "gpu": "M4 Max; DGX Spark GB10; 4xGB200",
+      "vram_gb": null,
+      "ram_gb": "36GB M4 unified; 128GB Spark unified",
+      "resolution": "832x480; 768x1344",
+      "frames": 124,
+      "duration_s": 5,
+      "steps": 4,
+      "time_s": {
+        "first_or_cold": {"M4_Max": 504, "DGX_Spark": 264, "4xGB200": 10.2},
+        "repeat_or_warm": {"M4_Max": 465, "DGX_Spark": 243, "4xGB200": 5.1}
+      },
+      "precision": null,
+      "workflow": "FastVideo local CUDA/MLX cookbook"
+    },
+    "limitations": "The page uses different memory models (unified Spark/Mac versus discrete GB200); GB200 VRAM and host RAM are not supplied.",
+    "artifact_urls": [
+      "https://haoailab.com/blogs/fasth3-local/",
+      "https://haoailab.com/FastVideo/cookbook/minimax-h3/"
+    ]
+  },
+  {
+    "id": "FH319",
+    "topic": "ComfyUI VSA first-hand benchmark",
+    "title": "ComfyUI-FastH3-VSA experimental integration",
+    "url": "https://github.com/exportAnything/ComfyUI-FastH3-VSA",
+    "publisher": "exportAnything",
+    "source_date": "2026-08-31",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The repository reports a strict-VSA ComfyUI generation at 608x352, 124 frames, synchronized stereo audio, 300 VSA calls and 0 fallbacks in 5.17s.",
+      "The exact tested machine is RTX PRO 4500 Blackwell SM120 with 34,179,055,616 bytes VRAM and approximately 64GiB system RAM.",
+      "The hero recipe is 3-step res_2s and is explicitly not directly comparable to the validated 4-step simple/res_multistep path; the 4-step small comparison reports about 7.8s VSA denoise vs 8.6s dense.",
+      "The repo provides complete T2VA workflows and an MP4 artifact; it explicitly does not validate FL2VA/Ref2VA, other GPU architectures, Linux or MultiGPU."
+    ],
+    "resources": {
+      "gpu": "RTX PRO 4500 Blackwell SM120",
+      "vram_gb": 34,
+      "ram_gb": 64,
+      "resolution": "608x352",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 3,
+      "time_s": {"hero_res2s": 5.17, "four_step_vsa_denoise": 7.8, "four_step_dense_denoise": 8.6},
+      "precision": "BF16 compute; INT8 ConvRot checkpoint",
+      "workflow": "https://github.com/exportAnything/ComfyUI-FastH3-VSA/blob/main/examples/fast_h3_vsa_t2va_workflow.json"
+    },
+    "limitations": "Independent experimental ComfyUI integration, not official FastVideo; the 5.17s hero is a 3-step/two-evaluations recipe and cannot be used as a 4-step comparison.",
+    "artifact_urls": [
+      "https://github.com/exportAnything/ComfyUI-FastH3-VSA/blob/main/examples/fast_h3_vsa_t2va_workflow.json",
+      "https://github.com/exportAnything/ComfyUI-FastH3-VSA/blob/main/examples/fast_h3_vsa_hero_res2s_workflow.json",
+      "https://github.com/exportAnything/ComfyUI-FastH3-VSA/blob/main/assets/fast_h3_vsa_hero.mp4"
+    ]
+  },
+  {
+    "id": "FH320",
+    "topic": "ComfyUI community FastH3 T2VA timing",
+    "title": "Testing T2VA Fast H3: 1 minute at 0.4MP",
+    "url": "https://www.reddit.com/r/comfyui/comments/1w4cjcb/testing_t2va_fast_h3_only_1_minute_generating/",
+    "publisher": "u/aziib on Reddit",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The author reports RTX4060Ti 16GB: about one minute for a 0.4MP 5-second video and two minutes at 0.5MP, with a Civitai workflow link.",
+      "A commenter reports 64GB RAM and believes 32GB may work but longer; another 31GB-usable report gives pinned-memory host RAM 29.8GB down to 7.5GB and VRAM peak 11.5-15.4GB under the same job."
+    ],
+    "resources": {
+      "gpu": "RTX 4060 Ti",
+      "vram_gb": 16,
+      "ram_gb": 64,
+      "resolution": "0.4MP / 0.5MP",
+      "frames": null,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": {"0.4MP": 60, "0.5MP": 120},
+      "precision": null,
+      "workflow": "https://civitai.com/models/2906467/fast-minimax-h3-t2va?modelVersionId=3286956"
+    },
+    "limitations": "The Reddit thread does not fully specify seed, exact frame count, VAE, or cold/warm state; it is a first-hand single-machine report, not a controlled FastVideo comparison.",
+    "artifact_urls": [
+      "https://www.reddit.com/r/comfyui/comments/1w4cjcb/testing_t2va_fast_h3_only_1_minute_generating/",
+      "https://civitai.com/models/2906467/fast-minimax-h3-t2va?modelVersionId=3286956"
+    ]
+  },
+  {
+    "id": "FH321",
+    "topic": "ComfyUI community VSA quality/audio observations",
+    "title": "Testing Kijai Fast H3 model with 8 steps",
+    "url": "https://www.reddit.com/r/comfyui/comments/1w3iotu/testing_kijai_fast_h3_model_with_8_steps/",
+    "publisher": "u/aziib and commenters on Reddit",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The author used Kijai's FastVideo VSA DataFree 1300-step 4-step INT8 ConvRot file with er_sde/beta at 8 steps, reporting about 10 minutes for 15 seconds on RTX4060Ti 16GB with 64GB RAM.",
+      "The author later reports audio worse at 4 steps and better at 6/8 steps; this is an off-contract student use and a subjective report.",
+      "Another RTX3090 commenter reports this model about twice slower and subjectively blurrier than pruned INT8 ConvRot plus Turbo LoRA for the same scene, preserving a contrary result."
+    ],
+    "resources": {
+      "gpu": "RTX 4060 Ti 16GB; one contrary report on RTX 3090",
+      "vram_gb": 16,
+      "ram_gb": 64,
+      "resolution": null,
+      "frames": null,
+      "duration_s": 15,
+      "steps": 8,
+      "time_s": 600,
+      "precision": "INT8 ConvRot checkpoint",
+      "workflow": "https://civitai.red/models/2906467/fast-minimax-h3-t2va?modelVersionId=3286956"
+    },
+    "limitations": "8-step use of a 4-step checkpoint is off-distribution; comments conflict on speed and quality, and the post lacks a controlled prompt/seed/resolution table.",
+    "artifact_urls": [
+      "https://www.reddit.com/r/comfyui/comments/1w3iotu/testing_kijai_fast_h3_model_with_8_steps/",
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/blob/main/minimax_h3_fastvideo_vsa_datafree_1300step_4step_int8_convrot.safetensors",
+      "https://civitai.red/models/2906467/fast-minimax-h3-t2va?modelVersionId=3286956"
+    ]
+  },
+  {
+    "id": "FH322",
+    "topic": "FastH3 community quality comparison",
+    "title": "MiniMax H3 quick comparison between FastH3 and default 25-step workflow",
+    "url": "https://www.reddit.com/r/StableDiffusion/comments/1w1333e/minimax_h3_a_quick_comparison_between_the_fasth3/",
+    "publisher": "u/rm_rf_all_files on Reddit",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The author compared FastH3 clips downloaded from the official blog against a ComfyUI default workflow at 25 steps with SLA+Spectrum; machine is reported as 12GB VRAM and 32GB RAM.",
+      "The default workflow average was 7m30s per clip using Ref2VA INT8 ConvRot; five full-resolution Streamable clips are linked.",
+      "The author says FastH3 looks good, while commenters disagree about slow-motion/cherry-picking and blur."
+    ],
+    "resources": {
+      "gpu": "GPU model not stated; 12GB VRAM host",
+      "vram_gb": 12,
+      "ram_gb": 32,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": 25,
+      "time_s": 450,
+      "precision": "Ref2VA INT8 ConvRot for default workflow",
+      "workflow": "ComfyUI default + SLA/Spectrum"
+    },
+    "limitations": "FastH3 clips were downloaded, not generated on the comparison machine; resolution, frame count and FastH3 step count are absent, so this is not a speed A/B.",
+    "artifact_urls": [
+      "https://www.reddit.com/r/StableDiffusion/comments/1w1333e/minimax_h3_a_quick_comparison_between_the_fasth3/",
+      "https://streamable.com/liv2tn",
+      "https://streamable.com/6qu4y3",
+      "https://streamable.com/d9bi45",
+      "https://streamable.com/t9uwwp",
+      "https://streamable.com/19zewa"
+    ]
+  },
+  {
+    "id": "FH323",
+    "topic": "FastVideo v1 first-hand community test",
+    "title": "FastVideo FastH3 V1 announcement and 3090 Comfy test",
+    "url": "https://www.reddit.com/r/StableDiffusion/comments/1w0xtrg/fastvideo_fasth3_v1_open_source_4step_sparse/",
+    "publisher": "FastVideo team post plus community tester on Reddit",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The FastVideo team post says VSA checkpoint/LoRA requires VSA kernel, while a dense-attention LoRA was also released; FL2VA/Ref2VA distillation was still future work in that announcement.",
+      "A commenter reports an experimental ComfyUI path on RTX3090: 5-second clips at 0.8MP, lowest sampling time 49s, with quality improving when increasing the recommended 10% top-k keep; the release table/videos are linked in the repository releases."
+    ],
+    "resources": {
+      "gpu": "RTX 3090",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": "0.8MP",
+      "frames": null,
+      "duration_s": 5,
+      "steps": 4,
+      "time_s": 49,
+      "precision": null,
+      "workflow": "https://github.com/barelymining/ComfyUI-MiniMax-H3-FastVideo"
+    },
+    "limitations": "Community result is sampling-only, not E2E; post does not give host RAM, frame count, seed or exact kernel build, and the top-k/quality observation is subjective.",
+    "artifact_urls": [
+      "https://www.reddit.com/r/StableDiffusion/comments/1w0xtrg/fastvideo_fasth3_v1_open_source_4step_sparse/",
+      "https://github.com/barelymining/ComfyUI-MiniMax-H3-FastVideo",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-LoRA"
+    ]
+  }
+]

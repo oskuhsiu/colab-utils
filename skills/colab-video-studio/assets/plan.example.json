@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "project_id": "wave-demo",
+  "request": {"text": "A realistic adult in a navy shirt waves once in a bright studio, preserving their appearance.", "kind": "photoreal", "style": "live-action, natural skin texture, soft daylight"},
+  "budget": {"max_total_attempts": 3, "max_attempts_per_shot": 2},
+  "delivery": {"width": 1280, "height": 704, "fps": 24},
+  "settings": {"backend": "wan22-ti2v", "steps": 50, "guidance_scale": 5.0, "offload": "model", "loras": []},
+  "assets": {
+    "actor": {"path": "assets/actor.png", "role": "identity", "source": "original", "status": "draft", "derived_from": []},
+    "opening": {"path": "assets/opening.png", "role": "keyframe", "source": "generated", "status": "draft", "derived_from": ["actor"], "preparation_review": {"identity": "unknown", "wardrobe": "unknown", "framing": "unknown"}}
+  },
+  "characters": [{"id": "actor", "identity_assets": ["actor"], "description": "Use the supplied immutable character baseline", "wardrobe": "plain navy shirt", "style": "live-action"}],
+  "shots": [{
+    "id": "s01", "duration_seconds": 5, "width": 1280, "height": 704, "seed": 20260930,
+    "characters": ["actor"], "inputs": {"first_frame": "opening"}, "audio": "none", "motion_precision": "natural",
+    "prompt": "Live-action medium shot of the adult in the opening frame, wearing the same plain navy shirt in the same bright studio. Preserve the face, hair, clothing, background and soft window lighting. The person raises their right hand, waves once with an open palm, lowers the hand and settles into the opening pose. A fixed eye-level camera keeps their face and raised hand fully in frame. Natural skin texture and restrained expression.",
+    "negative_prompt": "duplicate people, plastic skin, malformed hands, flicker, subtitles",
+    "start_state": {"scene": "bright-studio", "wardrobe": "navy-shirt", "hand": "lowered"},
+    "end_state": {"scene": "bright-studio", "wardrobe": "navy-shirt", "hand": "lowered"},
+    "transition": "cut",
+    "criteria": [
+      {"id": "identity", "kind": "identity", "requirement": "Readable facial appearance and hair stay consistent with the original actor baseline throughout the visible motion."},
+      {"id": "wardrobe", "kind": "wardrobe", "requirement": "The navy shirt preserves its color, collar and sleeves."},
+      {"id": "action", "kind": "action", "requirement": "The right hand visibly rises, completes one open-palm wave, then lowers; the person does not duplicate or teleport."},
+      {"id": "framing", "kind": "framing", "requirement": "The face and entire waving hand remain readable and inside the fixed medium-shot frame."},
+      {"id": "style", "kind": "style", "requirement": "Natural live-action skin, lighting and movement match the prepared opening frame."},
+      {"id": "artifacts", "kind": "artifacts", "requirement": "No extra people, fused fingers, conspicuous facial deformation or flicker is visible."},
+      {"id": "audio", "kind": "audio", "requirement": "Delivery is silent; no dialogue is requested."}
+    ],
+    "qa": {"event_windows": [{"criterion": "action", "start": 0, "end": 5, "fps": 8}], "regions": []}
+  }]
+}

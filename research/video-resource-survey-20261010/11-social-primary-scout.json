@@ -1,0 +1,458 @@
+[
+  {
+    "id": "SOC01",
+    "topic": "h3-comfy-16gb-workflow",
+    "title": "Kasei-san MiniMax H3 ComfyUI workflow measurements on RTX 5060 Ti 16GB",
+    "url": "https://github.com/kasei-san/minimax-h3-comfyui-workflows",
+    "publisher": "kasei-san",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Author machine is RTX 5060 Ti 16GB, RAM 32GB, Windows 10, PCIe 3.0 x8; workflow uses ComfyUI, official pruned INT8 ConvRot DiT, NVFP4 text encoder and official VAEs.",
+      "T2V 1024x576 about 5.2 s: Turbo 171.6 s versus normal 379.2 s; I2V 0.6 MP: Turbo 207.7 s versus normal 704.4 s.",
+      "Fixed-seed 864x480/124-frame/20-step comparison reports no acceleration 270.9 s, EasyCache 210.7 s with noisy audio, Turbo 4 steps 117.6 s and Turbo 6 steps 114.4 s.",
+      "The author reports RSS reduction from 21.5 GB to 6.9 GB with --disable-pinned-memory and warns Turbo/EasyCache have different motion/audio behavior."
+    ],
+    "resources": {
+      "gpu": "RTX 5060 Ti",
+      "vram_gb": 16,
+      "ram_gb": 32,
+      "resolution": [
+        "1024x576",
+        "0.6 MP",
+        "864x480"
+      ],
+      "frames": 124,
+      "duration_s": 5.2,
+      "steps": {
+        "normal": 20,
+        "turbo": [
+          4,
+          6
+        ]
+      },
+      "time_s": {
+        "t2v_turbo": 171.6,
+        "t2v_normal": 379.2,
+        "i2v_turbo": 207.7,
+        "i2v_normal": 704.4,
+        "fixed_seed_normal": 270.9,
+        "fixed_seed_easycache": 210.7,
+        "fixed_seed_turbo4": 117.6,
+        "fixed_seed_turbo6": 114.4
+      },
+      "precision": [
+        "INT8 ConvRot DiT",
+        "NVFP4/AWQ text encoder",
+        "FP16/FP32 VAEs"
+      ],
+      "workflow": "ComfyUI flat workflow; Turbo LoRA toggle"
+    },
+    "limitations": "Single author setup; not L4/A100; the fixed-seed comparison is within the author's graph and does not establish cross-quant quality.",
+    "artifact_urls": [
+      "https://github.com/kasei-san/minimax-h3-comfyui-workflows/tree/main/workflows"
+    ]
+  },
+  {
+    "id": "SOC02",
+    "topic": "h3-3060-fixed-seed-ledger",
+    "title": "GenVidKit local H3 ledger on RTX 3060 12GB",
+    "url": "https://www.genvidkit.com/workflows",
+    "publisher": "GenVidKit",
+    "source_date": "2026-08-20",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Two-run measurements use RTX 3060 12GB, 47.05 GiB VM RAM, no swap, ComfyUI 0.31.0, PyTorch 2.13.0+cu130, fixed seed, 1344x768, 124 frames, 20 steps, res_multistep/simple.",
+      "T2V runs: 2175.5/2176.2 s, peak VRAM 11023/10863 MiB, audio on; I2V 2373.7/2378.1 s, 11125/11637 MiB, audio on; R2V 2581.8/2579.8 s, 11649/11649 MiB, audio off.",
+      "System memory was 43587–43910 MiB across runs. The author states the three task rows are not a controlled task comparison because dates, inputs, graph and audio state differ."
+    ],
+    "resources": {
+      "gpu": "RTX 3060",
+      "vram_gb": {
+        "peak_mib_range": [
+          10863,
+          11649
+        ]
+      },
+      "ram_gb": {
+        "peak_mib_range": [
+          43587,
+          43910
+        ]
+      },
+      "resolution": "1344x768",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 20,
+      "time_s": {
+        "t2v": [
+          2175.5,
+          2176.2
+        ],
+        "i2v": [
+          2373.7,
+          2378.1
+        ],
+        "r2v": [
+          2581.8,
+          2579.8
+        ]
+      },
+      "precision": "Comfy-Org native H3 files; exact model filenames recorded in workflow",
+      "workflow": "Pinned ComfyUI local templates"
+    },
+    "limitations": "Not target L4/A100; task rows are explicitly non-controlled across task types, though each row has two raw runs and fixed seed.",
+    "artifact_urls": [
+      "https://www.genvidkit.com/run-ledger",
+      "https://github.com/Comfy-Org/workflow_templates"
+    ]
+  },
+  {
+    "id": "SOC03",
+    "topic": "h3-ltx-upscale",
+    "title": "Reddit H3 plus LTX 2.3 spatial upscale workflow",
+    "url": "https://www.reddit.com/r/StableDiffusion/comments/1vejlal/minimax_h3_ltx_23_spatial_upscale_yes/",
+    "publisher": "Reddit user alisitskii",
+    "source_date": "2026-08-03",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Author reports RTX 4080 Super 16GB and RAM 64GB, standard ComfyUI H3 I2V followed by LTX 2.3 spatial upscale; Pastebin workflow is public.",
+      "H3 736x736, 0.5 MP, 5 s, 20 steps took about 3:25; LTX 2.3 3-step x2 upscale took about 2:05."
+    ],
+    "resources": {
+      "gpu": "RTX 4080 Super",
+      "vram_gb": 16,
+      "ram_gb": 64,
+      "resolution": "736x736",
+      "frames": null,
+      "duration_s": 5,
+      "steps": {
+        "h3": 20,
+        "ltx": 3
+      },
+      "time_s": {
+        "h3": 205,
+        "ltx_upscale": 125
+      },
+      "precision": null,
+      "workflow": "ComfyUI H3 I2V + LTX 2.3 upscale"
+    },
+    "limitations": "No fixed seed, quant file names, peak RAM or quality metric; two-stage timing is not a quant comparison.",
+    "artifact_urls": [
+      "https://pastebin.com/VpkxbHHB"
+    ]
+  },
+  {
+    "id": "SOC04",
+    "topic": "h3-ltx-rtxvsr-upscale",
+    "title": "Reddit H3 INT8 plus LTX 2.3 and RTX VSR to 2K",
+    "url": "https://www.reddit.com/r/StableDiffusion/comments/1vj2ldp/an_unexpected_find_minimax_h3_ltx_23_upscale_rtx/",
+    "publisher": "Reddit user",
+    "source_date": "2026-08-08",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Author reports RTX 4080 Super 16GB and RAM 64GB with ComfyUI template H3 INT8 T2V/R2V, LTX 2.3 spatial upscale, and Comfy RTX VSR nodes.",
+      "H3 INT8 0.7 MP/10 s about 12:40; LTX 2.3 x1.5 3:46; RTX VSR x1.5 under 10 s; total 2592x1440 output about 16 min; YouTube full-resolution artifact and workflows are linked."
+    ],
+    "resources": {
+      "gpu": "RTX 4080 Super",
+      "vram_gb": 16,
+      "ram_gb": 64,
+      "resolution": [
+        "0.7 MP source",
+        "2592x1440 final"
+      ],
+      "frames": null,
+      "duration_s": 10,
+      "steps": null,
+      "time_s": {
+        "h3": 760,
+        "ltx_upscale": 226,
+        "rtx_vsr": 10,
+        "total": 960
+      },
+      "precision": "H3 INT8 (exact file not stated)",
+      "workflow": "ComfyUI H3 + LTX 2.3 + RTX VSR"
+    },
+    "limitations": "Single user pipeline; no fixed seed/steps/frames; audio handling changes across LTX stages and is discussed in comments.",
+    "artifact_urls": [
+      "https://www.youtube.com/watch?v=LVhtPlntfvA",
+      "https://pastebin.com/VpkxbHHB",
+      "https://github.com/Comfy-Org/Nvidia_RTX_Nodes_ComfyUI"
+    ]
+  },
+  {
+    "id": "SOC05",
+    "topic": "fasth3-same-seed",
+    "title": "ai-muninn FastH3 V2 versus original H3 in ComfyUI",
+    "url": "https://ai-muninn.com/en/blog/fasth3-rtx-5090-comfyui",
+    "publisher": "ai-muninn",
+    "source_date": "2026-10-08",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Author uses RTX 5090 32GB, Windows, ComfyUI 0.37.0; FastH3 V2 and Trim share original H3 Qwen/VAE files. V2 keeps 50 blocks, Trim drops 8 blocks; VSA keeps 10% attention blocks.",
+      "Same first frame, same Mandarin line, 1344x768, 5 s/124 frames, warm, two seeds: FastH3 V2 8 steps 59.8/57.4 s; original pruned NVFP4 H3 20 steps 166.3/168.2 s and 10 steps 90.1/83.6 s. Times include text encode/decode/save.",
+      "At 832x480 T2V, V2 18.7/18.7 s and Trim 16.8/16.8 s; author used Whisper and says Mandarin was transcribed except the invented name.",
+      "On a modded 22 GB RTX 2080 Ti, VSA silently falls back because sm_75 lacks the sparse kernel; 832x480 Trim was 149.9 s on ComfyUI 0.31."
+    ],
+    "resources": {
+      "gpu": "RTX 5090; secondary RTX 2080 Ti test",
+      "vram_gb": [
+        32,
+        22
+      ],
+      "ram_gb": null,
+      "resolution": [
+        "1344x768",
+        "832x480"
+      ],
+      "frames": 124,
+      "duration_s": 5,
+      "steps": {
+        "fasth3": 8,
+        "original_default": 20,
+        "original_author": 10
+      },
+      "time_s": {
+        "fasth3_v2_1344x768": [
+          59.8,
+          57.4
+        ],
+        "original20_1344x768": [
+          166.3,
+          168.2
+        ],
+        "original10_1344x768": [
+          90.1,
+          83.6
+        ],
+        "fasth3_v2_832x480": [
+          18.7,
+          18.7
+        ],
+        "trim_832x480": [
+          16.8,
+          16.8
+        ],
+        "trim_2080ti_832x480": 149.9
+      },
+      "precision": [
+        "FastH3 V2 NVFP4",
+        "FastH3 Trim NVFP4",
+        "original H3 pruned NVFP4"
+      ],
+      "workflow": "ComfyUI 0.37 official FastH3 templates"
+    },
+    "limitations": "5090/2080 Ti are conditional references only; author quality judgment is visual/Whisper based, not a metric; no L4/A100 result and no distilled Ref2VA test.",
+    "artifact_urls": [
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2-NVFP4-Comfy",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-Trim-Comfy"
+    ]
+  },
+  {
+    "id": "SOC06",
+    "topic": "h3-4090-quality-and-runtime",
+    "title": "Author engineering test: 50 H3 clips on RTX 4090",
+    "url": "https://minimaxh3.co/open-source/comfyui",
+    "publisher": "MiniMax H3 site engineering team",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Raw MiniMaxAI weights path is FP8 diffusion plus NVFP4/AWQ text encoder on one RTX 4090; the article says 50 formal clips were checked across motion, dialogue, sports, hands/objects, text, resolution and duration, with local Whisper audio checks.",
+      "At 608x352, 5s/124 frames runtime 55.6 s and peak VRAM 41,546 MiB; 10s/244 frames 136.2 s/42,730 MiB; 20s/484 frames 353.0 s/46,250 MiB. 960x544 was 1452 s and 48,490 MiB.",
+      "The article reports recurring speech/audio, sports physics, hands/product topology and on-screen text failures in the test set; these are author observations, not a formal score."
+    ],
+    "resources": {
+      "gpu": "RTX 4090",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": [
+        "608x352",
+        "640x384",
+        "720x416",
+        "768x432",
+        "960x544"
+      ],
+      "frames": [
+        124,
+        244,
+        484
+      ],
+      "duration_s": [
+        5,
+        10,
+        20
+      ],
+      "steps": 20,
+      "time_s": null,
+      "precision": [
+        "FP8 diffusion",
+        "NVFP4/AWQ text encoder"
+      ],
+      "workflow": "ComfyUI raw-weight lowvram path",
+      "reported_vram_gb_claim": {
+        "peak_mib": [
+          41546,
+          42730,
+          46250,
+          48490
+        ]
+      },
+      "reported_time_s_claim": {
+        "5s": 55.6,
+        "10s": 136.2,
+        "20s": 353,
+        "960x544": 1452
+      }
+    },
+    "limitations": "Commercial/author site affiliation and exact prompt/seed ledger are not independently exposed; RTX 4090 raw-weight results do not establish L4/A100 behavior or GGUF quality. Main read confirms page explicitly labels 41,546–48,490 MiB as Peak VRAM while saying single RTX4090/24GB. These resource claims are internally inconsistent; no assumption that they mean RAM is made. Do not use this page to rank resource use or speed.",
+    "artifact_urls": [
+      "https://minimaxh3.co/open-source/comfyui"
+    ],
+    "evidence_status": "internally-inconsistent resource claims; excluded from usable benchmark evidence",
+    "usable_for_resource_comparison": false
+  },
+  {
+    "id": "SOC07",
+    "topic": "wangp-h3-cross-family",
+    "title": "WanGP/Wan2GP H3 integration, control paths and low-memory changelog",
+    "url": "https://github.com/lucazin/Wan2GP",
+    "publisher": "WanGP / DeepBeepMeep",
+    "source_date": "2026-08-06",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "WanGP lists support for Wan 2.1/2.2, MiniMax H3, LTX-2 and other families; it lists int8/fp8/GGUF/NVFP4 checkpoint formats and hardware-aware downloads.",
+      "The H3 changelog adds First Block Cache, Sol-Attn, lower-RAM VAE, W4A8 INT8 loading on compatible RTX 30+ cards, control video/depth/generic control, Ref2VA reference pixel budget, and quantized text-encoder selection.",
+      "Author release note says H3 can use 5–6 GB VRAM for 5s/124 frames and 8–9 GB for 15s at 832x480 in WanGP's optimized path, with 15–20 steps before distilled checkpoints; exact run ledger is not supplied."
+    ],
+    "resources": {
+      "gpu": "Hardware-dependent; changelog claims compatible NVIDIA/AMD paths",
+      "vram_gb": {
+        "5s": "5-6",
+        "15s": "8-9"
+      },
+      "ram_gb": null,
+      "resolution": "832x480",
+      "frames": 124,
+      "duration_s": [
+        5,
+        15
+      ],
+      "steps": "15-20 before distilled profiles",
+      "time_s": null,
+      "precision": [
+        "INT8",
+        "FP8",
+        "GGUF",
+        "NVFP4",
+        "W4A8"
+      ],
+      "workflow": "WanGP/Wan2GP UI with H3 FL2VA or Ref2VA"
+    },
+    "limitations": "Changelog claims are not a same-seed render ledger; low-VRAM numbers mix optimizers and offload modes, and no L4/A100 + High RAM run is specified. Main provenance: this URL is lucazin/Wan2GP, a derivative/fork snapshot. Canonical current project/README is recorded as INF18; claims here are not a canonical-release verification.",
+    "artifact_urls": [
+      "https://github.com/lucazin/Wan2GP/blob/main/docs/FINETUNES.md"
+    ]
+  },
+  {
+    "id": "SOC08",
+    "topic": "x-discovery",
+    "title": "X search returned autogenerated trending summaries rather than original statuses",
+    "url": "https://x.com/i/trending/2085365532547776886",
+    "publisher": "X search surface / Grok summaries",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "secondary",
+    "access": "snippet-only",
+    "claims": [
+      "Searches using MiniMax-H3, MiniMax H3, FastH3, quantization, VRAM, workflow and Japanese terms, with /i/ and trending exclusions, still returned x.com/i/trending summaries.",
+      "Summaries surfaced super_bonochin, TlanoAI, Kin no Niwatori and Hirokazu Yokohara/aigeboku as possible handles and mentioned 12GB or 6-to-2.5-minute claims, but no original status URL or complete conditions were readable."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": null
+    },
+    "limitations": "Discovery lead only; autogenerated summaries are excluded from technical evidence.",
+    "artifact_urls": []
+  },
+  {
+    "id": "SOC09",
+    "topic": "facebook-search-boundary",
+    "title": "Facebook public-group/post search boundary",
+    "url": null,
+    "publisher": "Facebook public search surface",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "search-boundary",
+    "access": "blocked",
+    "claims": [
+      "One broad pass used MiniMax H3/MiniMax-H3 with public model, workflow, ComfyUI, VRAM, time, FastH3 and L4 terms; returned results were unrelated, old, or login-gated.",
+      "No original H3/FastH3 public-group post with complete hardware, seed, model file and runtime conditions was readable without login; Bilibili indexing returned unrelated platform/old documents and Civitai hits were workflow indexes without readable test ledgers."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": null
+    },
+    "limitations": "Search boundary only; absence in this checked scope is not evidence that Facebook has no H3 material.",
+    "artifact_urls": []
+  },
+  {
+    "id": "SOC10",
+    "topic": "youtube-discovery",
+    "title": "YouTube 8GB H3 workflow video surfaced during discovery",
+    "url": "https://www.youtube.com/watch?v=VNi9QTSHxEU",
+    "publisher": "Skill Destiny",
+    "source_date": "2026-08-04",
+    "checked_date": "2026-10-10",
+    "source_type": "secondary",
+    "access": "snippet-only",
+    "claims": [
+      "Search result title/description says the video demonstrates a MiniMax H3 ComfyUI workflow targeting 8 GB VRAM with dynamic offload and discusses I2V/T2V/Ref2VA.",
+      "The searchable result does not expose a reproducible prompt, seed, exact quant files, wall time or full hardware/RAM table."
+    ],
+    "resources": {
+      "gpu": "8 GB target only; model unspecified",
+      "vram_gb": 8,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "ComfyUI dynamic offload video"
+    },
+    "limitations": "Snippet-only discovery; no technical claim is used as evidence.",
+    "artifact_urls": []
+  }
+]

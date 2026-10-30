@@ -1,0 +1,870 @@
+[
+  {
+    "id": "INF01",
+    "topic": "wan2gp-model-support-and-h3-runtime-claims",
+    "title": "Wan2GP README",
+    "url": "https://github.com/extreme2k/Wan2GP",
+    "publisher": "DeepBeepMeep / WanGP",
+    "source_date": "2026-08-06",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The README lists video support for Wan 2.1/2.2 and derived models, MiniMax H3, LTX-2, Hunyuan Video 1/1.5, LongCat, Kandinsky, LTXV and MagiHuman.",
+      "For MiniMax H3 v12.42, the author says 5-6GB VRAM for 5s/124 frames and 8-9GB for 15s at 832x480; the page gives no GPU model, host RAM, disk throughput, cold/warm timing or peak host memory for those claims.",
+      "H3 FL2VA supports text, start/last frame and sliding windows; H3 Ref2VA supports image/video/audio references and does not support sliding windows. Full and pruned variants are listed.",
+      "v12.434 adds H3 W4A8 asymmetric INT8 checkpoints; the README says the 4-bit weights reduce checkpoint size/system RAM and INT8 activations use compatible NVIDIA kernels on RTX 30-series or newer.",
+      "The v12.434 entry documents First Block Cache and Sol-Attn. Sol-Attn requires BF16, Triton 3.6+ and the listed RTX 40/50, H100/H200 or B100/B200 hardware; the README gives expected gains but no L4/A100 timing."
+    ],
+    "resources": {
+      "gpu": "Unspecified NVIDIA for H3 claims; RTX 30+ for W4A8 claim; listed Sol-Attn devices exclude L4/A100",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "832x480 for H3 claim",
+      "frames": 124,
+      "duration_s": 5,
+      "steps": "15-20 minimum for H3 in v12.42; exact timing claim absent",
+      "time_s": null,
+      "precision": "H3 BF16 for Sol-Attn; W4A8 INT8; many quantized formats supported",
+      "workflow": "WanGP UI, headless queue, API, MCP",
+      "version_scope": "extreme2k fork snapshot v12.434, not canonical current release"
+    },
+    "backend": [
+      "SDPA",
+      "Sage",
+      "Sage2",
+      "Flash",
+      "Sol-Attn",
+      "First Block Cache",
+      "Spectrum"
+    ],
+    "dependencies": [
+      "PyTorch",
+      "Triton for compile/Sage/Sol paths",
+      "SageAttention 2.x for sage2"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "author runtime claims, not a controlled GPU benchmark",
+    "limitations": "Do not treat generic VRAM claims as L4 or A100 qualification; actual H3 success and failure can depend on model variant, precision, host RAM, allocator and VAE path. Main provenance check: extreme2k/Wan2GP is a fork of deepbeepmeep/Wan2GP, last pushed 2026-08-07; its v12.434 snapshot must not be described as the current canonical release. See INF18.",
+    "artifact_urls": [
+      "https://github.com/extreme2k/Wan2GP",
+      "https://x.com/deepbeepmeep"
+    ]
+  },
+  {
+    "id": "INF02",
+    "topic": "wan2gp-offload-profiles-and-memory-allocator",
+    "title": "Wan2GP CLI and performance reference",
+    "url": "https://raw.githubusercontent.com/DeepBeepMeep/Wan2GP/main/docs/CLI.md",
+    "publisher": "DeepBeepMeep / WanGP",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "CLI exposes transformer quantization, PyTorch compile, SDPA/Flash/Sage/Sage2 attention, profiles 1-5, VRAM preload, FP16, INT8 Quanto/ConvRot save and GPU selection.",
+      "Profile 4 is documented as sending model parts block-by-block so models larger than VRAM can run; Profile 4+ saves up to about 1GB VRAM at a slight slowdown; Profile 5 is the fail-safe for low RAM/VRAM.",
+      "The default MMGP VRAM allocator has a RAM-spill mode. The page records about 5.4GB saved for H3 1920x1088/241 frames and about 1.5GB for H3 1280x720/241 frames, with no wall-time or GPU model.",
+      "Reserved/pinned RAM defaults are documented as 40% on Windows and 60% on Linux; Smart Memory Pinning uses about 1-2GB reserved RAM. The docs say the allocator works on NVIDIA GPUs with PyTorch 2.3+ and the RAM allocator with PyTorch 2.6-2.15.",
+      "The same document gives author examples for compile, low-VRAM profile 4, TeaCache multipliers and fallback to SDPA/profile 4/FP16."
+    ],
+    "resources": {
+      "gpu": "NVIDIA; no exact GPU in allocator measurements",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "H3 examples 1920x1088 and 1280x720",
+      "frames": 241,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP16/BF16 and quantized transformer options",
+      "workflow": "CLI, Gradio/Web, headless queue, MCP/API"
+    },
+    "backend": [
+      "MMGP VRAM allocator",
+      "RAM spill",
+      "pinned RAM",
+      "Smart Memory Pinning",
+      "TeaCache",
+      "torch.compile",
+      "SDPA/Sage/Sage2/Flash"
+    ],
+    "dependencies": [
+      "PyTorch 2.3+ for VRAM allocator",
+      "PyTorch 2.6-2.15 for RAM allocator",
+      "Triton for compile/Sage"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "author documentation examples; no controlled L4/A100 run",
+    "limitations": "Profile and allocator behavior does not establish a fixed RAM requirement or transfer time for every model; RAM spill may finish a job but is documented as slower.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/DeepBeepMeep/Wan2GP/main/docs/CLI.md",
+      "https://github.com/DeepBeepMeep/Wan2GP/tree/main/docs"
+    ]
+  },
+  {
+    "id": "INF03",
+    "topic": "diffsynth-minimax-h3-low-vram-and-task-contract",
+    "title": "DiffSynth-Studio MiniMax-H3 model details",
+    "url": "https://github.com/modelscope/DiffSynth-Studio/blob/main/docs/en/Model_Details/MiniMax-H3.md",
+    "publisher": "ModelScope / DiffSynth-Studio",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The docs describe MiniMax-H3 as a video-plus-native-stereo-audio model up to 2K and 15s.",
+      "The NF4 quick start enables VRAM management and says it requires a minimum of 7GB VRAM; the shown configuration uses BF16 compute and CPU offload/onload for H3 transformer, text encoder, video VAE and audio VAE.",
+      "The reproducible example uses 480x832, 124 frames, 50 steps, seed 0 and writes a 24fps MP4 with 32kHz audio.",
+      "The model table lists FL2VA, Ref2VA and Retake, plus NF4, pruned, INT8 ConvRot, FP8 and LightX2V 4-step entries; FL2VA and Ref2VA partitions have different DiT and text encoder weights.",
+      "The docs say tiled VAE reduces VRAM with slight numerical error and small extra inference time; Comfy-Org INT8 weights are supported through the comfy-kitchen backend, which requires `diffsynth[quant]`.",
+      "References can be image, video, audio or video-audio; input frame lists must already be 24fps, and the pipeline does not resample them."
+    ],
+    "resources": {
+      "gpu": "CUDA GPU unspecified",
+      "vram_gb": 7,
+      "ram_gb": null,
+      "resolution": "480x832 example; up to 2K claim",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 50,
+      "time_s": null,
+      "precision": "NF4 stored components; BF16 compute/offload",
+      "workflow": "Python pipeline -> (video,audio) -> MP4 mux"
+    },
+    "backend": [
+      "bitsandbytes NF4",
+      "comfy-kitchen INT8",
+      "CPU VRAM management",
+      "tiled VAE"
+    ],
+    "dependencies": [
+      "DiffSynth-Studio",
+      "PyTorch",
+      "ModelScope/Hugging Face assets",
+      "bitsandbytes for NF4",
+      "comfy-kitchen for Comfy INT8",
+      "audio/video IO"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "official example and stated minimum VRAM, no target-GPU timing",
+    "limitations": "7GB is a framework claim under its VRAM manager, not proof of usable H3 quality, wall time, host RAM or disk capacity on L4/A100.",
+    "artifact_urls": [
+      "https://github.com/modelscope/DiffSynth-Studio/blob/main/docs/en/Model_Details/MiniMax-H3.md",
+      "https://modelscope.cn/models/DiffSynth-Studio/MiniMax-H3-NF4"
+    ]
+  },
+  {
+    "id": "INF04",
+    "topic": "diffsynth-ltx2-low-vram-and-audio-video-tasks",
+    "title": "DiffSynth-Studio LTX-2 model details",
+    "url": "https://github.com/modelscope/DiffSynth-Studio/blob/main/docs/en/Model_Details/LTX-2.md",
+    "publisher": "ModelScope / DiffSynth-Studio",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "LTX-2 docs state VRAM management is enabled and the LTX-2.3 example can run with a minimum of 8GB VRAM.",
+      "The shown pipeline uses CPU offload/onload and a Gemma QAT text encoder, LTX-2.3 22B dev weights, spatial upscaler, and stage-2 distilled LoRA.",
+      "The example generates 1024x1536, 121 frames with a two-stage pipeline and writes video plus audio.",
+      "The model table lists one-stage, two-stage and distilled T2AV/I2AV, audio-to-video, retake, IC-LoRA and camera-control entries for LTX-2.3; LTX-2.5 rows include T2AV, I2AV, A2V, Retake, T2A and spatial upscaler entries.",
+      "The page does not provide L4/A100 wall time, peak VRAM, host RAM, disk throughput or cold/warm measurements."
+    ],
+    "resources": {
+      "gpu": "CUDA GPU unspecified",
+      "vram_gb": 8,
+      "ram_gb": null,
+      "resolution": "1024x1536 example",
+      "frames": 121,
+      "duration_s": 5.0417,
+      "steps": null,
+      "time_s": null,
+      "precision": "BF16 compute/offload; Gemma QAT Q4_0 text encoder in example",
+      "workflow": "one/two-stage LTX audio-video pipeline, optional spatial upscale"
+    },
+    "backend": [
+      "VRAM management",
+      "CPU offload",
+      "tiled/segmented two-stage pipeline"
+    ],
+    "dependencies": [
+      "DiffSynth-Studio",
+      "PyTorch",
+      "Gemma QAT text encoder",
+      "LTX-2.3/2.5 components",
+      "audio/video IO"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "official example and stated minimum VRAM, no target-GPU timing",
+    "limitations": "The minimum VRAM claim does not establish the cost of two-stage/upscale or audio VAE in the target Colab profiles.",
+    "artifact_urls": [
+      "https://github.com/modelscope/DiffSynth-Studio/blob/main/docs/en/Model_Details/LTX-2.md",
+      "https://modelscope.cn/models/Lightricks/LTX-2.3"
+    ]
+  },
+  {
+    "id": "INF05",
+    "topic": "diffsynth-h3-colab-firsthand-success-and-failure",
+    "title": "MiniMax-H3 NF4 with DiffSynth-Studio on Google Colab",
+    "url": "https://zenn.dev/nakanishitf/articles/bec3dc44dd1b65?locale=en",
+    "publisher": "T.N. / Zenn",
+    "source_date": "2026-08-18",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The author tested DiffSynth-Studio/MiniMax-H3-NF4 with NF4 components, VRAM management and disk offload, and reports a successful Colab Pro G4 run at 480x832, 124 frames and 50 steps.",
+      "The same article reports a free Colab T4 with approximately 14.56GiB total GPU memory: 448x256/56f/12 steps OOM at attention; 320x192/39f/8 OOM at scaled_dot_product_attention; 320x192/22f/6 reached 50% then OOM at bitsandbytes NF4 dequantization; 288x160/22f/6 completed with VRAM_LIMIT_GB=9.0 and OFFLOAD_MODE=disk.",
+      "The author explicitly labels the final T4 video far from practical quality and separates running to completion from usable quality.",
+      "The notebook required additional `av` and `bitsandbytes` packages and saved the ModelScope cache to Google Drive; model files were described as large and downloads took minutes or more.",
+      "The article records GPU-memory growth across consecutive runs when video/audio tensors remain referenced and shows explicit garbage collection/empty_cache cleanup."
+    ],
+    "resources": {
+      "gpu": "Colab Pro G4 for 480x832 success; Colab Free T4 for failure/success ladder",
+      "vram_gb": "~14.56 T4 total; 9.0 configured limit for final run",
+      "ram_gb": null,
+      "resolution": "480x832 G4; 448x256, 320x192, 288x160 T4 ladder",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 50,
+      "time_s": null,
+      "precision": "NF4 model components; BF16 compute; bitsandbytes",
+      "workflow": "Colab notebook -> DiffSynth pipeline -> disk/CPU/GPU offload -> MP4+audio"
+    },
+    "backend": [
+      "DiffSynth VRAM management",
+      "disk offload",
+      "bitsandbytes NF4",
+      "scaled_dot_product_attention"
+    ],
+    "dependencies": [
+      "DiffSynth-Studio",
+      "ModelScope",
+      "av",
+      "bitsandbytes",
+      "Google Drive cache"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "firsthand Colab notebook/report; no wall time, host RAM peak or disk throughput",
+    "limitations": "G4 and T4 are not L4; the report supports failure modes and a low-resource boundary, not target-band qualification or speed.",
+    "artifact_urls": [
+      "https://github.com/ntakafumi/llm-colab-experiments/tree/main/MiniMax_H3_NF4_DiffSynth",
+      "https://zenn.dev/nakanishitf/articles/bec3dc44dd1b65?locale=en"
+    ]
+  },
+  {
+    "id": "INF06",
+    "topic": "fastvideo-model-and-optimization-support-matrix",
+    "title": "FastVideo compatibility matrix",
+    "url": "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/support_matrix.md",
+    "publisher": "Hao AI Lab / FastVideo",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The matrix identifies registered model IDs and says they can be passed to VideoGenerator.from_pretrained; the displayed registry commit is 8d89f30d.",
+      "It lists Wan2.1, Wan2.2 TI2V-5B/A14B/S2V, LTX-2/2.3/2.5, Hunyuan, and MiniMax H3 with T2VA/FL2VA/Ref2VA workloads; H3 variants generate stereo audio.",
+      "FastH3 V1/V2 support is separate from base H3; Preview V1 is T2VA, while distilled Ref2VA PDD is a separate path.",
+      "The optimization table marks VSA/Sage/TeaCache support per model; registered models absent from the table are untested against those optimizations, not proven incompatible.",
+      "The document says Wan-VACE is not supported on main and LTX-2.5 official split/gated files need conversion to FastVideo component layout.",
+      "Full Sliding Tile Attention is archived on sta_do_not_delete and currently requires Hopper GPUs; TurboWan2.1 requires SLA_ATTN, RCM and guidance_scale=1.0."
+    ],
+    "resources": {
+      "gpu": "NVIDIA x86_64 CUDA 12.6/13.0; Hopper required for archived STA; no L4/A100 timing",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Model-specific: Wan2.2 TI2V 720P; LTX and H3 entries have separate recipe grids",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "Model-specific; FP8/VSA/Sage paths are separate",
+      "workflow": "VideoGenerator Python API, basic examples, CLI/server recipes"
+    },
+    "backend": [
+      "VSA",
+      "Sage attention",
+      "Flash attention",
+      "SLA",
+      "TeaCache",
+      "sequence parallel",
+      "FSDP2"
+    ],
+    "dependencies": [
+      "CUDA 12.6 or 13.0 for NVIDIA x86_64",
+      "FastVideo registry/checkpoints",
+      "model-specific kernels"
+    ],
+    "num_gpus": null,
+    "measurement_scope": "support/compatibility table, not a target-GPU performance benchmark",
+    "limitations": "Support marks do not establish memory minimums or end-to-end MP4 success on L4/A100; absent optimization validation is unknown rather than incompatible.",
+    "artifact_urls": [
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/support_matrix.md",
+      "https://github.com/hao-ai-lab/FastVideo/tree/main/examples/inference/basic"
+    ]
+  },
+  {
+    "id": "INF07",
+    "topic": "fastvideo-fp8-compile-offload-fallback",
+    "title": "FastVideo optimization and offloading docs",
+    "url": "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/optimizations.md",
+    "publisher": "Hao AI Lab / FastVideo",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "FastVideo transformer FP8 quantization uses FP8 e4m3 for DiT linear layers. Hardware FP8 compute requires sm89+; GPUs older than sm89 automatically take a BF16 dequant path.",
+      "The docs list Wan2.1 as a runnable FP8 example and distinguish tensor granularity (faster/lower accuracy) from channel granularity (slower/higher accuracy).",
+      "torch.compile can compile eligible DiT submodules; text encoder and VAE are not compiled by the enable_torch_compile flag. The regional inference compile path has H3-specific guards and keeps unsupported VSA paths eager.",
+      "MiniMax-H3 VSA inference compile is limited to an inference-only sm100a tile-64 route; unsupported devices/legacy VSA keep the transformer eager with a warning.",
+      "Offloading docs list CPU offload, layerwise offload, text encoder/VAE offload and pin_cpu_memory defaults. H3 lazy_module_load loads components on first use and frees them after their last stage; h3_sequential_load loads Qwen3-VL, releases it, then loads DiT/VAEs.",
+      "The docs warn that unified-memory GB10/Apple devices disable host offload because host and accelerator share one pool; this is a device-specific exception."
+    ],
+    "resources": {
+      "gpu": "FP8 native compute sm89+; pre-sm89 BF16 fallback; H3 VSA compile sm100a only",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP8 e4m3 with BF16 dequant fallback below sm89",
+      "workflow": "Python VideoGenerator or fastvideo generate config"
+    },
+    "backend": [
+      "FP8 scaled-mm",
+      "BF16 dequant fallback",
+      "torch.compile",
+      "regional compile",
+      "layerwise CPU offload",
+      "lazy/sequential load"
+    ],
+    "dependencies": [
+      "FastVideo",
+      "CUDA/ROCm backend",
+      "model-specific VSA/SLA/Sage kernels"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "official compatibility and runtime contract; no L4/A100 wall time",
+    "limitations": "L4 is sm89 while A100 is sm80, but the docs alone do not establish that each model/loader will use the same fallback path or memory behavior on those cards.",
+    "artifact_urls": [
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/optimizations.md",
+      "https://github.com/hao-ai-lab/FastVideo/blob/main/docs/inference/offloading.md"
+    ]
+  },
+  {
+    "id": "INF08",
+    "topic": "fasth3-task-contract-and-blackwell-boundary",
+    "title": "FastH3 official blog and recipe page",
+    "url": "https://haoailab.com/blogs/fasth3-preview/",
+    "publisher": "FastVideo Team / Hao AI Lab",
+    "source_date": "2026-08-27",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "FastH3 Preview V1 is an open-weight 4-step sparse-distilled MiniMax-H3 T2VA model; it reuses H3 base text encoder, video VAE and audio VAE.",
+      "The recommended VSA/Data-Free checkpoint uses 90% sparse VSA, tile 64 and four DiT calls. Its reported speed claims are up to 14x on one NVIDIA Blackwell and under 13s for 15s 768p on 8xB200.",
+      "The official page says the reported speed/quality requires FastVideo VSA-H3; dense attention is not a drop-in substitute.",
+      "Preview V1 checkpoints support T2VA only. The page explicitly says first/last-frame conditioning was not used to train these students and Ref2VA needs a separate distilled checkpoint.",
+      "The maintained recipe page states FastH3 V2 is an 8-forward checkpoint, Preview V1 is 4-forward, CompactH3 is a 42-block NVFP4 checkpoint for one Blackwell GPU, and CUDA full H3 examples request four GPUs by default without claiming a memory minimum."
+    ],
+    "resources": {
+      "gpu": "Blackwell for published timing claims; CUDA recipe default 4 GPU without model/memory minimum",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "768p timing claim; validation examples include 1344x768",
+      "frames": null,
+      "duration_s": 15,
+      "steps": 4,
+      "time_s": 13,
+      "precision": "VSA sparse-distilled; CompactH3 NVFP4 Blackwell path",
+      "workflow": "FastVideo CUDA server/playground/cURL/Python"
+    },
+    "backend": [
+      "VSA-H3",
+      "FastH3 V1/V2",
+      "NVFP4 CompactH3"
+    ],
+    "dependencies": [
+      "FastVideo",
+      "VSA-H3 kernel",
+      "H3 base assets",
+      "CUDA or MLX for separate runtimes"
+    ],
+    "num_gpus": 8,
+    "measurement_scope": "official model/release timing on Blackwell; not L4/A100",
+    "limitations": "Do not apply Blackwell-only speed or NVFP4 claims to L4/A100; V1/V2 task contracts differ from base H3 and Ref2VA.",
+    "artifact_urls": [
+      "https://haoailab.com/blogs/fasth3-preview/",
+      "https://haoailab.com/FastVideo/cookbook/minimax-h3/",
+      "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree"
+    ]
+  },
+  {
+    "id": "INF09",
+    "topic": "lightx2v-minimax-h3-single-gpu-offload-cache-and-quant-contract",
+    "title": "LightX2V MiniMax-H3 scripts and config",
+    "url": "https://github.com/ModelTC/LightX2V/blob/main/scripts/minimax_h3/README.md",
+    "publisher": "ModelTC / LightX2V",
+    "source_date": "2026-08-07",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The README describes H3 T2AV, I2AV, L2AV, FL2AV and Ref2AV tasks; the five ordinary scripts share a one-GPU BF16, model-CPU-offload config at 544x960 and 124 frames.",
+      "The checked JSON sets infer_steps=29, cpu_offload=true, offload_granularity=model, use_adaln_cache=true, text_encoder_cpu_offload=true, vae_cpu_offload=true, SageAttention2, SGL RMS and compile false.",
+      "The H3 CPU-offload path requires an AdaLN cache generated with the same model variant, steps and flow shifts; inference loads a matching cache strictly and does not silently fall back to online computation.",
+      "The README lists single-GPU Sol configs with 362 frames at 768x1344 and says compile configs set warmup=true; this is a config default, not a GPU result.",
+      "Quantized FP8/INT8/ConvRot DiT weights require dynamic LoRA application; merging a LoRA into quantized DiT weights is unsupported. FP8 VAE encoder modes require converted weights and SM120."
+    ],
+    "resources": {
+      "gpu": "One GPU config; no GPU model or target-band measurement stated",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "544x960 ordinary config; 768x1344 Sol config",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 29,
+      "time_s": null,
+      "precision": "BF16 ordinary; FP8/INT8 quantized variants; SageAttention2/SGL",
+      "workflow": "bash task scripts, Python CLI, service/parallel scripts"
+    },
+    "backend": [
+      "SageAttention2",
+      "SGL kernels",
+      "model CPU offload",
+      "AdaLN cache",
+      "compile+warmup",
+      "dynamic LoRA apply"
+    ],
+    "dependencies": [
+      "LightX2V",
+      "SageAttention2",
+      "SGL kernels",
+      "matching AdaLN cache",
+      "task-matching LoRA/quant checkpoint"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "official config and task contract; no single L4/A100 timing",
+    "limitations": "One-GPU config does not prove fit or speed on L4/A100; H3 544p/768p configs and quantized LoRA contracts must not be mixed.",
+    "artifact_urls": [
+      "https://github.com/ModelTC/LightX2V/blob/main/scripts/minimax_h3/README.md",
+      "https://raw.githubusercontent.com/ModelTC/LightX2V/main/configs/minimax_h3/minimax_h3.json",
+      "https://github.com/ModelTC/LightX2V/tree/main/scripts/minimax_h3"
+    ]
+  },
+  {
+    "id": "INF10",
+    "topic": "lightx2v-wan21-single-gpu-and-offload-timing",
+    "title": "LightX2V Wan2.1-14B beginner guide",
+    "url": "https://github.com/ModelTC/LightX2V/blob/main/examples/BeginnerGuide/EN/Wan21-14B.md",
+    "publisher": "ModelTC / LightX2V",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The guide exposes single-GPU, single-GPU-offload and multi-GPU scripts for Wan2.1 T2V/I2V, with 4-step distilled LoRA, merged LoRA and FP8 quantized variants.",
+      "On one H100, T2V BF16 was reported as 278.902019s/43,768MiB; distilled LoRA 31.365923s/44,438MiB; merged LoRA 25.794410s/44,418MiB; distilled+FP8 22.000187s/31,032MiB.",
+      "With model CPU offload, T2V BF16 was 319.019743s/34,932MiB; distilled LoRA 74.180393s/34,562MiB; merged LoRA 68.621963s/34,562MiB; distilled+FP8 58.921504s/21,290MiB.",
+      "The guide says VRAM was observed with watch nvidia-smi and gives no host RAM or disk throughput; resolution/frame/step details are not fully repeated beside these rows."
+    ],
+    "resources": {
+      "gpu": "1x NVIDIA H100",
+      "vram_gb": "21.29-49.87 MiB peak rows (reported in MiB)",
+      "ram_gb": null,
+      "resolution": "Wan2.1 T2V/I2V guide; exact timing row metadata incomplete",
+      "frames": null,
+      "duration_s": null,
+      "steps": 4,
+      "time_s": "22.000187-319.019743",
+      "precision": "BF16 baseline; FP8 quantized distilled variant",
+      "workflow": "LightX2V bash scripts, single GPU or model CPU offload"
+    },
+    "backend": [
+      "FP8 quantized DiT",
+      "CPU offload",
+      "distilled LoRA",
+      "merged LoRA"
+    ],
+    "dependencies": [
+      "LightX2V",
+      "Wan2.1 checkpoints",
+      "LightX2V distill models/LoRAs"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "official H100 timing and nvidia-smi peak observation",
+    "limitations": "H100 is outside the target GPU set; no host RAM, cold/warm split or complete output contract is provided, so this is a backend/offload comparison only.",
+    "artifact_urls": [
+      "https://github.com/ModelTC/LightX2V/blob/main/examples/BeginnerGuide/EN/Wan21-14B.md",
+      "https://github.com/ModelTC/LightX2V/tree/main/scripts/wan"
+    ]
+  },
+  {
+    "id": "INF11",
+    "topic": "sana-sol-engine-minimax-h3-a100-multi-gpu",
+    "title": "Deploy MiniMax-H3 with Sol Engine on H100/A100",
+    "url": "https://nvlabs.github.io/Sana/Sol-Engine/H3-DataCenter/",
+    "publisher": "NVIDIA SANA Team",
+    "source_date": "2026-08-09",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The page evaluates MiniMax-H3 T2VA/I2VA/Ref2VA at 1344x768, 124 frames, about 5.2s at 24fps, 50 BF16 steps, batch 1.",
+      "The benchmark is warm after one warmup request, with same prompt/seed/model/resolution/topology for dense and full-opt; four A100 uses Ulysses-4 and no model offload.",
+      "On 4x A100, dense end-to-end is 217.32s and full-opt is 61.28s, a reported 3.55x speedup. Full-opt peak is 49,126MiB per A100.",
+      "A100 SM80 uses a portable Triton sparse-attention backend; H100 SM90 uses CuTe. Shared policy keeps first 10 steps and first two layers dense; Sol-Attn route density is 18.04% and FirstBlockCache reuse 67.35%.",
+      "The page explicitly states four GPUs and disabled offload, so the measurement is high-resource multi-GPU evidence."
+    ],
+    "resources": {
+      "gpu": "4x NVIDIA A100 (SM80); comparison also 4x H100",
+      "vram_gb": 49.126,
+      "ram_gb": null,
+      "resolution": "1344x768",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 50,
+      "time_s": 61.28,
+      "precision": "BF16",
+      "workflow": "SGLang runtime logging, Sol Engine full-opt, Ulysses-4, no offload"
+    },
+    "backend": [
+      "Sol-Attn",
+      "portable Triton SM80",
+      "FirstBlockCache",
+      "Ulysses-4"
+    ],
+    "dependencies": [
+      "SANA Sol Engine",
+      "SGLang runtime",
+      "Triton for A100 path",
+      "MiniMax-H3 BF16 checkpoint"
+    ],
+    "num_gpus": 4,
+    "measurement_scope": "warm batch-1 four-A100 controlled same-prompt comparison",
+    "limitations": "Cannot be divided into a single-A100 result; no A100 40GB, L4, host RAM or offload qualification is provided.",
+    "artifact_urls": [
+      "https://nvlabs.github.io/Sana/Sol-Engine/H3-DataCenter/",
+      "https://github.com/NVlabs/Sana/tree/sol-engine"
+    ]
+  },
+  {
+    "id": "INF12",
+    "topic": "sglang-diffusion-h3-offload-quant-and-emulated-benchmarks",
+    "title": "SGLang Diffusion MiniMax-H3 cookbook",
+    "url": "https://github.com/sgl-project/sglang/blob/main/docs/cookbook/diffusion/MiniMax/MiniMax-H3.mdx",
+    "publisher": "SGLang project",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "SGLang Diffusion serves MiniMax-H3 T2VA/FL2VA/Ref2VA and exposes native pipelines, `sglang generate`, `sglang serve` and an OpenAI-compatible path.",
+      "H3 weight support includes FP8/MXFP8, ConvRot INT8, W4A8/W4A4, NVFP4 and GGUF; the docs specify device/backend eligibility: NVFP4 requires compute capability 10.0+, W4A8/W4A4 require comfy-kitchen, and INT8 ConvRot uses JIT ops on CC9/10/12 while CC8.9 uses comfy-kitchen.",
+      "The documented 4090 recipe streams DiT/text encoder and leaves VAE out of layerwise offload because VAE decoder offload would re-stream about 9GiB on each of 167 decode tiles.",
+      "The docs report a 12GB hard-cap emulation at 864x480/124f/20 NFE: Recipe A with 32/48/64GB host measured 235/218/180s; Recipe B with 16GB VRAM cap and 116.7GB pinned host measured 120.92s. The page says these rows patch psutil and allocator caps, so they are not physical L4/A100 runs.",
+      "H3 torch.compile is opt-in and changes numerical output in the current path; the recommended lossless presets leave it disabled."
+    ],
+    "resources": {
+      "gpu": "RTX 4090 physical recipe; 12GB/16GB rows use hard allocator and psutil host emulation",
+      "vram_gb": 12,
+      "ram_gb": "32/48/64 physical/emulated for Recipe A; 116.7GB pinned for Recipe B",
+      "resolution": "864x480",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 20,
+      "time_s": "120.92-356.37",
+      "precision": "BF16 baseline; ConvRot INT8/W4A8/W4A4/NVFP4/GGUF options",
+      "workflow": "sglang serve/generate, layerwise offload, optional Spectrum/Cache-DiT"
+    },
+    "backend": [
+      "SGLang JIT ConvRot",
+      "comfy-kitchen",
+      "layerwise offload",
+      "Sage/Sol hybrid",
+      "Spectrum",
+      "Cache-DiT"
+    ],
+    "dependencies": [
+      "sglang[diffusion]",
+      "comfy-kitchen for CC8.9/W4A8/W4A4",
+      "matching H3 weights",
+      "host RAM for pinned offload"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "official cookbook; physical 4090 plus hard-cap/psutil host emulation",
+    "limitations": "Not an L4 or A100 measurement. The host and allocator emulation explicitly limits transfer and capacity conclusions.",
+    "artifact_urls": [
+      "https://github.com/sgl-project/sglang/blob/main/docs/cookbook/diffusion/MiniMax/MiniMax-H3.mdx",
+      "https://github.com/sgl-project/sglang/blob/main/python/sglang/multimodal_gen/runtime/models/dits/minimax_h3.py"
+    ]
+  },
+  {
+    "id": "INF13",
+    "topic": "sglang-cache-dit-and-caching-contract",
+    "title": "SGLang Cache-DiT diffusion acceleration docs",
+    "url": "https://github.com/sgl-project/sglang/blob/main/docs/docs/sglang-diffusion/cache_dit.mdx",
+    "publisher": "SGLang project",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "SGLang integrates Cache-DiT and states an up-to-1.69x inference-speedup claim with minimal quality loss.",
+      "The document names DBCache, TaylorSeer, DMD Calibrator and SCM; it says Cache-DiT also ships SVDQuant W4A4 dynamic quantization that can combine with DBCache.",
+      "Cache-DiT is a per-request switch; requests with different settings do not share a batch. Warmup and residual threshold/SCM choices are explicit request/server settings.",
+      "The supported model list includes Wan2.1, Wan2.2, HunyuanVideo and MiniMax-H3 T2VA/FL2VA/Ref2VA."
+    ],
+    "resources": {
+      "gpu": "Unspecified",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "Optional SVDQuant W4A4; model-dependent baseline",
+      "workflow": "SGLang Diffusion per-request cache backend"
+    },
+    "backend": [
+      "DBCache",
+      "TaylorSeer",
+      "DMD Calibrator",
+      "SCM",
+      "SVDQuant W4A4"
+    ],
+    "dependencies": [
+      "SGLang Diffusion",
+      "model-specific cache support"
+    ],
+    "num_gpus": null,
+    "measurement_scope": "official speed claim and support list; no target-band run",
+    "limitations": "The 1.69x claim is not a controlled L4/A100 result in this page; cache settings trade exactness/quality and must be checked per model.",
+    "artifact_urls": [
+      "https://github.com/sgl-project/sglang/blob/main/docs/docs/sglang-diffusion/cache_dit.mdx"
+    ]
+  },
+  {
+    "id": "INF14",
+    "topic": "vllm-omni-video-model-and-optimization-matrix",
+    "title": "vLLM-Omni diffusion features and supported model tables",
+    "url": "https://docs.vllm.ai/projects/vllm-omni/en/latest/user_guide/diffusion_features/",
+    "publisher": "vLLM-Omni project",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The video feature matrix lists Wan2.2, Wan2.2-S2V, LTX-2/2.3/2.5, SANA-Video-2B, HunyuanVideo-1.5, MiniMax-H3 and other video pipelines.",
+      "The MiniMax-H3 row marks FL2VA TeaCache, Cache-DiT, sequence parallel, DiT/TE tensor parallel, HSDP, layerwise CPU offload, VAE tile and DiT quantization as supported; CFG parallel and step execution are not marked supported in that row.",
+      "Wan2.2 supports Cache-DiT, sequence/CFG/tensor/pipeline parallel, HSDP, layerwise offload and VAE encode/decode tile; LTX-2/2.3 supports Cache-DiT, Ulysses, CFG/tensor parallel, HSDP, layerwise offload and VAE decode tile; LTX-2.5 has some unknown/restricted cells.",
+      "Quantization methods are listed as FP8, INT8 and GGUF transformer-only; CPU offload has module-wise and layerwise strategies, and multi-thread weight loading targets startup time.",
+      "The compatibility notes say TeaCache and Cache-DiT are not compatible, layerwise and module-wise CPU offload are not compatible, and step execution is not compatible with diffusion cache backends."
+    ],
+    "resources": {
+      "gpu": "NVIDIA/AMD/other platforms by model table; no target-band benchmark in this source",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP8/INT8/GGUF options by validated transformer stage",
+      "workflow": "vllm serve, offline pipeline, OpenAI-compatible Videos API"
+    },
+    "backend": [
+      "TeaCache",
+      "Cache-DiT",
+      "Ulysses/Ring",
+      "CFG/TP/HSDP",
+      "CPU offload",
+      "VAE tile",
+      "FP8/INT8/GGUF"
+    ],
+    "dependencies": [
+      "vLLM-Omni",
+      "model-specific pipeline support",
+      "OpenAI-compatible API optional"
+    ],
+    "num_gpus": null,
+    "measurement_scope": "official feature/support matrix, not a target-GPU timing benchmark",
+    "limitations": "A checkmark means wired/validated in the project matrix, not that a full L4/A100 workflow has been measured with the selected resolution/frames/precision.",
+    "artifact_urls": [
+      "https://docs.vllm.ai/projects/vllm-omni/en/latest/user_guide/diffusion_features/",
+      "https://docs.vllm.ai/projects/vllm-omni/en/latest/models/supported_models/"
+    ]
+  },
+  {
+    "id": "INF15",
+    "topic": "vllm-omni-wan22-ti2v5b-a10080-qualification",
+    "title": "Wan2.2 TI2V-5B A100 80GB serving recipe",
+    "url": "https://github.com/wiseyak-core/wiseyak-vllm-omni/blob/main/recipes/Wan-AI/Wan2.2-TI2V-5B-A100.md",
+    "publisher": "wiseyak-core / community vLLM-Omni recipe",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The recipe qualifies one A100-SXM4-80GB for native 720p Wan2.2 TI2V-5B text-to-video and image-to-video without CPU offload or multi-GPU parallelism.",
+      "The contract is 1280x704, 121 frames, 24fps, 50 steps and seed 42 at a synchronous OpenAI-compatible Videos API endpoint; T2V omits input_reference and I2V uploads one image.",
+      "The host had 1TiB RAM and model loading used 21.2239GiB; the profile used BF16, native FlashAttention, eager mode and VAE tiling.",
+      "After warmup, T2V returned HTTP 200 in 288.267s with server peak 26,546MB and observed device peak 27,533MiB; I2V took 299.439s with 30,333MiB observed device peak.",
+      "ffprobe verified 1280x704, 121 frames, 24fps, 5.041667s MP4 for both outputs; the author reports full decode and visual inspection."
+    ],
+    "resources": {
+      "gpu": "1x NVIDIA A100-SXM4-80GB",
+      "vram_gb": 80,
+      "ram_gb": 1024,
+      "resolution": "1280x704",
+      "frames": 121,
+      "duration_s": 5.041667,
+      "steps": 50,
+      "time_s": "288.267 T2V; 299.439 I2V",
+      "precision": "BF16, native FlashAttention, eager, VAE tiling",
+      "workflow": "vLLM-Omni `vllm serve --omni` -> sync Videos API -> MP4"
+    },
+    "backend": [
+      "vLLM-Omni",
+      "native FlashAttention",
+      "VAE tiling",
+      "OpenAI-compatible Videos API"
+    ],
+    "dependencies": [
+      "vLLM-Omni commit ff6e906a25de1ca3122c0d0d5250fde5a0ddbc7b",
+      "vLLM 0.28.0 CUDA 12.9 wheel",
+      "Wan-AI TI2V-5B Diffusers"
+    ],
+    "num_gpus": 1,
+    "measurement_scope": "single-A100-80GB warm steady-state community qualification with full MP4 verification",
+    "limitations": "The host has 1TiB RAM, so it is not equivalent to an unspecified Colab High RAM tier; no A100-40GB, L4, cold-start or host-RAM peak qualification.",
+    "artifact_urls": [
+      "https://github.com/wiseyak-core/wiseyak-vllm-omni/blob/main/recipes/Wan-AI/Wan2.2-TI2V-5B-A100.md",
+      "https://github.com/vllm-project/vllm-omni/tree/main/examples/online_serving"
+    ]
+  },
+  {
+    "id": "INF16",
+    "topic": "vllm-omni-api-and-ltx-cache-compile-benchmark",
+    "title": "vLLM-Omni online text-to-video examples",
+    "url": "https://docs.vllm.ai/projects/vllm-omni/en/stable/user_guide/examples/online_serving/text_to_video/",
+    "publisher": "vLLM-Omni project",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The examples support Wan2.1/2.2 T2V, LTX-2, Helios and SANA-Video 2B through `vllm serve --omni`; async `POST /v1/videos` stores a job and sync `POST /v1/videos/sync` is intended for benchmark/testing and returns `X-Inference-Time-S`.",
+      "The Wan examples expose flow_shift, boundary_ratio, guidance, frame count, fps, seed and an optional cache backend; generated files can be stored under a configurable local storage path.",
+      "The LTX-2 script reports H800 measurements for 480x768, 41 frames, 20 steps: eager baseline 10.3s; compile warm about 10.3s with first request +6s warmup; Ulysses4 about 10.3s; Cache-DiT 7.4s average and lossy; 4-GPU Ulysses4+Cache-DiT 4.7s average.",
+      "The same script labels compile as one-GPU and Cache-DiT as lossy; the best combo is explicitly four GPUs."
+    ],
+    "resources": {
+      "gpu": "H800 for LTX timing; Wan/SANA example GPU unspecified",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "LTX benchmark 480x768; Wan example 832x480",
+      "frames": 41,
+      "duration_s": null,
+      "steps": 20,
+      "time_s": "4.7-10.3 for H800 LTX benchmark",
+      "precision": null,
+      "workflow": "vLLM-Omni server + async/sync OpenAI-style multipart API"
+    },
+    "backend": [
+      "torch.compile",
+      "Cache-DiT",
+      "Ulysses",
+      "Videos API",
+      "local storage"
+    ],
+    "dependencies": [
+      "vLLM-Omni",
+      "model-specific pipeline",
+      "curl/jq for shell examples"
+    ],
+    "num_gpus": 4,
+    "measurement_scope": "official H800 LTX example; API contracts for Wan/SANA",
+    "limitations": "H800 and 4-GPU benchmark are outside L4/single-A100 target; Cache-DiT is lossy and compile warmup is separate from steady-state timing.",
+    "artifact_urls": [
+      "https://docs.vllm.ai/projects/vllm-omni/en/stable/user_guide/examples/online_serving/text_to_video/",
+      "https://github.com/vllm-project/vllm-omni/tree/main/examples/online_serving/text_to_video"
+    ]
+  },
+  {
+    "id": "INF17",
+    "topic": "lightx2v-minimax-h3-v100-high-resource-timing",
+    "title": "LightX2V MiniMax-H3 4xV100 benchmark",
+    "url": "https://github.com/Leonccaa/LightX2V-V100/blob/main/docs/minimax_h3_v100_tp4_benchmark.md",
+    "publisher": "Leonccaa / LightX2V-V100",
+    "source_date": "2026-08-10",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The report measures native-FP16 MiniMax-H3 with LightX2V TP4 on four Tesla V100 PCIe 32GB cards, 256GiB host RAM and no swap; it uses a precomputed H3 text-conditioning tensor.",
+      "At 864x480/124f, fresh process load/merge is 25.11s, hot six-evaluation DiT is 49.73s, separate single-V100 video/audio VAE decode is 43.93s, and hot DiT plus fresh VAE is 93.66s; live text encoding is excluded.",
+      "At 1344x768/362f, the first evaluation OOMs; 1344x768/243f completes with 681.83s hot DiT and 32,072MiB per card.",
+      "The report separates load, hot DiT, VAE and fresh/two-phase timing and states model files were read from warm shared storage, not cold storage."
+    ],
+    "resources": {
+      "gpu": "4x Tesla V100 PCIe 32GB",
+      "vram_gb": 32,
+      "ram_gb": 256,
+      "resolution": "864x480 and 1344x768 tested",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 6,
+      "time_s": "93.66 hot DiT+fresh VAE at 864x480/124f",
+      "precision": "FP16 DiT; sensitive layers/accumulation FP32; PyTorch SDPA",
+      "workflow": "LightX2V TP4, precomputed text conditioning, official H3 VAE decode"
+    },
+    "backend": [
+      "Tensor parallel 4",
+      "PyTorch SDPA",
+      "native PyTorch RMSNorm/RoPE",
+      "official audio/video VAE"
+    ],
+    "dependencies": [
+      "LightX2V upstream commit 60631ff15310d645128226a98f138245bd59eba0",
+      "PyTorch 2.10 cu126",
+      "NCCL 2.27.5",
+      "MiniMax-H3 Turbo LoRA v4"
+    ],
+    "num_gpus": 4,
+    "measurement_scope": "firsthand high-resource multi-GPU benchmark with warm storage, precomputed text conditioning",
+    "limitations": "V100 multi-GPU and excluded text encoder make this a timing decomposition/upper-bound failure reference, not L4 or single-A100 qualification.",
+    "artifact_urls": [
+      "https://github.com/Leonccaa/LightX2V-V100/blob/main/docs/minimax_h3_v100_tp4_benchmark.md"
+    ]
+  },
+  {
+    "id": "INF18",
+    "topic": "wan2gp-canonical-provenance-current-readme",
+    "title": "Canonical Wan2GP README and repository provenance",
+    "url": "https://github.com/deepbeepmeep/Wan2GP",
+    "publisher": "deepbeepmeep",
+    "source_date": "2026-09-29",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "Canonical README lists v13.141 dated 2026-09-29 and model support including H3, LTX-2.3/2.5 and Wan2.1/2.2.",
+      "GitHub API reports canonical last push 2026-10-07; extreme2k/Wan2GP is its fork and was last pushed 2026-08-07.",
+      "Canonical Wan2GP itself historically forks Wan-Video/Wan2.1, so a fork flag alone is not evidence that a repository is invalid."
+    ],
+    "resources": {},
+    "limitations": "Repository/README version and support claims, not a specified-GPU runtime or quality benchmark.",
+    "artifact_urls": [
+      "https://api.github.com/repos/deepbeepmeep/Wan2GP",
+      "https://api.github.com/repos/extreme2k/Wan2GP"
+    ]
+  }
+]

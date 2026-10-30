@@ -1,0 +1,255 @@
+[
+  {
+    "id": "HW01",
+    "topic": "hardware-boundary",
+    "title": "NVIDIA L4 specifications",
+    "url": "https://www.nvidia.com/en-us/data-center/l4/",
+    "publisher": "NVIDIA",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "L4: nominal 24GB GPU memory and 300GB/s memory bandwidth.",
+      "Specification table includes FP8 and INT8 Tensor Core support."
+    ],
+    "resources": {},
+    "limitations": "Specifications/request parameters, not a video generation benchmark or allocation guarantee.",
+    "artifact_urls": []
+  },
+  {
+    "id": "HW02",
+    "topic": "hardware-boundary",
+    "title": "NVIDIA A100 specifications",
+    "url": "https://www.nvidia.com/en-us/data-center/a100/",
+    "publisher": "NVIDIA",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Product page links A100 40GB and 80GB variants.",
+      "GPU model does not specify host RAM or Colab allocation."
+    ],
+    "resources": {},
+    "limitations": "Specifications/request parameters, not a video generation benchmark or allocation guarantee.",
+    "artifact_urls": []
+  },
+  {
+    "id": "HW03",
+    "topic": "hardware-boundary",
+    "title": "CUDA GPU Compute Capability",
+    "url": "https://developer.nvidia.com/cuda/gpus",
+    "publisher": "NVIDIA",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "L4 compute capability 8.9.",
+      "A100 compute capability 8.0."
+    ],
+    "resources": {},
+    "limitations": "Specifications/request parameters, not a video generation benchmark or allocation guarantee.",
+    "artifact_urls": []
+  },
+  {
+    "id": "HW04",
+    "topic": "hardware-boundary",
+    "title": "Google Cloud GPU comparison",
+    "url": "https://docs.cloud.google.com/compute/docs/gpus/#general_comparison_chart",
+    "publisher": "Google Cloud",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "A100 40GB and 80GB are listed separately; L4 nominal GPU memory is 24GB.",
+      "Tensor Core comparison lists A100 FP8 as N/A and L4 FP8 as supported."
+    ],
+    "resources": {},
+    "limitations": "Specifications/request parameters, not a video generation benchmark or allocation guarantee.",
+    "artifact_urls": []
+  },
+  {
+    "id": "HW05",
+    "topic": "hardware-boundary",
+    "title": "Google Colab FAQ resource limits",
+    "url": "https://research.google.com/colaboratory/faq.html#resource-limits",
+    "publisher": "Google Colab",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "High memory refers to system memory.",
+      "Hardware availability and resource limits vary."
+    ],
+    "resources": {},
+    "limitations": "Specifications/request parameters, not a video generation benchmark or allocation guarantee.",
+    "artifact_urls": []
+  },
+  {
+    "id": "HW06",
+    "topic": "hardware-boundary",
+    "title": "Colab CLI session management",
+    "url": "https://github.com/googlecolab/google-colab-cli/blob/main/docs/01_session_management.md",
+    "publisher": "googlecolab",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "A100 --high-mem requests accelerator A100 and shape hm.",
+      "L4 has one shape and ignores --high-mem."
+    ],
+    "resources": {},
+    "limitations": "Specifications/request parameters, not a video generation benchmark or allocation guarantee.",
+    "artifact_urls": []
+  },
+  {
+    "id": "LOCAL01",
+    "topic": "local-fasth3-baseline",
+    "title": "Existing L4 FastH3 run LOCAL01",
+    "url": null,
+    "local_paths": [
+      "artifacts/fast-h3-skill-trials/20261009/round03/round03_notebook_toycar_20261009T033057_76817ce5/metrics.json",
+      "artifacts/fast-h3-skill-trials/20261009/round03/round03_notebook_toycar_20261009T033057_76817ce5/hardware.json"
+    ],
+    "publisher": "workspace run evidence",
+    "source_date": "2026-10-09",
+    "checked_date": "2026-10-10",
+    "source_type": "local-evidence",
+    "access": "full-text",
+    "claims": [
+      "Four native Euler forwards, 200 VSA kernel calls, zero dense fallbacks.",
+      "The run reports technically_valid, not a quality comparison."
+    ],
+    "resources": {
+      "gpu": "NVIDIA L4",
+      "vram_total_mib": 23034.0,
+      "ram_total_gib": 52.96,
+      "resolution": [
+        864,
+        480
+      ],
+      "frames": 124,
+      "output_frames": 120,
+      "duration_s": 5.0,
+      "steps": 4,
+      "time_s": 181.62,
+      "precision": "DiT INT8-ConvRot; text encoder NVFP4-AWQ; video VAE INT8-ConvRot; audio VAE FP32",
+      "workflow": "ComfyUI FastH3"
+    },
+    "limitations": "Old evidence, not rerun today; different prompt/seed/LoRA, not controlled A/B; install/download excluded; no repeated warm timing; allocator peaks are not full GPU memory requirements.",
+    "artifact_urls": []
+  },
+  {
+    "id": "LOCAL02",
+    "topic": "local-fasth3-baseline",
+    "title": "Existing L4 FastH3 run LOCAL02",
+    "url": null,
+    "local_paths": [
+      "artifacts/fast-h3-skill-trials/20261009/round04/generate/round04_orange_ball_lora_20261009T034455_5e82c3dc/metrics.json",
+      "artifacts/fast-h3-skill-trials/20261009/round04/generate/round04_orange_ball_lora_20261009T034455_5e82c3dc/hardware.json"
+    ],
+    "publisher": "workspace run evidence",
+    "source_date": "2026-10-09",
+    "checked_date": "2026-10-10",
+    "source_type": "local-evidence",
+    "access": "full-text",
+    "claims": [
+      "Four native Euler forwards, 200 VSA kernel calls, zero dense fallbacks.",
+      "The run reports technically_valid, not a quality comparison."
+    ],
+    "resources": {
+      "gpu": "NVIDIA L4",
+      "vram_total_mib": 23034.0,
+      "ram_total_gib": 52.96,
+      "resolution": [
+        864,
+        480
+      ],
+      "frames": 124,
+      "output_frames": 120,
+      "duration_s": 5.0,
+      "steps": 4,
+      "time_s": 156.19,
+      "precision": "DiT INT8-ConvRot; text encoder NVFP4-AWQ; video VAE INT8-ConvRot; audio VAE FP32",
+      "workflow": "ComfyUI FastH3"
+    },
+    "limitations": "Old evidence, not rerun today; different prompt/seed/LoRA, not controlled A/B; install/download excluded; no repeated warm timing; allocator peaks are not full GPU memory requirements.",
+    "artifact_urls": []
+  },
+  {
+    "id": "HW07",
+    "topic": "hardware-boundary-community",
+    "title": "We finally got 80GB A100!",
+    "url": "https://www.reddit.com/r/GoogleColab/comments/1ngjhgq",
+    "publisher": "Striking-Warning9533 / r/GoogleColab",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Author reports receiving an A100 80GB on Colab.",
+      "Author comment says High RAM was selected."
+    ],
+    "resources": {
+      "gpu": "A100",
+      "vram_gb": 80,
+      "ram_gb": null
+    },
+    "limitations": "Self-reported allocation, not guaranteed current availability; no complete runtime inventory; search date and relative rendered dates conflict.",
+    "artifact_urls": []
+  },
+  {
+    "id": "HW08",
+    "topic": "framepack-historical-l4-test",
+    "title": "Video generation speed : Colab vs 4090 vs 4060",
+    "url": "https://www.reddit.com/r/StableDiffusion/comments/1lb2bbb",
+    "publisher": "redbook2000 / r/StableDiffusion",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "For a 20-second 480-class FramePack I2V run, author reports approximately 80 minutes on Colab L4, 25 minutes on RTX4090, and 90 minutes on laptop RTX4060.",
+      "Author reports Colab host RAM around 50GB, usage around 6GB RAM and 12GB VRAM, with a sagiodev notebook."
+    ],
+    "resources": {
+      "gpu": "Colab L4",
+      "vram_gb": null,
+      "ram_gb": 50,
+      "resolution": "480-class; exact width not reported",
+      "duration_s": 20,
+      "steps": null,
+      "time_s": 4800,
+      "precision": null,
+      "workflow": "sagiodev FramePack Colab"
+    },
+    "limitations": "Historical report; exact source date, seed, steps, revision and timing breakdown unknown; author labels L4 total VRAM as 20GB, not NVIDIA nominal 24GB; do not adopt author causal speculation about shared machines.",
+    "artifact_urls": [
+      "https://github.com/sagiodev/FramePack_Colab"
+    ]
+  },
+  {
+    "id": "HW09",
+    "topic": "framepack-notebook-artifact",
+    "title": "FramePack_Colab",
+    "url": "https://github.com/sagiodev/FramePack_Colab",
+    "publisher": "sagiodev",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "Repository contains FramePack_colab_SDA.ipynb and is the notebook linked by the first-hand FramePack Colab comparison."
+    ],
+    "resources": {},
+    "limitations": "Notebook existence is not validation of current runtime/model compatibility; not executed in this survey.",
+    "artifact_urls": [
+      "https://github.com/sagiodev/FramePack_Colab/blob/main/FramePack_colab_SDA.ipynb"
+    ]
+  }
+]

@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-09",
+  "gpu": "L4",
+  "comfyui": {
+    "repo": "https://github.com/Comfy-Org/ComfyUI.git",
+    "revision": "a4b5a045e56fc334903db8457b728b64e006119c"
+  },
+  "vsa_pack": {
+    "repo": "https://github.com/exportAnything/ComfyUI-FastH3-VSA.git",
+    "revision": "c1798183d89f7143d021c16507e4bb7ac0b3decc"
+  },
+  "comfy_kitchen": "0.2.37",
+  "assets": [
+    {
+      "repo": "Kijai/MiniMax-H3-experimental",
+      "revision": "d8023be02fefbb3633b0cd335c3879f91177299d",
+      "file": "minimax_h3_fastvideo_vsa_datafree_1300step_4step_int8_convrot.safetensors",
+      "size": 22898594920,
+      "sha256": "7221ae65d78780354d51e5048d29728d9f1f8fb9baf50b1dd3df85f5101413d3",
+      "destination": "diffusion_models/minimax_h3_fastvideo_vsa_datafree_1300step_4step_int8_convrot.safetensors"
+    },
+    {
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "e5eb578a89295337b8ff433a035929ce0279e0b6",
+      "file": "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "size": 15687142551,
+      "sha256": "35a88d51044231fe332301d7a62aa81e3f2cba62febeb446e2c1e3e0ef76f2c6",
+      "destination": "text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors"
+    },
+    {
+      "repo": "Kijai/MiniMax-H3-experimental",
+      "revision": "d8023be02fefbb3633b0cd335c3879f91177299d",
+      "file": "minimax_h3_video_vae_int8_convrot.safetensors",
+      "size": 3171670912,
+      "sha256": "9bb2d96f218c76babd85e0611b85ca8fb330a90546c01a0005e8a58a59593410",
+      "destination": "vae/minimax_h3_video_vae_int8_convrot.safetensors"
+    },
+    {
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "e5eb578a89295337b8ff433a035929ce0279e0b6",
+      "file": "vae/minimax_h3_audio_vae_fp32.safetensors",
+      "size": 605254808,
+      "sha256": "8e505d95dd1561d47abd43d4238fd40d9bb1ae9e147ed0a4cba778d76ae4db48",
+      "destination": "vae/minimax_h3_audio_vae_fp32.safetensors"
+    }
+  ],
+  "source_checkpoint": "FastVideo FastH3 VSA DataFree 1300step (Kijai INT8 ConvRot conversion; article checkpoint, not v0.2 step2900)",
+  "timesteps": [
+    999,
+    749,
+    500,
+    250
+  ],
+  "video_shift": 12.0,
+  "audio_shift": 3.0,
+  "vsa": {
+    "keep_percent": 10.0,
+    "tile_size": 64,
+    "min_tokens": 8192,
+    "failure_mode": "error"
+  }
+}

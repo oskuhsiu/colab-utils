@@ -1,0 +1,951 @@
+[
+  {
+    "id": "H3Q01",
+    "topic": "official-comfy-quant-families",
+    "title": "Comfy-Org MiniMax-H3 repack: BF16, INT8 ConvRot, FP8 scaled, W6A8, NVFP4 text encoder and separate VAEs",
+    "url": "https://huggingface.co/Comfy-Org/MiniMax-H3/blob/main/README.md",
+    "publisher": "Comfy-Org / Kijai",
+    "source_date": "2026-09-29",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Comfy-Org describes this as a ComfyUI repack of MiniMaxAI H3; FL2VA and Ref2VA are separate diffusion checkpoints.",
+      "The repository lists BF16, pruned BF16, INT8 ConvRot, scaled FP8, and W6A8 diffusion variants for both partitions; listed approximate sizes are pruned INT8/FP8 about 21 GB, W6A8 about 16 GB, and unpruned INT8 about 34 GB.",
+      "The repository lists separate Qwen3-VL text encoders (BF16 51.5 GB, INT8 ConvRot 27.1 GB, NVFP4/AWQ 15.7 GB), video VAE FP16 5.21 GB or INT8 ConvRot 2.81 GB, and audio VAE FP32 605 MB.",
+      "README says INT8 ConvRot is preferred when PyTorch cu130 is available and scaled FP8 is for cases where it is not; the NVFP4 text encoder is converted from cybermotaz/Qwen3-VL-32B-Instruct-NVFP4."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "BF16",
+        "INT8 ConvRot",
+        "scaled FP8 e4m3",
+        "W6A8",
+        "NVFP4/AWQ TE"
+      ],
+      "workflow": "ComfyUI native FL2VA/Ref2VA"
+    },
+    "limitations": "Author file and loader claims only; no same-prompt/seed quality or peak-memory matrix in this source.",
+    "artifact_urls": [
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main/diffusion_models",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main/text_encoders",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main/vae"
+    ]
+  },
+  {
+    "id": "H3Q02",
+    "topic": "kijai-w4a8-vae",
+    "title": "Kijai experimental W4A8/W6A8 diffusion weights and INT8 ConvRot VAE",
+    "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental/blob/a3e7d8da4ae7ba8df0779094cf5ab9d6ee855fe4/README.md",
+    "publisher": "Kijai",
+    "source_date": "2026-08-08",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "Kijai defines W4A8 as 4-bit weights with INT8-ConvRot activations and labels the format experimental; W6A8 is 6-bit weights with INT8-ConvRot activation and work in progress.",
+      "The current tree lists pruned FL2VA W4A8 12.5 GB, pruned Ref2VA W4A8 11.8 GB, video INT8 ConvRot VAE 3.17 GB, and a light INT8 ConvRot VAE 2.14 GB.",
+      "The author README states ComfyUI 0.31 is required for W4A8 and later notes 0.36 for maximum INT8 VAE speed benefit; the author claims about 1.5x to about 2x VAE decode improvement depending on revision."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "W4A8",
+        "W6A8 WIP",
+        "INT8 ConvRot VAE"
+      ],
+      "workflow": "ComfyUI native with comfy-kitchen support"
+    },
+    "limitations": "W4A8/W6A8 are author experimental formats; VAE speed claims concern decode only and do not establish DiT sampling speed or quality.",
+    "artifact_urls": [
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/tree/main",
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/blob/main/minimax_h3_fl2va_pruned_w4a8_mixed.safetensors",
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/blob/main/minimax_h3_video_vae_int8_convrot.safetensors"
+    ]
+  },
+  {
+    "id": "H3Q03",
+    "topic": "diffsynth-nf4",
+    "title": "DiffSynth-Studio MiniMax-H3-NF4",
+    "url": "https://huggingface.co/DiffSynth-Studio/MiniMax-H3-NF4",
+    "publisher": "DiffSynth-Studio",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The model card calls this a bitsandbytes NF4 4-bit version with full and pruned FL2VA/Ref2VA DiT files.",
+      "Tree metadata lists full FL2VA/Ref2VA about 17.2 GB each, pruned FL2VA/Ref2VA about 10.5 GB each, text encoder 15.3 GB, video VAE 1.61 GB, and audio VAE 284 MB.",
+      "The card gives a 480x832, 124-frame, 50-step example and says disk/CPU offload can run with as little as 8 GB GPU; an extreme disk-to-GPU configuration is documented as using only 8 GB RAM."
+    ],
+    "resources": {
+      "gpu": "CUDA GPU; author says as little as 8 GB for offloaded inference",
+      "vram_gb": 8,
+      "ram_gb": 8,
+      "resolution": "832x480",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 50,
+      "time_s": null,
+      "precision": "NF4 (bitsandbytes 4-bit)",
+      "workflow": "DiffSynth-Studio MiniMaxH3Pipeline"
+    },
+    "limitations": "8 GB GPU/RAM are framework configuration claims, not measured peak or wall-time results; no same-seed quality comparison is provided.",
+    "artifact_urls": [
+      "https://huggingface.co/DiffSynth-Studio/MiniMax-H3-NF4/tree/main",
+      "https://github.com/modelscope/DiffSynth-Studio"
+    ]
+  },
+  {
+    "id": "H3Q04",
+    "topic": "unsloth-pytorch-fp8-int8",
+    "title": "Unsloth pre-quantized PyTorch FP8/INT8 checkpoints",
+    "url": "https://huggingface.co/unsloth/MiniMax-H3-FP8/blob/main/README.md",
+    "publisher": "Unsloth AI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The files quantize the pruned FL2VA and Ref2VA partitions; both quantize 95.8% of parameters while leaving 1-D gains, biases, and modulation path bit-identical.",
+      "INT8 and FP8 files are about 18.86-18.87 GiB; the author records exact base checkpoints in metadata and describes INT8 symmetric and FP8 e4m3 per-output-channel absmax scales.",
+      "Same prompt/seed/settings examples use 960x544, 124 frames, 8 steps, seed 11 on a single unspecified card; Ref2VA same-seed tests at 20 steps report SSIM values as divergence measures rather than quality scores."
+    ],
+    "resources": {
+      "gpu": "single card (model card does not identify it)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "960x544",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 8,
+      "time_s": null,
+      "precision": [
+        "INT8 symmetric",
+        "FP8 e4m3",
+        "ConvRot INT8 variant"
+      ],
+      "workflow": "Diffusers + torchao pre-quantized loader"
+    },
+    "limitations": "GPU, peak memory, wall time, and broad prompt quality are not reported; SSIM numbers are not a quality ranking.",
+    "artifact_urls": [
+      "https://huggingface.co/unsloth/MiniMax-H3-FP8/tree/main",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/blob/main/diffusion_models/minimax_h3_fl2va_pruned_bf16.safetensors"
+    ]
+  },
+  {
+    "id": "H3Q05",
+    "topic": "unsloth-gguf",
+    "title": "Unsloth GGUF Q2-Q8 and dynamic mixed precision",
+    "url": "https://huggingface.co/unsloth/MiniMax-H3-GGUF",
+    "publisher": "Unsloth AI",
+    "source_date": "2026-08-09",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "FL2VA and Ref2VA are separate GGUF denoisers; Q2 through Q8 uniform rungs and UD-Q2/UD-Q3 mixed rungs are listed.",
+      "Text encoder is shared; Q2_K_M is 12.20 GiB and Q4_K_M 16.97 GiB. VAEs are not duplicated and are taken from Comfy-Org.",
+      "The example uses 960x544, 124 frames, 24 FPS, 8 steps, guidance 1.0, seed 11 and a single unspecified card; `te=cpu` and CPU offload are documented for smaller cards."
+    ],
+    "resources": {
+      "gpu": "single card (unspecified)",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "960x544",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 8,
+      "time_s": null,
+      "precision": [
+        "GGUF Q2_K",
+        "UD-Q2_K_XL",
+        "Q3_K",
+        "UD-Q3_K_XL",
+        "Q4_K",
+        "Q5_0",
+        "Q6_K",
+        "Q8_0"
+      ],
+      "workflow": "sd-cli/stablediffusion.cpp or Unsloth"
+    },
+    "limitations": "No card identity, peak VRAM/RAM, wall time, or independent quality test in the model card.",
+    "artifact_urls": [
+      "https://huggingface.co/unsloth/MiniMax-H3-GGUF/tree/main",
+      "https://github.com/unslothai/unsloth"
+    ]
+  },
+  {
+    "id": "H3Q06",
+    "topic": "molbal-gguf",
+    "title": "molbal GGUF: pruned-to-FP8, Q4/Q8/Q8_CR and U16G",
+    "url": "https://huggingface.co/molbal/MiniMax-H3-GGUF",
+    "publisher": "molbal",
+    "source_date": "2026-08-03",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "FL2VA builds are pruned to FP8 then quantized to GGUF; Ref2VA has a separate set.",
+      "FL2VA Q4_0/Q8_0/Q8_CR/U16G are 11.4/20.2/20.2/15.0 GB; Ref2VA Q4_0/Q8_0/Q8_CR/U16G are 11.4/21.4/20.2/15.0 GB.",
+      "Q8_CR is described as Q8_0 quality with INT8 ConvRot; U16G is mixed INT8+Q4_0; Q8_CR/U16G need the author's ComfyUI-GGUF fork."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "Q4_0",
+        "Q8_0",
+        "Q8_CR",
+        "mixed INT8+Q4_0 U16G"
+      ],
+      "workflow": "molbal ComfyUI-GGUF fork"
+    },
+    "limitations": "No same-seed quality or hardware benchmark in the model card; nonstandard Q8_CR/U16G loader compatibility is explicit.",
+    "artifact_urls": [
+      "https://huggingface.co/molbal/MiniMax-H3-GGUF/tree/main",
+      "https://github.com/molbal/ComfyUI-GGUF"
+    ]
+  },
+  {
+    "id": "H3Q07",
+    "topic": "realrebelai-gguf",
+    "title": "realrebelai ComfyUI-format GGUF set",
+    "url": "https://huggingface.co/realrebelai/MiniMax-H3_GGUFs",
+    "publisher": "realrebelai",
+    "source_date": "2026-08-08",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card supplies FL2VA/Ref2VA GGUF filenames and a Qwen3-VL Q4_K_M text encoder, with official Comfy-Org FP16 video and FP32 audio VAEs.",
+      "The page displays Q3_K_M around 15.6 GB, Q4_K_M around 19.9 GB, and text encoder around 14.6 GB.",
+      "The model tree marks this as a quantized derivative of MiniMaxAI and Comfy-Org."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "GGUF Q3_K_M",
+        "GGUF Q4_K_M"
+      ],
+      "workflow": "ComfyUI-format GGUF"
+    },
+    "limitations": "The HF license field is unknown even though the card says the author has a MiniMax license agreement; no quality/time benchmark.",
+    "artifact_urls": [
+      "https://huggingface.co/realrebelai/MiniMax-H3_GGUFs/tree/main"
+    ]
+  },
+  {
+    "id": "H3Q08",
+    "topic": "abiray-gguf",
+    "title": "Abiray full/pruned GGUF plus INT4/NVFP4 text encoders",
+    "url": "https://huggingface.co/Abiray/MiniMax-H3-GGUF",
+    "publisher": "Abiray",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card lists full FL2VA and Ref2VA GGUF Q3_K through Q8_0 at about 15.6–36 GB and points to a separate pruned repository at 8.9–21.6 GB.",
+      "Separate text encoders are listed: INT4 ConvRot 15 GB, Abiray's NVFP4/AWQ card label 27.1 GB, and Q4_K_M GGUF 14.6 GB; official video/audio VAEs are 5.21 GB/605 MB.",
+      "The card distinguishes FL2VA first/last-frame inputs from Ref2VA multimodal references."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "GGUF Q3_K",
+        "Q4_K",
+        "Q5_K",
+        "Q6_K",
+        "Q8_0",
+        "INT4 ConvRot",
+        "NVFP4/AWQ"
+      ],
+      "workflow": "ComfyUI + GGUF loader"
+    },
+    "limitations": "Abiray's 27.1 GB NVFP4/AWQ label differs from Comfy-Org's 15.7 GB NVFP4/AWQ artifact and must be checked against actual file metadata; do not infer RAM from the label. No same-seed quality, peak memory, or wall-time evidence.",
+    "artifact_urls": [
+      "https://huggingface.co/Abiray/MiniMax-H3-GGUF/tree/main",
+      "https://huggingface.co/Abiray/MiniMax-H3-Pruned-GGUF"
+    ]
+  },
+  {
+    "id": "H3Q09",
+    "topic": "winnougan-w4a8",
+    "title": "Winnougan pruned W4A8 ConvRot and matching text encoder",
+    "url": "https://huggingface.co/Winnougan/MiniMax-H3-INT4_Convrot_ComfyUI",
+    "publisher": "Winnougan",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "Pruned FL2VA and Ref2VA W4A8 ConvRot files are each about 12.5 GB; matching W4A8 text encoder is 15.7 GB and INT4 text encoder 14.2 GB.",
+      "The model card defines asym_w4a8_int8 as ConvRot INT4 weights, Lloyd-Max codebook, FP8 group scales and INT8 GEMM; text encoder visual tower remains unconverted.",
+      "The model requires a recent ComfyUI with asym_w4a8_int8 support and says W4A8 may mildly degrade quality versus BF16/INT8."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "W4A8 ConvRot",
+        "INT4 ConvRot TE",
+        "INT8 ConvRot FastV2"
+      ],
+      "workflow": "ComfyUI mainline asym_w4a8_int8"
+    },
+    "limitations": "No author same-seed quality or runtime test in the card; FastV2 files are accelerated derivatives and should not be treated as base H3 quantizations.",
+    "artifact_urls": [
+      "https://huggingface.co/Winnougan/MiniMax-H3-INT4_Convrot_ComfyUI/tree/main"
+    ]
+  },
+  {
+    "id": "H3Q10",
+    "topic": "dmitrydb-multilevel",
+    "title": "DmitryDB stock-layout INT8/W8W4/W4/NVFP4 profiles",
+    "url": "https://huggingface.co/DmitryDB/MiniMax-H3-ComfyUI-Quants/blob/f33fe03608b9e1fffdf6702fd618993d822bfce0/README.md",
+    "publisher": "DmitryDB",
+    "source_date": "2026-08-05",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "Eight profiles are provided for both FL2VA and Ref2VA with stock ComfyUI fused-QKV/time-table layout; no custom loader or core patch is required in the tested revision.",
+      "Profiles are INT8 ConvRot balanced/safe/max (20.940/20.330/21.908 GiB), W8/W4 (13.565 GiB), W4 compact/offload (10.067/9.708 GiB), and NVFP4 quality/compact (13.597/10.862 GiB).",
+      "RTX 4090 loader tests reported peak reserved 20.424/21.025/21.002 GiB and PASS; author explicitly says these are loader/kernel measurements, not full prompt-to-decoded-video peaks.",
+      "The repository does not include a text encoder; video FP16 and audio FP32 VAEs are separate."
+    ],
+    "resources": {
+      "gpu": "RTX 4090 24 GB (loader test only)",
+      "vram_gb": {
+        "peak_reserved_gib": [
+          20.424,
+          21.025,
+          21.002
+        ]
+      },
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "INT8 ConvRot",
+        "W8/W4 ConvRot",
+        "W4 ConvRot",
+        "NVFP4"
+      ],
+      "workflow": "Stock ComfyUI loader"
+    },
+    "limitations": "No prompt-to-video perceptual A/B in the card; RTX 4090 loader numbers cannot be extrapolated to L4/A100 or full workflow peak.",
+    "artifact_urls": [
+      "https://huggingface.co/DmitryDB/MiniMax-H3-ComfyUI-Quants/tree/main/FL2VA",
+      "https://huggingface.co/DmitryDB/MiniMax-H3-ComfyUI-Quants/tree/main/Ref2VA"
+    ]
+  },
+  {
+    "id": "H3Q11",
+    "topic": "quantfunc-w4a4",
+    "title": "QuantFunc sealed W4A4 with fused acceleration components",
+    "url": "https://huggingface.co/QuantFunc/Minimax-H3-Quantfunc-4bit",
+    "publisher": "QuantFunc",
+    "source_date": "2026-09-19",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card describes FL2VA 4-step and Ref2VA 8-step files, each 12.37 GB, with acceleration LoRA, token refiner, INT4 refiner and INT8 Conv sidecar already fused.",
+      "Technical description: W4A4, SVDQuant rank 128/group 64, INT8 Conv sidecar; sealed format requires ComfyUI-QuantFunc rather than a normal Diffusers loader.",
+      "Author same-prompt/same-seed internal FL2VA comparison reports about 23.7 dB PSNR versus BF16; RTX 4090 768x768, 124 frames reports 3.2 s/step for INT4 versus 8.5 INT8 ConvRot and 10.2 FP8."
+    ],
+    "resources": {
+      "gpu": "RTX 4090 24 GB",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "768x768",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": {
+        "FL2VA": 4,
+        "Ref2VA": 8
+      },
+      "time_s": {
+        "per_step": {
+          "QuantFunc_INT4": 3.2,
+          "INT8_ConvRot": 8.5,
+          "FP8": 10.2
+        }
+      },
+      "precision": "W4A4 + INT8 Conv sidecar",
+      "workflow": "ComfyUI-QuantFunc"
+    },
+    "limitations": "Author internal PSNR and core-model per-step data exclude text encoder, VAE, audio processing and save; no L4/A100 test or independent A/B.",
+    "artifact_urls": [
+      "https://huggingface.co/QuantFunc/Minimax-H3-Quantfunc-4bit/tree/main",
+      "https://huggingface.co/QuantFunc/Minimax-H3-Quantfunc-4bit/blob/main/RELEASE-NOTES-2026-09-19.md"
+    ]
+  },
+  {
+    "id": "H3Q12",
+    "topic": "lilcheaty-nvfp4",
+    "title": "lilcheaty NVFP4 pruned and mixed profiles",
+    "url": "https://huggingface.co/lilcheaty/MiniMax-H3-NVFP4/blob/main/README.md",
+    "publisher": "lilcheaty",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The author labels NVFP4 as primarily for Blackwell and says Ada/Hopper/older GPUs emulate it; the card points those systems to INT8 as a separate compatibility path.",
+      "Pruned FL2VA/Ref2VA files are about 12.5 GB; unpruned mixed Ref2VA is about 24.4 GB; TE and FP16/FP32 VAEs are separate.",
+      "The card reports Ref2VA pruned about 1.90 s/it and about 11.9 GB DiT VRAM; mixed Ref2VA about 1.92 s/it and about 20 GB."
+    ],
+    "resources": {
+      "gpu": "Blackwell-oriented; exact test GPU unspecified",
+      "vram_gb": {
+        "pruned_dit": 11.9,
+        "mixed_dit": 20
+      },
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": {
+        "per_iteration": {
+          "pruned_ref2va": 1.9,
+          "mixed_ref2va": 1.92
+        }
+      },
+      "precision": "NVFP4",
+      "workflow": "ComfyUI NVFP4 loader"
+    },
+    "limitations": "Exact GPU, resolution, frames, steps, host RAM, and complete workflow timing are absent; hardware statement is author compatibility guidance.",
+    "artifact_urls": [
+      "https://huggingface.co/lilcheaty/MiniMax-H3-NVFP4/tree/main",
+      "https://huggingface.co/lilcheaty/MiniMax-H3-NVFP4/tree/main/profiles"
+    ]
+  },
+  {
+    "id": "H3Q13",
+    "topic": "community-gguf-amd",
+    "title": "User report: Unsloth GGUF Q4/Q5/Q6/Q8 on RX 7900 XTX",
+    "url": "https://www.reddit.com/r/unsloth/comments/1vkdkqt/minimaxh3_unsloth_ggufs_and_fp8_out_now/",
+    "publisher": "Reddit user noctrex",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "On Windows 11 ROCm stable-diffusion.cpp with RX 7900 XTX, user reports Q4 about 16 GB VRAM and severe artifacts/audio-video desync; Q5 about 18 GB and slightly better but still artifacts/desync.",
+      "Q6 used about 21 GB but produced black output on ROCm and worked with Vulkan; Q8 used all VRAM and OOMed above 640x384.",
+      "Command used Qwen Q4_K_M text encoder, FP16 video VAE, 640x384 and 56 frames; steps/time were not reported."
+    ],
+    "resources": {
+      "gpu": "RX 7900 XTX",
+      "vram_gb": {
+        "Q4": 16,
+        "Q5": 18,
+        "Q6": 21,
+        "Q8": "all"
+      },
+      "ram_gb": null,
+      "resolution": "640x384",
+      "frames": 56,
+      "duration_s": 2.33,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "GGUF Q4_K",
+        "Q5_0",
+        "Q6_K",
+        "Q8_0"
+      ],
+      "workflow": "stable-diffusion.cpp ROCm/Vulkan"
+    },
+    "limitations": "Single AMD/ROCm report without seed/prompt or wall time; ROCm versus Vulkan failure is software/backend-specific and cannot be generalized to NVIDIA or A100/L4.",
+    "artifact_urls": [
+      "https://huggingface.co/unsloth/MiniMax-H3-GGUF",
+      "https://github.com/ggml-org/stable-diffusion.cpp"
+    ]
+  },
+  {
+    "id": "H3Q14",
+    "topic": "community-w4a8-low-resource",
+    "title": "User workflow report: W4A8 H3 on RTX 4060 Laptop 8 GB",
+    "url": "https://www.reddit.com/r/comfyui/comments/1w6je33/minimax_h3_fl2v_running_on_8gb_vram_16gb_ram/",
+    "publisher": "Reddit user Ecstatic-Use-1353",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The user reports RTX 4060 Laptop 8 GB VRAM, 16 GB RAM, Windows, ComfyUI 0.34.3 with W4A8 DiT, Qwen3-VL 4B INT8, INT8 ConvRot VAE and ClipProj 4B.",
+      "480x864 and 544x960, 158 frames, 20 steps Euler/Simple were reported stable; 544x960 took about 10–11+ minutes; 25 steps caused instability on the 8 GB system.",
+      "Qwen3-VL 4B is a replacement conditioning model for the original 32B encoder, not a simple 32B quantization-equivalent swap; the post links a downloadable workflow/repository but does not report peak VRAM, seed, or a quality comparison."
+    ],
+    "resources": {
+      "gpu": "RTX 4060 Laptop",
+      "vram_gb": 8,
+      "ram_gb": 16,
+      "resolution": [
+        "480x864",
+        "544x960"
+      ],
+      "frames": 158,
+      "duration_s": 6.58,
+      "steps": 20,
+      "time_s": {
+        "544x960": "600-660+"
+      },
+      "precision": [
+        "W4A8 DiT",
+        "Qwen3-VL 4B INT8",
+        "INT8 ConvRot VAE"
+      ],
+      "workflow": "ComfyUI low-VRAM workflow"
+    },
+    "limitations": "Single author report; the post's '6.6 seconds at 24 FPS' is ambiguous between clip duration and wall time, and no fixed seed/peak memory/A-B quality test is supplied.",
+    "artifact_urls": [
+      "https://github.com/reventadirecta/MiniMax-H3-ComfyUI-8GB-VRAM",
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental"
+    ]
+  },
+  {
+    "id": "H3Q15",
+    "topic": "community-vae-same-latent",
+    "title": "Kijai discussion user test: FP16 vs INT8 ConvRot VAE",
+    "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental/discussions/21",
+    "publisher": "Reddit-like HF discussion users; Kijai maintainer replies",
+    "source_date": "2026-08-09",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "A user posted test code using the same random latent for FP16 and INT8 ConvRot video VAE decode at 5 s/1344x768.",
+      "Reported decode 19.5 s versus 10.0 s, load 4.0 s versus 3.1 s, files 4.9 versus 3.0 GB, and pixel relative RMS 0.97%.",
+      "Other users report Windows dynamic-memory cases where the VAE was not faster; one reports Linux fixed the issue."
+    ],
+    "resources": {
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "ram_gb": 128,
+      "resolution": "1344x768",
+      "frames": null,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": {
+        "decode_fp16": 19.5,
+        "decode_int8_convrot": 10.0,
+        "load_fp16": 4.0,
+        "load_int8_convrot": 3.1
+      },
+      "precision": [
+        "video VAE FP16",
+        "video VAE INT8 ConvRot"
+      ],
+      "workflow": "ComfyUI VAE decode test"
+    },
+    "limitations": "VAE-only test, not DiT sampling; 5090/Windows/Linux behavior cannot be extrapolated to L4/A100.",
+    "artifact_urls": [
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/blob/main/minimax_h3_video_vae_int8_convrot.safetensors"
+    ]
+  },
+  {
+    "id": "H3Q16",
+    "topic": "community-vae-dynamic-ram",
+    "title": "Kijai discussion user report: INT8 VAE dynamic-RAM regression",
+    "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental/discussions/49",
+    "publisher": "HF discussion user BozackJohnson",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "User reports RTX 5090 32 GB, 96 GB RAM, ComfyUI 0.36, torch 2.14+cu130, Ref2VA, 12 steps, 124 frames, five image references and same seed.",
+      "With Qwen ejected, subsequent runs were about 350–500 s; with Qwen loaded about 180 s; FP16 VAE run was in the 170 s range.",
+      "The user observed INT8 VAE loading into dynamic RAM even with GPU room; the VAE still allowed Qwen to remain loaded."
+    ],
+    "resources": {
+      "gpu": "RTX 5090",
+      "vram_gb": 32,
+      "ram_gb": 96,
+      "resolution": null,
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 12,
+      "time_s": {
+        "int8_qwen_ejected": "350-500",
+        "int8_qwen_loaded": 180,
+        "fp16_vae": "170s range"
+      },
+      "precision": [
+        "video VAE INT8 ConvRot",
+        "video VAE FP16"
+      ],
+      "workflow": "ComfyUI Ref2VA"
+    },
+    "limitations": "Single mixed-state user report with no resolution or peak memory; it conflicts with the same-latent decode microbenchmark and should not be generalized.",
+    "artifact_urls": [
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental"
+    ]
+  },
+  {
+    "id": "H3Q17",
+    "topic": "community-3090-l40-same-workflow",
+    "title": "ComfyUI issue: 3090 noise versus L40 clean output and W4A8 checksum follow-up",
+    "url": "https://github.com/Comfy-Org/ComfyUI/issues/15419",
+    "publisher": "ComfyUI issue author and follow-up commenters",
+    "source_date": "2026-08-08",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Initial report used RTX 3090 24 GB/sm86, cu128, official pruned INT8 ConvRot, 28 steps, 544x960, 5 s/12 frames and reported noise; the issue's initial diagnosis was generated by an autonomous agent and is not treated as settled evidence.",
+      "Follow-up on L40 48 GB used the same workflow/seed class with 28 steps and 576x1024/5 s; the author reports clean coherent video, about 561 s eager, 562 s Sage, and 331 s Triton.",
+      "A later 3090/cu130 W4A8 follow-up says two corrupt `.incomplete` downloads caused its pure-noise renders; after SHA256/size verification, 5 s T2V took about 2 min and rendered correctly."
+    ],
+    "resources": {
+      "gpu": [
+        "RTX 3090",
+        "L40"
+      ],
+      "vram_gb": [
+        24,
+        48
+      ],
+      "ram_gb": null,
+      "resolution": [
+        "544x960",
+        "576x1024"
+      ],
+      "frames": 12,
+      "duration_s": 5,
+      "steps": 28,
+      "time_s": {
+        "L40_eager": 561,
+        "L40_Sage": 562,
+        "L40_Triton": 331,
+        "3090_W4A8_after_checksum": 120
+      },
+      "precision": [
+        "official pruned INT8 ConvRot",
+        "pruned W4A8"
+      ],
+      "workflow": "ComfyUI native H3"
+    },
+    "limitations": "The issue contains conflicting root-cause narratives (kernel fallback versus corrupt downloads) and an automated initial analysis; no L4/A100 measurement.",
+    "artifact_urls": [
+      "https://github.com/Comfy-Org/ComfyUI/issues/15419",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3"
+    ]
+  },
+  {
+    "id": "H3Q18",
+    "topic": "community-a10080-quant-compare",
+    "title": "A100-SXM4-80GB author test: INT8 versus FP8",
+    "url": "https://note.com/howrass_note/n/nb6adf1bce83e",
+    "publisher": "howrass",
+    "source_date": "2026-08-12",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Google Colab NVIDIA A100-SXM4-80GB, CUDA 12.8; the author compares 18 configurations and says the comparison uses second-and-later warm generation times.",
+      "At the author's 0.5 MP setup, INT8 took 348.25 s and FP8 211.36 s; FP8+Sol 153.73 s; FP8+Sage 150.10 s; FP8+Sol+Spectrum 97.12 s and FP8+Sol+EasyCache 103.96 s. At 0.8 MP, FP8+Sol+Spectrum 179.33 s and FP8+Sol+EasyCache 210.97 s.",
+      "The author subjectively reports no large INT8/FP8 video/audio difference; EasyCache audio was slightly better but aggressive caching broke video/audio. Turbo 4-step was about 44.52 s (38.31 s with Sol), while 8 steps only slightly improved audio and 12 steps broke."
+    ],
+    "resources": {
+      "gpu": "A100-SXM4-80GB",
+      "vram_gb": 80,
+      "ram_gb": null,
+      "resolution": [
+        "0.5 MP",
+        "0.8 MP"
+      ],
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": {
+        "INT8_0.5MP": 348.25,
+        "FP8_0.5MP": 211.36,
+        "FP8_Sol_0.5MP": 153.73,
+        "FP8_Sage_0.5MP": 150.1,
+        "FP8_Sol_Spectrum_0.5MP": 97.12,
+        "FP8_Sol_EasyCache_0.5MP": 103.96,
+        "FP8_Sol_Spectrum_0.8MP": 179.33,
+        "FP8_Sol_EasyCache_0.8MP": 210.97,
+        "Turbo4": 44.52,
+        "Turbo4_Sol": 38.31
+      },
+      "precision": [
+        "INT8",
+        "FP8"
+      ],
+      "workflow": "ComfyUI plus attention/cache accelerators"
+    },
+    "limitations": "Exact prompt/seed/resolution/frame count and host RAM are not fully exposed in the article; values are warm/repeated generation times, CUDA 12.8 and 80 GB A100 are not L4/A100-40 evidence; aggressive EasyCache and Turbo settings have reported failure/quality changes.",
+    "artifact_urls": [
+      "https://note.com/howrass_note/n/nb6adf1bce83e"
+    ]
+  },
+  {
+    "id": "H3Q19",
+    "topic": "community-a10080-resource",
+    "title": "A100-80GB/1 TB RAM ComfyUI report with official INT8 ConvRot",
+    "url": "https://www.marwanto606.com/2026/08/cara-menjalankan-minimax-h3-di-comfyui-menggunakan-gpu-modal-dot-com.html",
+    "publisher": "Marwanto606",
+    "source_date": "2026-08-10",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Modal.com A100-80GB with 1 TB host RAM, ComfyUI, official pruned INT8 ConvRot DiT, NVFP4/AWQ text encoder, FP16 video/FP32 audio VAEs and Turbo LoRA.",
+      "A 960x544, 10-second text-to-video run is reported at 307.08 s; VRAM 50.62 GB, RAM 100.8 GB, CPU 6%.",
+      "The author says runtime varies across simple prompts."
+    ],
+    "resources": {
+      "gpu": "A100-80GB",
+      "vram_gb": 50.62,
+      "ram_gb": 100.8,
+      "resolution": "960x544",
+      "frames": null,
+      "duration_s": 10,
+      "steps": null,
+      "time_s": 307.08,
+      "precision": [
+        "INT8 ConvRot DiT",
+        "NVFP4/AWQ TE",
+        "FP16 video VAE",
+        "FP32 audio VAE"
+      ],
+      "workflow": "ComfyUI T2V"
+    },
+    "limitations": "No seed, step count, peak definition or quality A/B; 1 TB host-RAM environment cannot represent A100-40/L4.",
+    "artifact_urls": [
+      "https://huggingface.co/Comfy-Org/MiniMax-H3"
+    ]
+  },
+  {
+    "id": "H3Q20",
+    "topic": "community-a10040-l4-same-seed",
+    "title": "A100-40 versus L4 same-prompt/seed comparison",
+    "url": "https://ai-lab.aidly-ai.jp/posts/video-ai-4models/",
+    "publisher": "AI Lab",
+    "source_date": "2026-08-06",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The article says A100 40 GB and L4 22.5 GB were tested with the same prompt, seed 12345, and 20 steps; H3 ran in ComfyUI 0.30.0.",
+      "H3 output was 864x480, 124 frames, 24 FPS, about 5.17 s. The A100 run used `--reserve-vram 28`, intentionally limiting the runtime to about 12 GB so offload was used; measured H3 generation was 572.9 s and observed peak was 13.7 GiB.",
+      "With that reserve/offload condition, per-step comparison reports A100 2.7 s before reserve versus 24.6 s after reserve and L4 77.2 s; L4 full wall time was not reported."
+    ],
+    "resources": {
+      "gpu": [
+        "A100 40GB",
+        "L4 22.5GB"
+      ],
+      "vram_gb": {
+        "observed_peak_gib": 13.7,
+        "reserve_vram_arg": 28,
+        "effective_limit_gib": 12
+      },
+      "ram_gb": null,
+      "resolution": "864x480",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 20,
+      "time_s": {
+        "A100_generation": 572.9,
+        "A100_per_step_unreserved": 2.7,
+        "A100_per_step_reserved": 24.6,
+        "L4_per_step": 77.2
+      },
+      "precision": null,
+      "workflow": "ComfyUI 0.30.0 H3 with A100 `--reserve-vram 28` offload; precision not explicitly identified"
+    },
+    "limitations": "One seed/run; precision and L4 full runtime are not stated; A100 13.7 GiB/24.6 s is deliberately reserve/offload-constrained, not a free 40 GB baseline; A100 peak is not necessarily L4 peak and cannot support a quantization recommendation.",
+    "artifact_urls": [
+      "https://ai-lab.aidly-ai.jp/posts/video-ai-4models/"
+    ]
+  },
+  {
+    "id": "H3Q21",
+    "topic": "community-kijai-fasth3",
+    "title": "Community test of Kijai FastH3/data-free INT8 ConvRot checkpoint",
+    "url": "https://www.reddit.com/r/comfyui/comments/1w3iotu/testing_kijai_fast_h3_model_with_8_steps/",
+    "publisher": "Reddit user aziib",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The post links Kijai's `minimax_h3_fastvideo_vsa_datafree_1300step_4step_int8_convrot.safetensors`, uses er_sde/beta and 8 steps, and reports about 10 minutes for a 15-second output on RTX 4060 Ti 16 GB with 64 GB RAM.",
+      "The poster calls quality good without a LoRA; another commenter using the same settings reports quality drastically dropping."
+    ],
+    "resources": {
+      "gpu": "RTX 4060 Ti",
+      "vram_gb": 16,
+      "ram_gb": 64,
+      "resolution": null,
+      "frames": null,
+      "duration_s": 15,
+      "steps": 8,
+      "time_s": 600,
+      "precision": "Kijai data-free FastH3 INT8 ConvRot",
+      "workflow": "ComfyUI"
+    },
+    "limitations": "No resolution, seed, prompt, peak memory or workflow JSON; contradictory subjective quality comments; this is not the FastVideo official benchmark.",
+    "artifact_urls": [
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/blob/main/minimax_h3_fastvideo_vsa_datafree_1300step_4step_int8_convrot.safetensors"
+    ]
+  },
+  {
+    "id": "H3Q23",
+    "topic": "t8star-single-tensor-modification",
+    "title": "t8star Ref2VA Patch-In HF1.02 single-tensor weight modification",
+    "url": "https://huggingface.co/t8star/minimax_h3_ref2va_patchin_hf102",
+    "publisher": "t8star",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The author explicitly calls this an experimental weight modification, not a quant, fine-tune, LoRA, distillation, restoration or proven de-wax model.",
+      "It is derived from Comfy-Org Ref2VA INT8 ConvRot; only `video_patch_proj.weight` changes, using a 2x2 Haar transform with non-DC components multiplied by 1.02; other tensors, text encoder, VAEs and ComfyUI nodes remain unchanged.",
+      "The modified file is 34,038,894,550 bytes (about 31.70 GiB), with source and modified SHA256 values and a machine-readable surgery record.",
+      "Author evaluation covers two seeds, one portrait, one prompt and a short 22-frame diagnostic; weak proxy gains did not visually confirm removal of oily/waxy appearance."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 22,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "INT8 ConvRot container with one modified projection tensor",
+      "workflow": "ComfyUI Ref2VA native INT8 ConvRot"
+    },
+    "limitations": "Only a short diagnostic and two seeds; no 124–362 frame, 768p/2K, multi-subject, broad-prompt, blind preference or third-party evaluation.",
+    "artifact_urls": [
+      "https://huggingface.co/t8star/minimax_h3_ref2va_patchin_hf102/tree/main/evidence",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/blob/main/diffusion_models/minimax_h3_ref2va_int8_convrot.safetensors"
+    ]
+  },
+  {
+    "id": "H3Q24",
+    "topic": "city96-gguf-compatibility",
+    "title": "city96/ComfyUI-GGUF issue #471: MiniMax-H3 loader and metadata compatibility",
+    "url": "https://github.com/city96/ComfyUI-GGUF/issues/471",
+    "publisher": "city96/ComfyUI-GGUF issue participants",
+    "source_date": "2026-08-03",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Issue participants report that realrebelai's ComfyUI-format GGUF does not need mmproj, while general GGUF such as Unsloth may need mmproj; they report realrebelai TE working in their test.",
+      "molbal reports a fork adding MiniMax support and loading both molbal and Unsloth quants; another user initially saw SamplerCustomAdvanced failure and later attributed it to not making pixel count a multiple of 32.",
+      "The issue distinguishes the newer Dynamic VRAM loader from the older GGUF offload method."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "ComfyUI-format GGUF",
+        "general GGUF"
+      ],
+      "workflow": "city96 ComfyUI-GGUF or molbal fork"
+    },
+    "limitations": "Compatibility reports are issue-participant tests with no reproducible hardware matrix or quality result; they should be read as loader conditions, not model-quality evidence.",
+    "artifact_urls": [
+      "https://github.com/city96/ComfyUI-GGUF",
+      "https://huggingface.co/realrebelai/MiniMax-H3_GGUFs",
+      "https://huggingface.co/unsloth/MiniMax-H3-GGUF",
+      "https://github.com/molbal/ComfyUI-GGUF"
+    ]
+  },
+  {
+    "id": "H3Q22",
+    "topic": "social-search-boundary",
+    "title": "X/Twitter and Facebook targeted search boundary",
+    "url": null,
+    "publisher": "X/Twitter and Facebook public search surfaces",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "search-boundary",
+    "access": "snippet-only",
+    "claims": [
+      "X searches returned x.com/i/trending generated summaries rather than original status text; no quantization number or reproducible test was admitted as evidence.",
+      "Facebook targeted searches returned unrelated posts or login-gated pages; no H3 quantization test was readable in the checked scope.",
+      "Names surfaced only as leads include super_bonochin, TlanoAI, Hirokazu Yokohara/aigeboku and Kin no Niwatori; they were not used for claims."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": null
+    },
+    "limitations": "Search snippets and generated trend summaries are discovery leads only; this record must not support a hardware, quality, or compatibility conclusion. Main integration: this is a search-boundary entry, excluded from source-URL and supporting-evidence counts; constructed search UI links are omitted.",
+    "artifact_urls": [],
+    "local_paths": [
+      "research/video-resource-survey-20261010/02-h3-quant-community.md"
+    ]
+  }
+]

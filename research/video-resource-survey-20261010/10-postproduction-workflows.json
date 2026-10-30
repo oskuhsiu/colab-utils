@@ -1,0 +1,681 @@
+[
+  {
+    "id": "POST01",
+    "topic": "FlashVSR official v1/v1.1",
+    "title": "FlashVSR official README",
+    "url": "https://github.com/OpenImagingLab/FlashVSR/blob/main/README.md",
+    "publisher": "OpenImagingLab",
+    "source_date": "2025-11",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "FlashVSR v1.1 was released in November 2025 and v1 in October 2025; the README recommends v1.1.",
+      "The author reports approximately 17 FPS on 768x1408 video with one A100; this is an A100 method-level result, not a Colab/Wan paired benchmark.",
+      "The official project is primarily designed and optimized for 4x video super-resolution and strongly recommends 4x.",
+      "Block-Sparse Attention is reported correct with ideal acceleration on A100/A800, limited on H200, and unknown on RTX40/50 and H800.",
+      "The author warns that early third-party integrations omitting LCSA can visibly degrade high-resolution quality through aliasing/artifacts."
+    ],
+    "resources": {
+      "gpu": "1x NVIDIA A100 for 17 FPS claim",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "768x1408 input/output operating point",
+      "frames": null,
+      "duration_s": null,
+      "steps": 1,
+      "time_s": null,
+      "precision": "BF16 in official v1.1 full script",
+      "workflow": "official WanVSR infer_flashvsr_v1.1_full.py"
+    },
+    "input_output_specs": {
+      "scale": 4,
+      "input": "video file or image folder",
+      "output": "video file",
+      "crop": "official full script uses 128-pixel target grid and center crop"
+    },
+    "audio_preservation": "Official full script writes frames/video and does not document copying input audio.",
+    "measurement_scope": "Author README claim on one A100; no L4/A100-40/80 split or host-RAM peak.",
+    "limitations": "A100 kernel compatibility does not establish L4 fallback or speed. Third-party wrappers may omit LCSA and differ in quality.",
+    "artifact_urls": [
+      "https://huggingface.co/JunhaoZhuang/FlashVSR",
+      "https://huggingface.co/JunhaoZhuang/FlashVSR-v1.1",
+      "https://github.com/mit-han-lab/Block-Sparse-Attention"
+    ]
+  },
+  {
+    "id": "POST02",
+    "topic": "FlashVSR v1.1 official input/output contract",
+    "title": "FlashVSR v1.1 full inference script",
+    "url": "https://github.com/OpenImagingLab/FlashVSR/blob/main/examples/WanVSR/infer_flashvsr_v1.1_full.py",
+    "publisher": "OpenImagingLab",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The script sets scale=4 and computes scaled dimensions, floors target width and height separately to a 128 multiple, then bicubic-resizes and center-crops each frame.",
+      "For video inputs it reads the input FPS and uses it when writing output; image-folder input defaults to 30fps.",
+      "The script appends four copies of the final frame, computes F as the largest value <= N+4 of the form 8n+1, truncates indices to F and passes F to the pipeline; it prints F-4 as a nominal target count but does not trim returned frames after inference.",
+      "The pipeline can set tiled=False for higher VRAM/faster operation or tiled=True for lower memory/slower operation; official full script uses tiled=False."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "target width/height each floored to 128 multiple",
+      "frames": "F=largest_8n1_leq(N+4)",
+      "duration_s": null,
+      "steps": 1,
+      "time_s": null,
+      "precision": "BF16",
+      "workflow": "infer_flashvsr_v1.1_full.py"
+    },
+    "input_output_specs": {
+      "scale": 4,
+      "crop": "center crop after bicubic resize",
+      "frame_grid": "8n+1 after appending four repeated final frames",
+      "examples": [
+        "320x176 -> 1280x640 target",
+        "640x352 -> 2560x1408 target"
+      ]
+    },
+    "audio_preservation": "No audio read/copy/mux code in the cited full script.",
+    "measurement_scope": "Static code contract read at current main; actual decoded output frame count and PTS require a local probe.",
+    "limitations": "The frame-index truncation can omit original tail frames for some N; the script has no post-inference trim or exact-duration assertion. A 2x path is not documented by this script.",
+    "artifact_urls": [
+      "https://github.com/OpenImagingLab/FlashVSR/blob/main/examples/WanVSR/infer_flashvsr_v1.1_tiny.py",
+      "https://github.com/OpenImagingLab/FlashVSR/blob/main/examples/WanVSR/infer_flashvsr_v1.1_tiny_long_video.py"
+    ]
+  },
+  {
+    "id": "POST03",
+    "topic": "FlashVSR-Pro low-VRAM fork",
+    "title": "FlashVSR-Pro independent implementation",
+    "url": "https://github.com/LujiaJin/FlashVSR-Pro",
+    "publisher": "LujiaJin",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The repo is an independent reimplementation, not the official FlashVSR code release.",
+      "It adds audio-track preservation, DiT/VAE tiling, Docker/NVENC, and reflective padding to preserve exact output duration and Scale×input resolution according to the README.",
+      "Hardware claims are minimum 8GB for low-resolution tiled videos, 16GB+ recommended for high quality, 24GB+ for 4K, and 16GB+ system RAM recommended; minimum GPU is stated as RTX3060/3070 or similar Ampere/Ada/Hopper.",
+      "The CLI defaults to scale 2, but the README says original FlashVSR is primarily tested/recommended at scale 4; full mode is high quality/high VRAM, tiny and tiny-long use a lower-memory TCD decoder.",
+      "The README exposes tile size default 256, overlap 24, --keep-audio, --fps, --tile-dit and --tile-vae."
+    ],
+    "resources": {
+      "gpu": "Minimum RTX3060/3070 class claimed; A100/H100/H200 production focus",
+      "vram_gb": [
+        8,
+        16,
+        24
+      ],
+      "ram_gb": 16,
+      "resolution": "Low-resolution tiled; 4K 24GB+ claim",
+      "frames": null,
+      "duration_s": null,
+      "steps": 1,
+      "time_s": null,
+      "precision": "BF16 default; FP16/FP32 options",
+      "workflow": "infer.py full/tiny/tiny-long"
+    },
+    "input_output_specs": {
+      "scale": [
+        2,
+        4
+      ],
+      "crop": "README claims reflective padding rather than crop",
+      "frame_grid": "README claims smart padding for 8n+1 and exact frame count",
+      "tiling": {
+        "tile_size": 256,
+        "overlap": 24
+      }
+    },
+    "audio_preservation": "`--keep-audio` explicitly copies input audio when present.",
+    "measurement_scope": "Author implementation claims; no L4/A100-40/80 paired wall-time or quality result in the read README.",
+    "limitations": "Independent fork may differ from official v1.1; exact duration/resolution, quality and low-VRAM figures are not independently verified here.",
+    "artifact_urls": [
+      "https://github.com/LujiaJin/FlashVSR-Pro/blob/main/infer.py",
+      "https://github.com/LujiaJin/FlashVSR-Pro/blob/main/INSTALLATION.md",
+      "https://huggingface.co/JunhaoZhuang/FlashVSR-v1.1"
+    ]
+  },
+  {
+    "id": "POST04",
+    "topic": "SeedVR2 official 3B/7B restoration",
+    "title": "ByteDance-Seed SeedVR2 official README",
+    "url": "https://github.com/ByteDance-Seed/SeedVR/blob/main/readme.md",
+    "publisher": "ByteDance Seed",
+    "source_date": "2026-01-27",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "SeedVR2 is a one-step diffusion video restoration model; official quick start uses SeedVR2-3B and a target res_h/res_w.",
+      "One H100-80G is stated to handle 100×720×1280 video; four H100-80G support 1080p and 2K with sequence parallel size 4.",
+      "The official notice warns prototype performance may differ from the paper, and says heavy degradation/large motion can fail while lightly degraded 720p or 480p AIGC can be oversharpened or over-detailed.",
+      "Official code and weights are Apache-2.0."
+    ],
+    "resources": {
+      "gpu": "1x H100-80G for 100 frames at 720x1280; 4x H100-80G for 1080p/2K",
+      "vram_gb": 80,
+      "ram_gb": null,
+      "resolution": "720x1280; 1080p/2K with 4 GPUs",
+      "frames": 100,
+      "duration_s": null,
+      "steps": 1,
+      "time_s": null,
+      "precision": "BF16 autocast in script",
+      "workflow": "projects/inference_seedvr2_3b.py"
+    },
+    "input_output_specs": {
+      "scale": "target res_h/res_w arbitrary area resize",
+      "crop": "16-pixel divisible crop",
+      "frame_grid": "4n+1 after padding for sp_size"
+    },
+    "audio_preservation": "Official script writes video frames with mediapy and does not document audio stream copying.",
+    "measurement_scope": "Official resource statement, not an A100/L4 benchmark; no wall-time or host RAM.",
+    "limitations": "Heavy-motion and light-degradation failures are explicitly documented; no identity-preservation guarantee and no native audio mux.",
+    "artifact_urls": [
+      "https://huggingface.co/ByteDance-Seed/SeedVR2-3B",
+      "https://huggingface.co/ByteDance-Seed/SeedVR2-7B"
+    ]
+  },
+  {
+    "id": "POST05",
+    "topic": "SeedVR2 official 3B input/output script",
+    "title": "SeedVR2 3B inference script",
+    "url": "https://github.com/ByteDance-Seed/SeedVR/blob/main/projects/inference_seedvr2_3b.py",
+    "publisher": "ByteDance Seed",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The script area-resizes each input to the requested res_h*res_w, allows upsampling because the model is trained for high resolution, clamps values and crops to 16-pixel divisibility.",
+      "The script pads the temporal sequence so `(t-1) % (4*sp_size)==0`, then trims generated samples back to original length before writing.",
+      "It preserves input FPS unless --out_fps is supplied and writes video via mediapy; output video has no audio-copy path in the cited code."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "res_h/res_w, divisible by 16 after crop",
+      "frames": "input length trimmed after 4*sp_size padding",
+      "duration_s": null,
+      "steps": 1,
+      "time_s": null,
+      "precision": "BF16 autocast",
+      "workflow": "generation_loop / inference_seedvr2_3b.py"
+    },
+    "input_output_specs": {
+      "scale": "target area, not fixed multiplier",
+      "crop": "DivisibleCrop(16,16)",
+      "temporal": "4n+1 after padding, then trim to ori_length",
+      "fps": "input video fps or --out_fps"
+    },
+    "audio_preservation": "No audio stream read or mux in the cited official script.",
+    "measurement_scope": "Static source inspection; no execution.",
+    "limitations": "Output resolution is target-area based and aspect ratio/crop behavior must be probed for each clip; no identity/motion correction evidence.",
+    "artifact_urls": [
+      "https://github.com/ByteDance-Seed/SeedVR/blob/main/projects/inference_seedvr2_7b.py"
+    ]
+  },
+  {
+    "id": "POST06",
+    "topic": "SeedVR2 ComfyUI models, BlockSwap and benchmarks",
+    "title": "ComfyUI SeedVR2 Video Upscaler",
+    "url": "https://github.com/comfyorg/comfyui_seedvr2",
+    "publisher": "Comfy-Org",
+    "source_date": "2025-06-20",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The wrapper exposes 3B/7B FP16 and FP8 model filenames and a standalone CLI; default model is 3B FP8 and default resolution width is 1072.",
+      "For GPUs under 24GB, the README says batch_size=1 is a workable no-temporal-consistency path, while batch_size=5 enables temporal consistency; larger batches need more VRAM.",
+      "BlockSwap can swap 0–32 blocks for 3B or 0–36 for 7B between GPU and CPU; more blocks save VRAM but slow inference.",
+      "On H100 93GB, 3B FP8 149 frames at 854x480→1920x1080 takes 361.22s (0.41 FPS); on RTX4090 24GB, 3B FP8 5 frames 512x768→1080x1620 takes 14.66s and 7B FP8 5 frames takes 46.23s with preserve_memory."
+    ],
+    "resources": {
+      "gpu": [
+        "H100 93GB",
+        "RTX4090 24GB"
+      ],
+      "vram_gb": [
+        24,
+        93
+      ],
+      "ram_gb": null,
+      "resolution": [
+        "854x480→1920x1080",
+        "512x768→1080x1620"
+      ],
+      "frames": [
+        5,
+        149
+      ],
+      "duration_s": null,
+      "steps": 1,
+      "time_s": 361.22,
+      "precision": [
+        "FP8",
+        "FP16"
+      ],
+      "workflow": "SeedVR2 Video Upscaler node or inference_cli.py"
+    },
+    "measurements": [
+      {
+        "gpu": "H100 93GB",
+        "model": "3B FP8",
+        "frames": 149,
+        "resolution": "854x480→1920x1080",
+        "batch_size": 149,
+        "time_s": 361.22,
+        "fps": 0.41
+      },
+      {
+        "gpu": "RTX4090 24GB",
+        "model": "3B FP8",
+        "frames": 5,
+        "resolution": "512x768→1080x1620",
+        "batch_size": 1,
+        "time_s": 14.66,
+        "fps": 0.34
+      },
+      {
+        "gpu": "RTX4090 24GB",
+        "model": "7B FP8",
+        "frames": 5,
+        "resolution": "512x768→1080x1620",
+        "batch_size": 1,
+        "time_s": 46.23,
+        "fps": 0.11,
+        "note": "preserve_memory=on"
+      }
+    ],
+    "input_output_specs": {
+      "scale": "new_resolution short-edge mode",
+      "temporal": "batch_size 1 vs >=5 temporal consistency",
+      "offload": "BlockSwap/preserve_vram"
+    },
+    "audio_preservation": "No audio handling is documented in the wrapper README/CLI contract.",
+    "measurement_scope": "Author-maintained Comfy wrapper tables; no L4/A100-40/80 table.",
+    "limitations": "Wrapper warns it consumes all VRAM even for 3B; 7B FP8 quality issues are noted in updates. H100/4090 data cannot be extrapolated to L4/A100.",
+    "artifact_urls": [
+      "https://github.com/comfyorg/comfyui_seedvr2/blob/main/README.md",
+      "https://github.com/comfyorg/comfyui_seedvr2/tree/main/example_workflows"
+    ]
+  },
+  {
+    "id": "POST07",
+    "topic": "SeedVR2-lite low-VRAM community route",
+    "title": "SeedVR2-lite v1.5.8 standalone toolbox",
+    "url": "https://github.com/ReSerendipity/SeedVR2-lite/blob/main/README.md",
+    "publisher": "ReSerendipity",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The README describes an independent standalone Windows/Web UI toolbox with 3B, 7B and 7B-Sharp models, FP16/FP8 and INT8-convrot/MXFP8/NVFP4 variants, and GPU BlockSwap.",
+      "Its model table lists SeedVR2-3B FP16 at minimum 16GB VRAM/~12GB memory, 3B FP8 at 8GB/~8GB, 7B FP16 at 24GB/~20GB and 7B FP8 at 12GB/~12GB; 7B-Sharp has the same FP16/FP8 rows.",
+      "The README says FP8 is a storage format and FP8/FP16 inference speed is approximately the same; BlockSwap, resolution and frame count control speed, with 2048² about 3–4x slower than 1024².",
+      "Portable package requirements are Windows x64, NVIDIA GPU >=8GB and >=15GB disk; video repair requires separately installed FFmpeg."
+    ],
+    "resources": {
+      "gpu": "NVIDIA CUDA; no named A100/L4 run",
+      "vram_gb": [
+        8,
+        12,
+        16,
+        24
+      ],
+      "ram_gb": [
+        8,
+        12,
+        20
+      ],
+      "resolution": "Tool allows configurable image/video output; 1024² vs 2048² cost note",
+      "frames": null,
+      "duration_s": null,
+      "steps": 1,
+      "time_s": null,
+      "precision": [
+        "FP16",
+        "FP8",
+        "INT8-convrot",
+        "MXFP8",
+        "NVFP4"
+      ],
+      "workflow": "SeedVR2-lite standalone UI/portable bundle"
+    },
+    "input_output_specs": {
+      "scale": "configurable model target",
+      "tiling": "GPU BlockSwap",
+      "audio": "FFmpeg required but preservation contract not stated"
+    },
+    "audio_preservation": "No explicit keep-audio/mux behavior in the cited README; FFmpeg is required for video repair.",
+    "measurement_scope": "Independent tool README, including claimed 2026-09-02 real-machine validation; no reproducible L4/A100 wall-time table.",
+    "limitations": "Third-party tool explicitly disclaims affiliation with ByteDance; its memory/quality claims are not official model-card qualification. No exact frame grid or identity/motion metric.",
+    "artifact_urls": [
+      "https://github.com/ReSerendipity/SeedVR2-lite/releases",
+      "https://huggingface.co/ByteDance-Seed/SeedVR2-3B",
+      "https://huggingface.co/ByteDance-Seed/SeedVR2-7B"
+    ]
+  },
+  {
+    "id": "POST08",
+    "topic": "Real-ESRGAN general and video models",
+    "title": "Real-ESRGAN official README",
+    "url": "https://github.com/xinntao/Real-ESRGAN",
+    "publisher": "Tencent ARC Lab / xinntao",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The official model set includes RealESRGAN_x4plus, realesrnet-x4plus, realesrgan-x4plus-anime, realesr-animevideov3 and small anime-video models.",
+      "Python inference supports arbitrary final outscale, tile options and FP16 default; NCNN portable executables run without CUDA/PyTorch and expose scale 2/3/4 and tile size.",
+      "The project is explicitly for image/video restoration but its Python video script is the executable video path; framewise image models do not provide a temporal consistency guarantee.",
+      "The repository is BSD-3-Clause; model weights and external dependencies remain separately scoped."
+    ],
+    "resources": {
+      "gpu": "NVIDIA/AMD/Intel portable NCNN or CUDA PyTorch",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "arbitrary outscale; x2/x4 model families",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP16 default, optional FP32",
+      "workflow": "inference_realesrgan_video.py or NCNN executable"
+    },
+    "input_output_specs": {
+      "scale": [
+        2,
+        3,
+        4,
+        "arbitrary outscale"
+      ],
+      "tiling": "tile size >=32 or auto",
+      "crop": "tile stitching in NCNN can introduce block inconsistency"
+    },
+    "audio_preservation": "The official video script copies the original audio stream when present; no audio synthesis.",
+    "measurement_scope": "Official usage/model contract; no L4/A100 wall-time or VRAM table.",
+    "limitations": "Framewise restoration can flicker or drift across frames; no official identity/motion correction or temporal consistency claim.",
+    "artifact_urls": [
+      "https://github.com/xinntao/Real-ESRGAN/blob/master/inference_realesrgan_video.py",
+      "https://github.com/xinntao/Real-ESRGAN-ncnn-vulkan",
+      "https://colab.research.google.com/github/xinntao/Real-ESRGAN/blob/master/Colab_demo.ipynb"
+    ]
+  },
+  {
+    "id": "POST09",
+    "topic": "Real-ESRGAN video audio mux and frame contract",
+    "title": "Real-ESRGAN official video inference script",
+    "url": "https://github.com/xinntao/Real-ESRGAN/blob/master/inference_realesrgan_video.py",
+    "publisher": "Tencent ARC Lab / xinntao",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The script probes input video width, height, average FPS, frame count and whether an audio stream exists.",
+      "The writer sets output width/height to input dimensions multiplied by outscale and uses input FPS unless --fps overrides it.",
+      "When audio exists, ffmpeg output uses the audio stream with acodec=copy while encoding video; the script therefore preserves an existing track rather than generating a new one.",
+      "The video path supports frame processing through a Reader/Writer loop, optional tiling, and multiple workers that split input video segments with ffmpeg."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "input width*args.outscale, input height*args.outscale",
+      "frames": "input frame count read by ffprobe",
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP16 default in model inference",
+      "workflow": "inference_realesrgan_video.py"
+    },
+    "input_output_specs": {
+      "scale": "args.outscale",
+      "fps": "input average FPS or --fps",
+      "frame_count": "input frame count used by Reader"
+    },
+    "audio_preservation": "Existing audio is passed through with `acodec=copy`; generated audio is unsupported.",
+    "measurement_scope": "Static official script inspection; no run.",
+    "limitations": "No explicit PTS/variable-frame-rate guarantee; subprocess splitting uses ffmpeg -async 1, so timestamp behavior should be probed on real clips.",
+    "artifact_urls": [
+      "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+      "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth"
+    ]
+  },
+  {
+    "id": "POST10",
+    "topic": "RIFE frame interpolation",
+    "title": "ECCV2022-RIFE official README",
+    "url": "https://github.com/hzwer/ECCV2022-RIFE",
+    "publisher": "hzwer / RIFE",
+    "source_date": "2021-11-17",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The official CLI supports exp=1 for 2x interpolation and exp=2 for 4x interpolation, plus arbitrary-timestep image interpolation.",
+      "The README reports 30+ FPS for 2x 720p interpolation on a 2080Ti; this is a 2080Ti author measurement, not L4/A100.",
+      "For 4K input, the README recommends optical-flow processing scale=0.5; if disordered patterns appear, it suggests scale=2.0.",
+      "The `--fps=60` slomo path explicitly removes audio."
+    ],
+    "resources": {
+      "gpu": "2080Ti for 30+ FPS claim",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "720p benchmark; arbitrary input via CLI",
+      "frames": "2x/4x interpolation contract",
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "inference_video.py or Colab_demo.ipynb"
+    },
+    "input_output_specs": {
+      "scale": [
+        2,
+        4
+      ],
+      "flow_process_scale": [
+        0.5,
+        1.0,
+        2.0
+      ],
+      "fps": "--fps output override"
+    },
+    "audio_preservation": "The official --fps=60 route removes audio; remux must be separate.",
+    "measurement_scope": "Author 2080Ti 720p 2x statement and static CLI contract; no L4/A100 timing.",
+    "limitations": "Interpolation can fail or repeat frames for dissimilar endpoints; no identity or motion repair guarantee. Main code check POST15: default exp/video mode has conditional built-in source-audio transfer; the README audio-loss note applies to explicit FPS mode, not all interpolation.",
+    "artifact_urls": [
+      "https://github.com/hzwer/ECCV2022-RIFE/blob/main/Colab_demo.ipynb",
+      "https://github.com/hzwer/ECCV2022-RIFE/blob/main/inference_video.py"
+    ]
+  },
+  {
+    "id": "POST11",
+    "topic": "RIFE repeated-frame failure",
+    "title": "RIFE issue #185: interpolation failure on dissimilar frames",
+    "url": "https://github.com/hzwer/ECCV2022-RIFE/issues/185",
+    "publisher": "RIFE GitHub issue / community user",
+    "source_date": "2021-07-20",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "A user reports that image-to-image morphing sometimes produces no interpolation: in a 64x test, 63 frames were identical to input 0 and the final frame resembled input 1.",
+      "The report asks whether very dissimilar frames trigger an interpolation failure; no general fix is recorded in the issue."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 64,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "RIFE image interpolation"
+    },
+    "input_output_specs": {
+      "scale": 64,
+      "endpoint_distance": "reported as dissimilar images"
+    },
+    "audio_preservation": "Not applicable to image interpolation.",
+    "measurement_scope": "Single community issue report; no attached benchmark table.",
+    "limitations": "Historical failure report; use as a known failure mode, not a current universal behavior claim.",
+    "artifact_urls": [
+      "https://github.com/hzwer/ECCV2022-RIFE"
+    ]
+  },
+  {
+    "id": "POST12",
+    "topic": "MMAudio video-to-audio synthesis",
+    "title": "MMAudio official README",
+    "url": "https://github.com/hkchengrex/MMAudio",
+    "publisher": "UIUC / Sony AI / Sony Group",
+    "source_date": "2025-06",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "MMAudio generates synchronized audio from video and/or text using a synchronization module.",
+      "The official large_44k_v2 demo reports around 6GB GPU memory in 16-bit mode; default CLI duration is 8 seconds and default sampling is 25 steps.",
+      "CLI input is a video path plus prompt; official output is FLAC and an MP4 composition. Longer/shorter durations may work, but large deviation from 8 seconds can lower quality.",
+      "The CLIP encoder resizes to 384x384, Synchformer resizes the short edge to 224 and center-crops, CLIP operates at 8 FPS, Synchformer at 25 FPS, and input below 25 FPS is duplicated.",
+      "Known limitations include unintelligible speech-like sounds, unprompted background music and poor handling of unfamiliar concepts. Code is MIT; checkpoints are CC-BY-NC 4.0."
+    ],
+    "resources": {
+      "gpu": "No named GPU; official 16-bit memory claim",
+      "vram_gb": 6,
+      "ram_gb": null,
+      "resolution": "Input conditioning resized/cropped to 384x384 and 224 short-edge path",
+      "frames": null,
+      "duration_s": 8,
+      "steps": 25,
+      "time_s": null,
+      "precision": "BF16 default; FP16 memory statement",
+      "workflow": "demo.py or gradio_demo.py"
+    },
+    "input_output_specs": {
+      "input": "video plus text prompt",
+      "duration": "default 8s",
+      "fps": "CLIP 8 FPS; Synchformer 25 FPS with low-FPS duplication"
+    },
+    "audio_preservation": "Generates a new audio track; does not preserve an original audio stream as source audio.",
+    "measurement_scope": "Official README memory/contract claim; no L4/A100 wall-time.",
+    "limitations": "Video input is centrally cropped for conditioning; generated audio may be semantically wrong, speech-like noise or music. Checkpoint license is non-commercial CC-BY-NC 4.0.",
+    "artifact_urls": [
+      "https://huggingface.co/hkchengrex/MMAudio",
+      "https://colab.research.google.com/github/hkchengrex/MMAudio/blob/main/MMAudio_demo.ipynb"
+    ]
+  },
+  {
+    "id": "POST13",
+    "topic": "MMAudio official CLI composition",
+    "title": "MMAudio demo.py",
+    "url": "https://raw.githubusercontent.com/hkchengrex/MMAudio/main/demo.py",
+    "publisher": "MMAudio authors",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The CLI exposes --video, --prompt, --duration, --num_steps, --variant and --skip_video_composite; default variant is large_44k_v2, duration 8.0 and steps 25.",
+      "When a video is supplied, the script saves audio to a FLAC file and, unless --skip_video_composite is set, calls make_video to create an MP4 with generated audio.",
+      "The script logs max CUDA memory allocation after generation, but does not publish a fixed per-GPU wall-time table."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": 8,
+      "steps": 25,
+      "time_s": null,
+      "precision": "BF16 unless --full_precision",
+      "workflow": "python demo.py --video VIDEO --prompt TEXT"
+    },
+    "input_output_specs": {
+      "input": "MP4/video path",
+      "output": "FLAC plus MP4 composite",
+      "composite": "make_video(video_info,audio)"
+    },
+    "audio_preservation": "Generated audio is composited into MP4; original source audio is not passed as an input audio track.",
+    "measurement_scope": "Static script inspection; no execution.",
+    "limitations": "No source A/V mux comparison, no PTS policy beyond the library's make_video implementation, no L4/A100 timing.",
+    "artifact_urls": [
+      "https://github.com/hkchengrex/MMAudio/blob/main/mmaudio/eval_utils.py"
+    ]
+  },
+  {
+    "id": "POST14",
+    "topic": "MMAudio ComfyUI wrapper",
+    "title": "ComfyUI-MMAudio custom nodes",
+    "url": "https://github.com/kijai/ComfyUI-MMAudio",
+    "publisher": "kijai",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The repository provides ComfyUI nodes to use MMAudio, with installation into custom_nodes and model loading from ComfyUI/models/mmaudio.",
+      "It links safetensors model files and uses NVIDIA BigVGAN v2 for the 44k mode; example_workflows are included in the repository."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "ComfyUI-MMAudio custom node and example_workflows"
+    },
+    "input_output_specs": {
+      "input": "ComfyUI video conditioning",
+      "output": "audio node / video composition depends on graph"
+    },
+    "audio_preservation": "Wrapper README documents generation nodes and model paths, but does not state original-audio preserve/mux behavior.",
+    "measurement_scope": "Repository setup inspection; no run or resource table.",
+    "limitations": "Community wrapper may diverge from official CLI and requires an independent ComfyUI environment.",
+    "artifact_urls": [
+      "https://github.com/kijai/ComfyUI-MMAudio/tree/main/example_workflows",
+      "https://huggingface.co/Kijai/MMAudio_safetensors"
+    ]
+  },
+  {
+    "id": "POST15",
+    "topic": "rife-audio-preservation-implementation",
+    "title": "Official RIFE inference_video.py audio transfer conditions",
+    "url": "https://github.com/hzwer/ECCV2022-RIFE/blob/main/inference_video.py",
+    "publisher": "hzwer / ECCV2022-RIFE",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "When --fps is omitted, output FPS defaults to input FPS times 2**exp and fpsNotAssigned is true.",
+      "Video input, non-PNG output and fpsNotAssigned trigger transferAudio after interpolation.",
+      "transferAudio first attempts lossless stream copy and can fall back to AAC; failure can leave a silent video. Explicit --fps or PNG output skips this merge."
+    ],
+    "resources": {},
+    "limitations": "Code-level preservation contract, not an executed audio/PTS test in this survey.",
+    "artifact_urls": [],
+    "audio_preservation": "conditional built-in remux"
+  }
+]

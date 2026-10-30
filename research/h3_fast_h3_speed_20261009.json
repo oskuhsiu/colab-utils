@@ -1,0 +1,235 @@
+{
+  "title": "H3 / FastH3 L4 speed evidence",
+  "scope": {
+    "gpu": "single NVIDIA L4, sm_89, 24 GB VRAM",
+    "host_ram": "about 53 GB",
+    "cu_used": 0,
+    "no_model_download": true,
+    "no_gpu_run": true
+  },
+  "answer": "The source-supported low-latency candidate for L4 is the already selected FastH3 4-forward student schedule plus 64-token/90% VSA, with an SM89-capable attention path. FastVideo's published SM89 measurements are RTX 4090, not L4. FastH3 V2 is a separate 8-forward T2VA student; ComfyUI also exposes an I2VA interface, although FL2VA was not distilled and was not distilled for Ref2VA.",
+  "local_baseline": {
+    "source": "research/fast_h3_l4_speed.md",
+    "shape": "864x480, 124 generated frames, 120-frame/5.000 s trim, 4 Euler steps, 200 native VSA calls",
+    "notebook_total_s": 181.62,
+    "notebook_vsa_with_first_load_s": 98.6004,
+    "notebook_first_forward_s": 69.55,
+    "notebook_tail_three_forward_s": 29.0504,
+    "comfy_total_s": 156.19,
+    "comfy_vsa_with_first_load_s": 86.8137,
+    "comfy_first_forward_s": 57.65,
+    "comfy_tail_three_forward_s": 29.1637,
+    "estimated_four_step_sampling_s": {
+      "notebook": 38.73,
+      "comfy": 38.88
+    },
+    "caveat": "The steady four-step and warm total are estimates; no true warm 5-second total was measured."
+  },
+  "findings": [
+    {
+      "id": "fast_student_4step",
+      "source": "S1",
+      "explicit": [
+        "[999,749,500,250]",
+        "guidance 1.0",
+        "64-token VSA tiles",
+        "90% video-tile sparsity",
+        "768x1344x124",
+        "4 forwards"
+      ],
+      "limits": [
+        "quality below base, especially high-motion detail",
+        "other step counts/grids off-distribution",
+        "trained on 32x GB200"
+      ],
+      "l4_status": "no public L4 end-to-end benchmark"
+    },
+    {
+      "id": "fast_student_8step",
+      "source": "S2",
+      "explicit": [
+        "8 forwards",
+        "VSA 80%",
+        "video/audio shift 10/3",
+        "T2VA only"
+      ],
+      "limits": [
+        "FL2VA and Ref2VA were not distilled",
+        "motion/detail/audio can be below base",
+        "tested default 4x B200"
+      ],
+      "l4_status": "not a substitute for the current 1300-step 4-step checkpoint"
+    },
+    {
+      "id": "sm89_attention",
+      "source": "S3/S4",
+      "explicit": [
+        "SM89 INT8-QK sparse attention",
+        "fused-scale FP8 GEMM",
+        "INT8 VAE epilogue",
+        "BF16 PV",
+        "64-token tile",
+        "head dim 128",
+        "forward-only"
+      ],
+      "reported_data": "RTX 4090 warm 5-second clips: 54.6/43.9 s at 832x480 and 154.6/132.8 s at 1344x768 for V2/Trim",
+      "l4_status": "SM89 taxonomy matches L4, but L4 timing/quality/fallback is unverified"
+    },
+    {
+      "id": "sol_attn",
+      "source": "S5",
+      "explicit": [
+        "VSA tail=false, block_len, coarse_gate, topk_ratio",
+        "chunked QKV",
+        "SM80+ guard"
+      ],
+      "reported_data": "H3 T=80k: 23.4 to 13.0 s/it vs dense INT8; cosine about 0.97 vs dense; below 12k tokens dense usually faster",
+      "l4_status": "benchmark tuned on SM120; no L4 end-to-end result"
+    },
+    {
+      "id": "quant_vae",
+      "source": "S6",
+      "explicit": [
+        "W4A8 about 0.56 B/element and about 1.09x INT8 speed",
+        "int8-convrot VAE about 2x decode",
+        "light VAE about 1.3x decode"
+      ],
+      "limits": [
+        "5090/example-machine data",
+        "quality requires same-seed validation"
+      ],
+      "l4_status": "unverified"
+    },
+    {
+      "id": "resident_offload_cache",
+      "source": "S7/S8/S10/S11",
+      "explicit": [
+        "resident components avoid reload",
+        "CPU offload incurs PCIe cost",
+        "lazy load reduces peak to largest overlap but reloads next request",
+        "exact text cache requires identical prompt/reference/options"
+      ],
+      "reported_data": [
+        "third-party NVFP4/AWQ text encoder: 67 s uncached, 12.5 s warm weight cache, 0.2 s output hit",
+        "text output cache about 12 MB per 768x1344 scene"
+      ],
+      "limits": [
+        "third-party data",
+        "Blackwell verification",
+        "no official L4 H3 text-cache benchmark"
+      ],
+      "l4_status": "cold/warm, pin/unpin and cache hit/miss require local measurement"
+    },
+    {
+      "id": "reference_boundary",
+      "source": "MiniMax official H3 README and Comfy official docs",
+      "explicit": [
+        "FL2VA handles T2VA/first-last frame",
+        "Ref2VA handles multi-reference image/video/audio",
+        "FastH3 8-step model card is T2VA-only; ComfyUI exposes first/last-frame inputs outside the distilled scope",
+        "Ref2VA uses a different base checkpoint"
+      ],
+      "l4_status": "semantic boundary, not a speed claim"
+    }
+  ],
+  "measurement_contract": {
+    "source": "FastVideo PR #1919 headline protocol",
+    "source_statement": "two fixed prompts, one excluded warmup, two timed generate_video wall-time runs each",
+    "local_fields_to_record": [
+      "text encode",
+      "DiT/VSA",
+      "VAE decode",
+      "save/mux",
+      "peak VRAM",
+      "host RAM",
+      "kernel/backend",
+      "fallback count",
+      "cold/warm state",
+      "reference mode"
+    ]
+  },
+  "search_boundary": [
+    "No L4 source reported true cold/warm 5-second FastH3 total.",
+    "No official FastVideo/Comfy core prompt-conditioning cache with L4 benchmark was found.",
+    "OmniRef PDD-8 Blackwell-only / about 103 GiB peak was excluded as an L4 recipe.",
+    "External source timings were kept separate from local L4 measurements and no TFLOPS-to-time inference was made."
+  ],
+  "sources": [
+    {
+      "id": "S1",
+      "url": "https://huggingface.co/FastVideo/FastVideo-Minimax-FastH3-Preview-v0.2/blob/d0b052d148db3d24fb39b702087f206484c30269/README.md",
+      "revision": "d0b052d (2026-08-28)"
+    },
+    {
+      "id": "S2",
+      "url": "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2/blob/main/README.md",
+      "revision": "main checked 2026-10-09"
+    },
+    {
+      "id": "S3",
+      "url": "https://github.com/hao-ai-lab/FastVideo/pull/1919",
+      "revision": "merged 2026-10-06; merge commit 8b51380"
+    },
+    {
+      "id": "S4",
+      "url": "https://github.com/hao-ai-lab/FastVideo/blob/2b164405c3d15ed2d222d0582d6db09ffc5ee6b2/fastvideo/attention/backends/minimax_h3_sparse_int8.py",
+      "revision": "2b164405 (checked 2026-10-09)"
+    },
+    {
+      "id": "S5",
+      "url": "https://github.com/Comfy-Org/comfy-kitchen/pull/117",
+      "revision": "merged 2026-08-29; merge commit dae00a1"
+    },
+    {
+      "id": "S6",
+      "url": "https://github.com/Comfy-Org/comfy-kitchen/pull/90",
+      "revision": "merged 2026-08-06; merge commit aa1ab22"
+    },
+    {
+      "id": "S7",
+      "url": "https://github.com/hao-ai-lab/FastVideo/blob/2b164405c3d15ed2d222d0582d6db09ffc5ee6b2/docs/inference/offloading.md",
+      "revision": "2b164405"
+    },
+    {
+      "id": "S8",
+      "url": "https://github.com/hao-ai-lab/FastVideo/blob/2b164405c3d15ed2d222d0582d6db09ffc5ee6b2/docs/inference/optimizations.md",
+      "revision": "2b164405"
+    },
+    {
+      "id": "S9",
+      "url": "https://github.com/Comfy-Org/ComfyUI/blob/a4b5a045e56fc334903db8457b728b64e006119c/comfy/ldm/minimax/vae.py",
+      "revision": "a4b5a045 (2026-10-09)"
+    },
+    {
+      "id": "S10",
+      "url": "https://github.com/linjian-ufo/comfyui-speed-minimaxH3",
+      "revision": "main checked 2026-10-09; third-party"
+    },
+    {
+      "id": "S11",
+      "url": "https://github.com/martonsagi/Comfy-H3-MultiStream",
+      "revision": "main checked 2026-10-09; third-party/Blackwell-tested"
+    },
+    {
+      "id": "MiniMax",
+      "url": "https://github.com/MiniMax-AI/MiniMax-H3/blob/main/README.md",
+      "revision": "main checked 2026-10-09"
+    },
+    {
+      "id": "ComfyFastH3",
+      "url": "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/minimax/minimax-h3-fastvideo.mdx",
+      "revision": "main checked 2026-10-09"
+    },
+    {
+      "id": "ComfyNativeH3",
+      "url": "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/minimax/minimax-h3-native.mdx",
+      "revision": "main checked 2026-10-09"
+    }
+  ],
+  "report_deadline_utc": "2026-10-09T04:44:00Z",
+  "checked_date": "2026-10-09",
+  "primary_review": {
+    "training_scope_correction": "Distinguish interface availability from model-card distilled scope",
+    "source": "Official FastVideo 8-Step V2 model card and Comfy docs already independently read"
+  }
+}

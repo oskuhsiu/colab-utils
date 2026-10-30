@@ -1,0 +1,63 @@
+{
+  "checked": "2026-09-23",
+  "diffsynth_commit": "7686e54d41d25c0e8ed5f1318acc23b6bb832654",
+  "description": "Header-only model recognition checks using the pinned loader key/shape hashing algorithm. Not full weight checksums or GPU tests.",
+  "models": [
+    {
+      "repo": "Comfy-Org/MiniMax-H3",
+      "file": "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+      "revision": "1c41cfca8ebba91d0af792a05c5761fb2c3a7975",
+      "upstream_structure_hash": "ac9fdcd56900c9a1a5ef21eaacf6cb76",
+      "recognized_class": "diffsynth.models.minimax_h3_dit_comfy.MiniMaxH3DiTComfyPruned",
+      "tensor_count": 932
+    },
+    {
+      "repo": "Comfy-Org/MiniMax-H3",
+      "file": "text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+      "revision": "1c41cfca8ebba91d0af792a05c5761fb2c3a7975",
+      "upstream_structure_hash": "d6473c909b72b73afc4fa00c273d1da2",
+      "recognized_class": "diffsynth.models.minimax_h3_text_encoder.MiniMaxH3TextEncoder",
+      "tensor_count": 1602
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "file": "minimax-h3-fl2va-pruned-nf4.safetensors",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "upstream_structure_hash": "9b8f1cbc6fb5fcd2e2c02b6691480427",
+      "recognized_class": "diffsynth.models.minimax_h3_dit_comfy.MiniMaxH3DiTComfyPruned",
+      "tensor_count": 1572
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "file": "minimax-h3-text-encoder-nf4.safetensors",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "upstream_structure_hash": "297933c3a2b0fc4d4dfee30e34c566b8",
+      "recognized_class": "diffsynth.models.minimax_h3_text_encoder.MiniMaxH3TextEncoder",
+      "tensor_count": 2652
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "file": "video_vae_nf4.safetensors",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "upstream_structure_hash": "204819338f4fa12936684eeda37fdf71",
+      "recognized_class": "diffsynth.models.minimax_h3_video_vae.MiniMaxH3VideoVAE",
+      "tensor_count": 1285
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "file": "audio_vae_nf4.safetensors",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "upstream_structure_hash": "925ae768f8f4a9daa902b789de2ad2dc",
+      "recognized_class": "diffsynth.models.minimax_h3_audio_vae.MiniMaxH3AudioVAE",
+      "tensor_count": 1117
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "file": "minimax-h3-fl2va-nf4.safetensors",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "upstream_structure_hash": "4b27efacefbc4d8670e0d7b876699648",
+      "recognized_class": "diffsynth.models.minimax_h3_dit.MiniMaxH3DiT",
+      "tensor_count": 1830
+    }
+  ]
+}

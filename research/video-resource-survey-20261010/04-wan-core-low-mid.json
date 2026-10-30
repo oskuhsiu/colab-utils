@@ -1,0 +1,891 @@
+[
+  {
+    "id": "WAN01",
+    "topic": "official-wan21-core-and-diffusers-contract",
+    "title": "Wan2.1 official README",
+    "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.1/main/README.md",
+    "publisher": "Wan-Video / Wan-AI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The official Wan2.1 README states that T2V-1.3B requires 8.19 GB VRAM and can generate a 5-second 480P video on an RTX 4090 in about 4 minutes without quantization.",
+      "Wan2.1 T2V-14B supports 480P and 720P; T2V-1.3B is listed for 480P and the README warns that 720P is less stable because of limited high-resolution training.",
+      "The Diffusers example uses 81 frames at 16 fps, guidance scale 5, and UniPC flow shift 5 for 720P or 3 for 480P.",
+      "For the 1.3B command the README gives sample guide scale 6 and sample shift 8–12."
+    ],
+    "resources": {
+      "gpu": "RTX 4090 for the timing claim; VRAM floor is model-author stated",
+      "vram_gb": 8.19,
+      "ram_gb": null,
+      "resolution": "480P for the 1.3B timing; 480P/720P for 14B families",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": 240,
+      "precision": "unquantized for the 4090 timing claim",
+      "workflow": "Wan2.1 official generate.py or Diffusers WanPipeline/WanImageToVideoPipeline"
+    },
+    "limitations": "The 8.19GB and 4-minute figures are not L4 or A100 measurements; the README does not provide host RAM or peak VRAM for the 14B paths.",
+    "artifact_urls": [
+      "https://github.com/Wan-Video/Wan2.1",
+      "https://huggingface.co/Wan-AI/Wan2.1-T2V-1.3B",
+      "https://huggingface.co/Wan-AI/Wan2.1-T2V-14B"
+    ]
+  },
+  {
+    "id": "WAN02",
+    "topic": "official-wan22-moe-and-tiiv-5b",
+    "title": "Wan2.2 official README",
+    "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/README.md",
+    "publisher": "Wan-Video / Wan-AI",
+    "source_date": "2025-07-28",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Wan2.2 A14B uses high-noise and low-noise experts, each about 14B parameters; only one expert is active per denoising step.",
+      "The high-noise expert is used early and the low-noise expert is selected when t is below the SNR-derived t_moe threshold.",
+      "The official single-GPU T2V/I2V A14B command is labeled as requiring at least 80GB VRAM; --offload_model, --convert_model_dtype and --t5_cpu are listed as OOM mitigations.",
+      "TI2V-5B supports 1280x704/704x1280 720P at 24fps and is labeled runnable on a GPU with at least 24GB VRAM with offload/dtype/T5 CPU flags.",
+      "The official authors state that TI2V-5B can generate a 5-second 720P video in under 9 minutes on a single consumer-grade GPU without specific optimization."
+    ],
+    "resources": {
+      "gpu": "Official A14B command: at least 80GB; official TI2V-5B command: 24GB class",
+      "vram_gb": 80,
+      "ram_gb": null,
+      "resolution": "A14B 480P/720P; TI2V-5B 1280x704 or 704x1280 720P",
+      "frames": null,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": null,
+      "precision": "Official BF16/config dtype path; --convert_model_dtype is a dtype cast, not 4-bit quantization",
+      "workflow": "Wan2.2 official generate.py"
+    },
+    "limitations": "The under-9-minute statement does not identify a specific GPU, peak VRAM, host RAM, frame count, or exact step count; official A14B 80GB wording is a command-level floor, not a measured L4 result.",
+    "artifact_urls": [
+      "https://github.com/Wan-Video/Wan2.2",
+      "https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B",
+      "https://huggingface.co/Wan-AI/Wan2.2-I2V-A14B",
+      "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B"
+    ]
+  },
+  {
+    "id": "WAN03",
+    "topic": "comfy-native-wan22-workflow-and-4090d-reference",
+    "title": "ComfyUI official Wan2.2 14B T2V workflow template",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan2_2_14B_t2v.json",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The template links FP8-scaled high-noise and low-noise T2V experts at 13.31GB each, Wan2.1 VAE at 242.1MB, and UMT5 FP8-scaled text encoder at 6.27GB.",
+      "The template links Wan2.2 T2V Lightning v1.1 high-noise and low-noise LoRAs at 1.14GB each.",
+      "The default latent is 640x640x81; output FPS is 16 and duration proxy is 5 seconds.",
+      "Base mode defaults to 20 steps split 10/10 with CFG 3.5; Lightning mode uses 4 steps split 2/2 with CFG 1.0; both use Euler/simple and ModelSamplingSD3 shift 5.",
+      "The template note records an RTX4090D reference: FP8-scaled at 640x640 used 84% VRAM and about 536s first/513s second run; FP8-scaled plus 4-step LoRA used 89% and about 108s first/71s second run."
+    ],
+    "resources": {
+      "gpu": "RTX4090D for the embedded reference note; not an L4/A100 measurement",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": "640x640 in the embedded reference workflow",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": "20 base (10+10) or 4 Lightning (2+2)",
+      "time_s": "536/513 base; 108/71 with Lightning, first/second runs",
+      "precision": "FP8-scaled experts and text encoder; Wan2.1 VAE",
+      "workflow": "ComfyUI native Wan2.2 T2V template"
+    },
+    "limitations": "The RTX4090D note is retained as source-condition evidence only and is not extrapolated to L4; the template does not report host RAM or quality metrics.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan2_2_14B_t2v.json",
+      "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan2_2_14B_i2v.json",
+      "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged"
+    ]
+  },
+  {
+    "id": "WAN04",
+    "topic": "wan22-lightning-distillation-and-quality-limits",
+    "title": "Wan2.2-Lightning model-author README",
+    "url": "https://raw.githubusercontent.com/ModelTC/LightX2V-Wan2.2-Lightning/main/README.md",
+    "publisher": "ModelTC / LightX2V",
+    "source_date": "2025-11-08",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The author describes Wan2.2 Lightning as a distilled model requiring 4 steps without the CFG trick and claims approximately 20x speed-up.",
+      "T2V V1.1 and I2V V1 high/low LoRA pairs have Native Comfy and Kijai wrapper workflow JSON files.",
+      "V2.0/0928 updates are described as improving camera controllability and motion dynamics; the model-author README links comparison MP4s and demo MP4s.",
+      "The author explicitly reports a limitation: extremely large motion can create artifacts and vehicle direction can be reversed."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "T2V/I2V README supports 480P and 720P",
+      "frames": null,
+      "duration_s": null,
+      "steps": 4,
+      "time_s": null,
+      "precision": "LoRA with base Wan2.2 high/low experts; native and quantized variants elsewhere in LightX2V",
+      "workflow": "Wan2.2 official generate.py with lora_dir; Native Comfy or Kijai workflow"
+    },
+    "limitations": "The x20 claim has no L4/A100 timing row; the author quality claim is not a controlled full/base paired metric and the README preserves motion/artifact counterexamples.",
+    "artifact_urls": [
+      "https://huggingface.co/lightx2v/Wan2.2-Lightning/tree/main/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1",
+      "https://huggingface.co/lightx2v/Wan2.2-Lightning/tree/main/Wan2.2-I2V-A14B-4steps-lora-rank64-Seko-V1",
+      "https://huggingface.co/lightx2v/Wan2.2-Lightning/blob/main/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1/Wan2.2-T2V-A14B-4steps-lora-rank64-Seko-V1.1-NativeComfy.json",
+      "https://huggingface.co/lightx2v/Wan2.2-Lightning/blob/main/Wan2.2-I2V-A14B-4steps-lora-rank64-Seko-V1/Wan2.2-I2V-A14B-4steps-lora-rank64-Seko-V1-NativeComfy.json",
+      "https://huggingface.co/lightx2v/Wan2.2-Lightning/blob/main/Wan2.2-T2V-A14B-4steps-lora-250928/v1.1-vs-250928.mp4"
+    ]
+  },
+  {
+    "id": "WAN05",
+    "topic": "lightx2v-steps-cfg-offload-precision-and-lora-pairing",
+    "title": "LightX2V model structure and Wan2.1-14B guide",
+    "url": "https://raw.githubusercontent.com/ModelTC/LightX2V/main/docs/EN/source/getting_started/model_structure.md",
+    "publisher": "ModelTC / LightX2V",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "LightX2V lists separate Wan2.1 and Wan2.2 LoRA repositories; Wan2.2 requires separate high-noise and low-noise LoRA entries.",
+      "The Wan2.1 4-step config uses infer_steps 4, denoising list [1000,750,500,250], sample_shift 5, sample_guide_scale 6, enable_cfg false, and LoRA strength 1.0.",
+      "The guide explains that enable_cfg=true runs positive and negative prompts separately, increasing inference time; CPU offload and model-level offload reduce VRAM.",
+      "LightX2V lists Wan2.1 BF16/FP8/INT8 4-step files and Wan2.2 high/low BF16/FP8/INT8 4-step files; it describes original BF16 size about 28.6GB and FP8/INT8 about 15GB in the Wan2.2 Distill README."
+    ],
+    "resources": {
+      "gpu": "Guide timing rows are H100; model docs name 80GB+ and 24GB+ configuration classes",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Wan2.1 benchmark guide config: 480x832",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": 4,
+      "time_s": null,
+      "precision": "BF16 original; FP8 or INT8 quantized DIT; `fp8-vllm`/`int8-vllm` schemes",
+      "workflow": "LightX2V JSON/bash scripts"
+    },
+    "limitations": "The H100 timings in the linked guide are outside the requested L4/A100 scope; the docs establish file/config contracts but not a low/mid quality comparison.",
+    "artifact_urls": [
+      "https://github.com/ModelTC/LightX2V/blob/main/docs/EN/source/getting_started/model_structure.md",
+      "https://github.com/ModelTC/LightX2V/blob/main/examples/BeginnerGuide/EN/Wan21-14B.md",
+      "https://huggingface.co/lightx2v/Wan2.2-Distill-Models"
+    ]
+  },
+  {
+    "id": "WAN06",
+    "topic": "lightx2v-wan21-benchmark-reference",
+    "title": "LightX2V benchmark source for Wan2.1 I2V",
+    "url": "https://github.com/ModelTC/LightX2V/blob/main/docs/EN/source/getting_started/benchmark_source.md",
+    "publisher": "ModelTC / LightX2V",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The H200 480P test uses Wan2.1-I2V-14B, 40 steps, seed 42, CFG enabled; official 366s/71GB is compared with LightX2V distill 14s/35GB.",
+      "The H200 720P test uses 40 steps, seed 1234, CFG enabled; official 974s/81GB is compared with LightX2V distill 44s/43GB.",
+      "The RTX4090 480P test reports LightX2V distill 63–68s with 12–16GB GPU memory; 720P distill 171–183s with 18–23GB.",
+      "The benchmark says all rows use 81 output frames and documents FP8, offload, TeaCache threshold 0.2, and distilled CFG disabled."
+    ],
+    "resources": {
+      "gpu": "H200 and RTX4090 only; no L4/A100",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "480P and 720P",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": "40 base; distilled rows use 4-step DMD2",
+      "time_s": "H200 14/44s distill; RTX4090 63–68/171–183s distill",
+      "precision": "BF16/FP8 configurations and CPU-offload variants",
+      "workflow": "LightX2V benchmark configs"
+    },
+    "limitations": "H200/RTX4090 are outside the requested direct L4/A100 hardware scope; no visual metric or same-hardware L4/A100 comparison is reported.",
+    "artifact_urls": [
+      "https://github.com/ModelTC/LightX2V/tree/main/configs/bench",
+      "https://huggingface.co/lightx2v/Wan2.1-I2V-14B-480P-Lightx2v",
+      "https://huggingface.co/lightx2v/Wan2.1-I2V-14B-720P-Lightx2v"
+    ],
+    "explicit_measurements": [
+      {
+        "gpu": "H200",
+        "resolution": "480P",
+        "frames": 81,
+        "steps": 4,
+        "time_s": 14,
+        "peak_vram_gb": 35,
+        "mode": "LightX2V_3-Distill"
+      },
+      {
+        "gpu": "H200",
+        "resolution": "720P",
+        "frames": 81,
+        "steps": 4,
+        "time_s": 44,
+        "peak_vram_gb": 43,
+        "mode": "LightX2V_3-Distill"
+      },
+      {
+        "gpu": "RTX4090",
+        "resolution": "480P",
+        "frames": 81,
+        "steps": 4,
+        "time_s": 63,
+        "peak_vram_gb": 12,
+        "mode": "LightX2V_6-Distill"
+      },
+      {
+        "gpu": "RTX4090",
+        "resolution": "720P",
+        "frames": 81,
+        "steps": 4,
+        "time_s": 171,
+        "peak_vram_gb": 18,
+        "mode": "LightX2V_6-Distill"
+      }
+    ]
+  },
+  {
+    "id": "WAN07",
+    "topic": "causvid-wan21-13b-official-contract",
+    "title": "CausVid official repo and Wan causal DMD config",
+    "url": "https://github.com/tianweiy/CausVid",
+    "publisher": "Tianwei Yin et al. / CausVid",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The official repo uses Wan2.1-T2V-1.3B as the base model and gives autoregressive 3-step 5-second and bidirectional 3-step 5-second inference commands.",
+      "The repo's data preparation converts videos to 480x832x81 at 16fps.",
+      "The causal DMD config lists timestep_shift 8.0, real_guidance_scale 3.5, denoising_step_list [1000,757,522,0], and num_frame_per_block 3.",
+      "The paper/repo claims 9.4 FPS streaming generation on one H100 with KV caching, but this is outside L4/A100 scope."
+    ],
+    "resources": {
+      "gpu": "H100 for the 9.4 FPS author claim",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "480x832 training/data-prep contract",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": 3,
+      "time_s": null,
+      "precision": "mixed precision in training config; inference checkpoint details not hardware benchmarked",
+      "workflow": "CausVid minimal_inference autoregressive or bidirectional"
+    },
+    "limitations": "No L4/A100 inference timing, VRAM peak, host RAM, or controlled visual comparison is provided; training config guidance scale is not a guaranteed Comfy inference CFG setting.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/tianweiy/CausVid/master/configs/wan_causal_dmd.yaml",
+      "https://huggingface.co/tianweiy/CausVid",
+      "https://causvid.github.io/"
+    ]
+  },
+  {
+    "id": "WAN08",
+    "topic": "causvid-wan21-14b-model-card",
+    "title": "Wan2.1-T2V-14B-CausVid model card",
+    "url": "https://huggingface.co/lightx2v/Wan2.1-T2V-14B-CausVid",
+    "publisher": "LightX2V / CausVid-Plus contributors",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card describes Wan2.1-T2V-14B-CausVid as a Wan2.1 14B foundation with causal diffusion and a 9-step distillation process.",
+      "The training data used about 15,000 OpenSora prompt-video pairs with 81 frames each.",
+      "The inference framework is LightX2V; num_fragments controls approximately 5-second autoregressive video segments."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 81,
+      "duration_s": 5,
+      "steps": 9,
+      "time_s": null,
+      "precision": null,
+      "workflow": "LightX2V scripts/run_wan_t2v_causvid_save_quant.sh"
+    },
+    "limitations": "No low/mid GPU benchmark, peak memory, host RAM or output quality comparison is reported in the card.",
+    "artifact_urls": [
+      "https://huggingface.co/lightx2v/Wan2.1-T2V-14B-CausVid",
+      "https://github.com/ModelTC/LightX2V"
+    ]
+  },
+  {
+    "id": "WAN09",
+    "topic": "turbodiffusion-wan21-wan22-contract",
+    "title": "TurboDiffusion official README",
+    "url": "https://raw.githubusercontent.com/thu-ml/TurboDiffusion/main/README.md",
+    "publisher": "thu-ml / TurboDiffusion",
+    "source_date": "2025-12-18",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "TurboDiffusion provides checkpoints for Wan2.1 T2V-1.3B/14B and Wan2.2 I2V-A14B; its README states unquantized checkpoints are for GPUs above 40GB and quantized checkpoints plus --quant_linear for RTX4090/5090-class cards.",
+      "Wan2.1 runner supports 1–4 sampling steps, default 4, sigma_max 80, SageSLA top-k default 0.1, and quantized linear layers when using quant checkpoints.",
+      "Wan2.2 I2V runner supports 1–4 steps, default 4, sigma_max 200, high/low boundary default 0.9, SageSLA top-k default 0.1, and an optional ODE mode described as sharper but less robust than SDE.",
+      "The published evaluation is on a single RTX5090: Wan2.2 I2V-A14B-720P E2E diffusion 38s; Wan2.1 T2V-1.3B-480P 1.9s; Wan2.1 T2V-14B 720P 24s; 480P 9.9s."
+    ],
+    "resources": {
+      "gpu": "RTX5090 for all published evaluation rows; >40GB guidance mentions H100",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Wan2.2 I2V 720P; Wan2.1 T2V 480P/720P",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": "1–4, default 4",
+      "time_s": "38/1.9/24/9.9 E2E diffusion seconds by listed model",
+      "precision": "W8A8/quantized linear path for <=40GB; unquantized path for >40GB",
+      "workflow": "TurboDiffusion wan2.1_t2v_infer.py or wan2.2_i2v_infer.py"
+    },
+    "limitations": "No L4 or A100 run is reported; 5090 speed and quality claims cannot be transferred directly to requested hardware. README says checkpoints/paper are not finalized and prompts are trained on long English prompts.",
+    "artifact_urls": [
+      "https://github.com/thu-ml/TurboDiffusion",
+      "https://huggingface.co/TurboDiffusion/TurboWan2.2-I2V-A14B-720P",
+      "https://arxiv.org/abs/2512.16093"
+    ]
+  },
+  {
+    "id": "WAN10",
+    "topic": "wan22-tiiv-5b-turbo",
+    "title": "Wan2.2-TI2V-5B-Turbo model card and few-step config",
+    "url": "https://huggingface.co/quanhaol/Wan2.2-TI2V-5B-Turbo",
+    "publisher": "Quanhao Li et al. / MagicMotion contributors",
+    "source_date": "2025-08-06",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The model is distilled from Wan2.2-TI2V-5B using step distillation and CFG distillation; it is a 4-step model with no CFG trick.",
+      "The author card states output support of 121 frames at 24fps and 1280x704, for both T2V/I2V unified TI2V usage.",
+      "The public inference script uses h=704, w=1280, num_frames default 121 and exports at 24fps; the public config lists denoising_step_list [1000,750,500,250] and warp_denoising_step=true.",
+      "The author says the training run was 4000 iterations under 48 hours on a cluster of 16 A100 GPUs."
+    ],
+    "resources": {
+      "gpu": "Training: 16x A100; inference GPU unspecified",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1280x704",
+      "frames": 121,
+      "duration_s": 5.0417,
+      "steps": 4,
+      "time_s": null,
+      "precision": "BF16 pipeline in inference script",
+      "workflow": "wan2.2_fewstep.py with i2v_fewstep.sh"
+    },
+    "limitations": "The 16-A100 figure is training hardware, not single-A100 or L4 inference; no inference wall time, peak VRAM, host RAM, or quality A/B is reported.",
+    "artifact_urls": [
+      "https://github.com/quanhaol/Wan2.2-TI2V-5B-Turbo",
+      "https://raw.githubusercontent.com/quanhaol/Wan2.2-TI2V-5B-Turbo/main/running_scripts/inference/Wan2.2/i2v_fewstep.sh",
+      "https://raw.githubusercontent.com/quanhaol/Wan2.2-TI2V-5B-Turbo/main/configs/inference/wan22.yaml"
+    ]
+  },
+  {
+    "id": "WAN11",
+    "topic": "wan22-a14b-a100-80-serving",
+    "title": "vLLM-Omni Wan2.2 T2V-A14B serving performance",
+    "url": "https://github.com/vllm-project/vllm-omni/blob/main/benchmarks/diffusion/performance_dashboard/wan_2_2_serving_performance.md",
+    "publisher": "vLLM-Omni",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The test environment is one NVIDIA A100-SXM4-80GB with FlashAttention.",
+      "Dataset A is 854x480, 80 frames, 16fps, 3 inference steps; mean latency is 24.6766s with VAE parallel 1 and 21.6810s with VAE parallel 4, CFG parallel 2, Ulysses 2, HSDP on.",
+      "Dataset B is 1280x720, 80 frames, 16fps, 6 inference steps; mean latency is 124.6639s with VAE parallel 1 and 117.44s with VAE parallel 4 under the same parallel settings.",
+      "The benchmark defines mean and P99 HTTP latency and concurrency 1."
+    ],
+    "resources": {
+      "gpu": "NVIDIA A100-SXM4-80GB",
+      "vram_gb": 80,
+      "ram_gb": null,
+      "resolution": "854x480 or 1280x720",
+      "frames": 80,
+      "duration_s": 5,
+      "steps": "3 at 480P; 6 at 720P",
+      "time_s": "21.6810–24.6766 at 480P; 117.44–124.6639 at 720P",
+      "precision": null,
+      "workflow": "vLLM-Omni Wan2.2-T2V-A14B serving",
+      "num_gpus": 4,
+      "gpu_count_evidence": "Main inference from CFG parallel 2 x Ulysses 2 x TP 1 and official GPU-count formula; benchmark page does not explicitly list total devices.",
+      "resource_scope": "high-resource multi-GPU reference, excluded from single-A100 evidence"
+    },
+    "limitations": "This is a serving implementation with Ulysses/CFG/VAE parallelism and HSDP, not the official single-GPU generate.py path; host RAM and visual quality metrics are absent. Main primary-source check: CFG=2 and Ulysses=2 imply four GPUs under official parallel-degree constraints, not one A100. Low-step throughput table has no corresponding quality acceptance evidence.",
+    "artifact_urls": [
+      "https://github.com/vllm-project/vllm-omni/blob/main/benchmarks/diffusion/performance_dashboard/wan_2_2_serving_performance.md",
+      "https://huggingface.co/Wan-AI/Wan2.2-T2V-A14B-Diffusers"
+    ],
+    "explicit_measurements": [
+      {
+        "gpu": "A100-SXM4-80GB",
+        "resolution": "854x480",
+        "frames": 80,
+        "fps": 16,
+        "steps": 3,
+        "time_s": 24.6766,
+        "peak_vram_gb": null,
+        "vae_parallel": 1
+      },
+      {
+        "gpu": "A100-SXM4-80GB",
+        "resolution": "854x480",
+        "frames": 80,
+        "fps": 16,
+        "steps": 3,
+        "time_s": 21.681,
+        "peak_vram_gb": null,
+        "vae_parallel": 4
+      },
+      {
+        "gpu": "A100-SXM4-80GB",
+        "resolution": "1280x720",
+        "frames": 80,
+        "fps": 16,
+        "steps": 6,
+        "time_s": 124.6639,
+        "peak_vram_gb": null,
+        "vae_parallel": 1
+      },
+      {
+        "gpu": "A100-SXM4-80GB",
+        "resolution": "1280x720",
+        "frames": 80,
+        "fps": 16,
+        "steps": 6,
+        "time_s": 117.44,
+        "peak_vram_gb": null,
+        "vae_parallel": 4
+      }
+    ],
+    "supporting_urls": [
+      "https://docs.vllm.ai/projects/vllm-omni/en/latest/user_guide/feature_compatibility/"
+    ]
+  },
+  {
+    "id": "WAN12",
+    "topic": "wan22-tiiv-5b-a100-80-qualification",
+    "title": "Wan2.2 TI2V-5B A100 80GB qualification",
+    "url": "https://github.com/wiseyak-core/wiseyak-vllm-omni/blob/main/recipes/Wan-AI/Wan2.2-TI2V-5B-A100.md",
+    "publisher": "Wiseyak vLLM-Omni recipe",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The qualification host has one NVIDIA A100-SXM4-80GB and 1TiB installed host memory; CPU offload was not used.",
+      "The profile is BF16, batch 1, native FlashAttention, eager mode, VAE tiling, 1280x704, 121 frames, 24fps.",
+      "T2V uses 50 steps, guidance 5.0, flow_shift 5.0 and seed 42; I2V uses the same settings.",
+      "After warmup, T2V HTTP inference time is 288.267s with observed device peak 27,533MiB; I2V is 299.439s with observed device peak 30,333MiB.",
+      "Outputs are H.264 1280x704, 121 frames, 24fps, 5.041667s; the I2V first frame preserves the reference with a reported 5.81 mean absolute pixel error after resize/H.264 encoding."
+    ],
+    "resources": {
+      "gpu": "NVIDIA A100-SXM4-80GB",
+      "vram_gb": 80,
+      "ram_gb": 1024,
+      "resolution": "1280x704",
+      "frames": 121,
+      "duration_s": 5.041667,
+      "steps": 50,
+      "time_s": "288.267 T2V; 299.439 I2V",
+      "precision": "BF16",
+      "workflow": "vLLM-Omni sync Videos API with VAE tiling"
+    },
+    "limitations": "The host has unusually large 1TiB RAM and no CPU offload; this is a measured qualification but not a L4 or A100-40GB result. Quality was visually inspected rather than scored against a base model.",
+    "artifact_urls": [
+      "https://github.com/wiseyak-core/wiseyak-vllm-omni/blob/main/recipes/Wan-AI/Wan2.2-TI2V-5B-A100.md",
+      "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B-Diffusers"
+    ],
+    "explicit_measurements": [
+      {
+        "task": "T2V",
+        "gpu": "A100-SXM4-80GB",
+        "host_ram_gb": 1024,
+        "resolution": "1280x704",
+        "frames": 121,
+        "fps": 24,
+        "steps": 50,
+        "time_s": 288.267,
+        "observed_device_peak_mib": 27533
+      },
+      {
+        "task": "I2V",
+        "gpu": "A100-SXM4-80GB",
+        "host_ram_gb": 1024,
+        "resolution": "1280x704",
+        "frames": 121,
+        "fps": 24,
+        "steps": 50,
+        "time_s": 299.439,
+        "observed_device_peak_mib": 30333
+      }
+    ]
+  },
+  {
+    "id": "WAN13",
+    "topic": "wan22-a100-40-expected-optimization-profile",
+    "title": "Wan2.2 Accelerate A100 40GB and A100 80GB expected profiles",
+    "url": "https://github.com/msiraga/Wan2.2_Accelerate/blob/main/OPTIMIZATION_GUIDE.md",
+    "publisher": "msiraga / Wan2.2_Accelerate",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The guide lists A100 80GB flags --offload_model False, compile reduce-overhead, batched CFG and TF32, with expected 3–3.5x speedup and 100s for 81 frames at 1280x720.",
+      "The guide lists A100 40GB flags --offload_model True, compile reduce-overhead, batched CFG and TF32, with expected 2.5–3x speedup and 120s for 81 frames at 1280x720.",
+      "The guide labels the A100 timing as expected and documents that its current optimized code is T2V only."
+    ],
+    "resources": {
+      "gpu": "A100 40GB and A100 80GB",
+      "vram_gb": "40 or 80",
+      "ram_gb": null,
+      "resolution": "1280x720",
+      "frames": 81,
+      "duration_s": null,
+      "steps": null,
+      "time_s": "expected 120s A10040; expected 100s A10080",
+      "precision": "TF32 optimization plus compile/batched CFG",
+      "workflow": "Wan2.2_Accelerate optimized T2V"
+    },
+    "limitations": "These are explicitly expected values, not reproducible measurement logs; no host RAM, peak VRAM, scheduler, or quality A/B is supplied.",
+    "artifact_urls": [
+      "https://github.com/msiraga/Wan2.2_Accelerate/blob/main/OPTIMIZATION_GUIDE.md"
+    ]
+  },
+  {
+    "id": "WAN14",
+    "topic": "wan22-tiiv-5b-l4-and-a100-firsthand-benchmark",
+    "title": "Wan2.2 TI2V-5B GPU Battle benchmark",
+    "url": "https://gpubattle.com/guides/wan-2-2-5b-gpu-benchmarks",
+    "publisher": "GPU Battle",
+    "source_date": "2026-10",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The benchmark uses Wan-AI/Wan2.2-TI2V-5B-Diffusers and a 49-frame 1280x704 workload, single stream, batch size 1.",
+      "The page states approximately 18GB VRAM minimum, approximately 34GB for the full path and approximately 38GB system RAM for the workload.",
+      "The measured L4 row is 0.15 frames/s at 24GB; the measured A100-SXM4-80GB row is 0.66 frames/s and A100-PCIe-80GB is 0.61 frames/s.",
+      "A100-40GB SXM4/PCIe rows are labeled estimated, at 0.66/0.61 frames/s; the page explicitly says estimated rows are interpolated and not run.",
+      "The author states the table is based on warmup plus two timed runs, with telemetry sampled at 1Hz; precision is BF16 and no silent precision swap is made."
+    ],
+    "resources": {
+      "gpu": "L4 24GB measured; A100 40GB rows estimated; A100 80GB measured",
+      "vram_gb": 24,
+      "ram_gb": 38,
+      "resolution": "1280x704",
+      "frames": 49,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "BF16",
+      "workflow": "Author's diffusers/ComfyUI video harness"
+    },
+    "limitations": "Host RAM is a workload-level statement rather than a per-GPU peak; the page does not provide exact steps, FPS output duration, peak VRAM by row, or video quality metrics. A10040 values are estimates and must remain separate from measured A10080/L4 values.",
+    "artifact_urls": [
+      "https://gpubattle.com/guides/wan-2-2-5b-gpu-benchmarks",
+      "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B-Diffusers"
+    ],
+    "explicit_measurements": [
+      {
+        "gpu": "NVIDIA L4",
+        "vram_gb": 24,
+        "resolution": "1280x704",
+        "frames": 49,
+        "fps": 0.15,
+        "source_label": "Measured"
+      },
+      {
+        "gpu": "NVIDIA A100 80GB SXM4",
+        "vram_gb": 80,
+        "resolution": "1280x704",
+        "frames": 49,
+        "fps": 0.66,
+        "source_label": "Measured"
+      },
+      {
+        "gpu": "NVIDIA A100 80GB PCIe",
+        "vram_gb": 80,
+        "resolution": "1280x704",
+        "frames": 49,
+        "fps": 0.61,
+        "source_label": "Measured"
+      },
+      {
+        "gpu": "NVIDIA A100 40GB SXM4",
+        "vram_gb": 40,
+        "resolution": "1280x704",
+        "frames": 49,
+        "fps": 0.66,
+        "source_label": "Estimated"
+      },
+      {
+        "gpu": "NVIDIA A100 40GB PCIe",
+        "vram_gb": 40,
+        "resolution": "1280x704",
+        "frames": 49,
+        "fps": 0.61,
+        "source_label": "Estimated"
+      }
+    ]
+  },
+  {
+    "id": "WAN15",
+    "topic": "wan21-gguf-quantization",
+    "title": "city96 Wan2.1 T2V-14B GGUF",
+    "url": "https://huggingface.co/city96/Wan2.1-T2V-14B-gguf",
+    "publisher": "city96",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card says it is a direct GGUF conversion of Wan-AI/Wan2.1-T2V-14B and is intended for ComfyUI-GGUF.",
+      "File sizes listed are Q3_K_S 6.99GB, Q3_K_M 7.65GB, Q4_K_S 9.22GB, Q4_K_M 10.1GB, Q5_K_S 10.6GB, Q5_K_M 11.3GB, Q6_K 12.5GB, Q8_0 15.9GB, BF16/F16 29.1GB.",
+      "The card does not publish quality, speed, VRAM peak or host RAM comparisons among quant levels."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "GGUF Q3_K_S through Q8_0; BF16/F16",
+      "workflow": "ComfyUI-GGUF custom node"
+    },
+    "limitations": "File size is not a measured VRAM peak and the card makes no quality ranking claim; no L4/A100 data is supplied.",
+    "artifact_urls": [
+      "https://huggingface.co/city96/Wan2.1-T2V-14B-gguf",
+      "https://github.com/city96/ComfyUI-GGUF"
+    ]
+  },
+  {
+    "id": "WAN16",
+    "topic": "wan22-gguf-high-low-experts",
+    "title": "bullerwins Wan2.2 I2V-A14B GGUF",
+    "url": "https://huggingface.co/bullerwins/Wan2.2-I2V-A14B-GGUF",
+    "publisher": "bullerwins",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card requires both a high-noise and a low-noise model; high noise is used for first steps and low noise for detail refinement.",
+      "The card requires ComfyUI-GGUF and includes an example workflow.",
+      "Each expert is available as Q2_K 5.3GB, Q3_K_S 6.52GB, Q3_K_M 7.18GB, Q3_K_L 7.79GB, Q4_K_S 8.75GB, Q4_K_M 9.65GB, Q5_K_S 10.1GB, Q5_K_M 10.8GB, Q6_K 12GB and Q8_0 15.4GB.",
+      "The card contains no controlled quality or low/mid hardware benchmark."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Wan2.2 I2V supports 480P/720P in the base model",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "GGUF Q2_K through Q8_0 per high/low expert",
+      "workflow": "ComfyUI-GGUF with high/low expert pair"
+    },
+    "limitations": "Two file sizes do not equal peak VRAM or host RAM; no L4/A100 output or quality data is reported.",
+    "artifact_urls": [
+      "https://huggingface.co/bullerwins/Wan2.2-I2V-A14B-GGUF/tree/main",
+      "https://github.com/city96/ComfyUI-GGUF"
+    ]
+  },
+  {
+    "id": "WAN17",
+    "topic": "kijai-causvid-quality-counterevidence",
+    "title": "Kijai WanVideo_comfy card",
+    "url": "https://huggingface.co/Kijai/WanVideo_comfy",
+    "publisher": "Kijai",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "Kijai describes the CausVid LoRAs as experimental extractions from CausVid finetunes intended to transfer distillation benefits, not to provide actual causal inference.",
+      "Kijai states V1 is a direct extraction with adverse motion effects and flashing at full strength; V1.5 removes the first block; V2 keeps attention layers, fixes flashing and retains motion better but needs more steps and can benefit from CFG.",
+      "The card links Wan2.1 CausVid, CFG/step-distill and other Wan acceleration sources."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "LoRA extraction variants; quantized files in linked repositories",
+      "workflow": "ComfyUI native WanVideo nodes or Kijai WanVideoWrapper"
+    },
+    "limitations": "The card does not give L4/A100 measurements; quality statements are author caveats, not a same-seed benchmark.",
+    "artifact_urls": [
+      "https://huggingface.co/Kijai/WanVideo_comfy",
+      "https://github.com/kijai/ComfyUI-WanVideoWrapper"
+    ]
+  },
+  {
+    "id": "WAN18",
+    "topic": "wan21-wan22-lora-compatibility-conflict",
+    "title": "Kijai wrapper issue on direct Wan2.1/Wan2.2 LoRA extraction",
+    "url": "https://github.com/kijai/ComfyUI-WanVideoWrapper/issues/894",
+    "publisher": "Kijai / ComfyUI-WanVideoWrapper issue participants",
+    "source_date": "2025-07-29",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "An issue participant reports attempting Wan2.2 LoRA extraction for Wan2.1 and seeing layer warnings.",
+      "Kijai says a quick direct attempt did not work and suggests the LoRA was probably not trained directly from Wan2.1.",
+      "Another participant says LightX2V LoRAs work because Wan2.2 was trained from Wan2.1 with extended training; this is a participant explanation, not a universal compatibility guarantee."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Kijai WanVideoWrapper LoRA extraction discussion"
+    },
+    "limitations": "This is an issue discussion with no reproducible same-seed quality benchmark; it preserves conflicting reports rather than resolving all LoRA compatibility cases.",
+    "artifact_urls": [
+      "https://github.com/kijai/ComfyUI-WanVideoWrapper/issues/894",
+      "https://github.com/ModelTC/LightX2V-Wan2.2-Lightning"
+    ]
+  },
+  {
+    "id": "WAN19",
+    "topic": "wan22-nf4-packaging-boundary",
+    "title": "Third-party Wan2.2 T2V A14B NF4 Diffusers card",
+    "url": "https://huggingface.co/lopho/Wan2.2-T2V-A14B-Diffusers_nf4",
+    "publisher": "lopho",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card labels the artifact as Wan2.2-T2V-A14B-Diffusers NF4, 4-bit precision, bitsandbytes and WanPipeline, based on Wan-AI/Wan2.2-T2V-A14B-Diffusers.",
+      "The card does not publish a measured GPU, VRAM peak, host RAM, timing or visual-quality comparison for the NF4 artifact."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "NF4/bitsandbytes 4-bit labels",
+      "workflow": "Diffusers WanPipeline"
+    },
+    "limitations": "NF4 is a third-party packaging/quantization artifact; the card has no low/mid resource test or quality claim. It should not be ranked against GGUF, FP8-scaled or INT8 from labels alone.",
+    "artifact_urls": [
+      "https://huggingface.co/lopho/Wan2.2-T2V-A14B-Diffusers_nf4"
+    ]
+  },
+  {
+    "id": "WAN20",
+    "topic": "wan22-colab-l4-routing",
+    "title": "Wan2.2 Colab wrapper hardware routing",
+    "url": "https://github.com/epg900/wan2.2",
+    "publisher": "epg900",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The notebook README routes T4/L4 to TI2V-5B and recommends A100 80GB for A14B.",
+      "The README lists approximately 10GB download for TI2V-5B and approximately 28GB for A14B checkpoints.",
+      "It states A14B uses offload_model, convert_model_dtype and t5_cpu flags to reduce VRAM and TI2V-5B is the fallback for 24GB cards."
+    ],
+    "resources": {
+      "gpu": "T4/L4 for TI2V-5B; A100 80GB recommended for A14B",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": "TI2V-5B 720P; A14B 480P/720P",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Google Colab Wan2.2 notebook wrapper"
+    },
+    "limitations": "This source provides routing and model download sizes, not measured L4/A100 time, VRAM peak, host RAM, or visual quality.",
+    "artifact_urls": [
+      "https://github.com/epg900/wan2.2",
+      "https://colab.research.google.com/github/epg900/wan2.2/blob/main/wan2_2.ipynb"
+    ]
+  },
+  {
+    "id": "WAN21",
+    "topic": "wan22-tiiv-5b-low-resource-out-of-scope-reference",
+    "title": "Wan2Lab TI2V-5B live hardware record",
+    "url": "https://github.com/soomrenald/wan2lab/blob/main/docs/wan2.2-ti2v-5b-hardware.md",
+    "publisher": "Wan2Lab",
+    "source_date": "2026-07-23",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "On AMD gfx1200 with 17,095,983,104 bytes reported VRAM, a 5-frame 1280x704 24fps four-step prompt smoke render took 90.26s and I2V took 97.52s.",
+      "A full 121-frame 1280x704 24fps render using 1 step completed in 21m13s after VAE tiling; sampling was 4m50s and VAE decode 16m8s.",
+      "The wrapper-default VAE tile path OOMed at 16GB; 128-pixel tiles with 64-pixel stride completed, with possible tile seam/quality tradeoff explicitly noted.",
+      "The record gives model component file sizes: scaled FP8 transformer 5.28GB, Wan2.2 VAE 1.41GB and UMT5 FP8 6.73GB."
+    ],
+    "resources": {
+      "gpu": "AMD gfx1200, not NVIDIA L4/A100",
+      "vram_gb": 17,
+      "ram_gb": null,
+      "resolution": "1280x704",
+      "frames": "5 or 121",
+      "duration_s": "5-frame smoke; full output 5.041667",
+      "steps": "4 smoke; 1 full-length evidence",
+      "time_s": "90.26/97.52 smoke; 1273 full-length",
+      "precision": "Scaled FP8 transformer/text encoder; BF16 VAE; FP32 VAE launch flag",
+      "workflow": "Wan2Lab ComfyUI-WanVideoWrapper graph"
+    },
+    "limitations": "The GPU is AMD and below the requested NVIDIA L4/A100 categories; smoke tests explicitly do not constitute visual-quality acceptance and full-length evidence used one step plus aggressive VAE tiling.",
+    "artifact_urls": [
+      "https://github.com/soomrenald/wan2lab/blob/main/docs/wan2.2-ti2v-5b-hardware.md"
+    ]
+  },
+  {
+    "id": "WAN22",
+    "topic": "vllm-omni-gpu-count-boundary",
+    "title": "vLLM-Omni feature compatibility GPU count constraints",
+    "url": "https://docs.vllm.ai/projects/vllm-omni/en/latest/user_guide/feature_compatibility/",
+    "publisher": "vLLM-Omni",
+    "source_date": "2026-08-15",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The total GPU count must equal ulysses_degree times ring_degree times cfg_parallel_size times tensor_parallel_size.",
+      "VAE patch parallelism reuses the DiT process group and cannot exceed its size."
+    ],
+    "resources": {},
+    "limitations": "Used by main to classify WAN11 as multi-GPU. WAN11 itself states model of GPU and parallel degrees but not an explicit device count.",
+    "artifact_urls": []
+  }
+]

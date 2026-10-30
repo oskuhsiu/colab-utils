@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "checked_date": "2026-10-11",
+  "loader": "spandrel==0.4.2",
+  "hash_provenance": "SHA-256 calculated from the official GitHub release bytes; byte counts cross-checked against the GitHub releases API.",
+  "models": {
+    "realesrgan-x2plus": {
+      "file": "RealESRGAN_x2plus.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.1/RealESRGAN_x2plus.pth",
+      "sha256": "49fafd45f8fd7aa8d31ab2a22d14d91b536c34494a5cfe31eb5d89c2fa266abb",
+      "size": 67061725,
+      "scale": 2,
+      "architecture": "RRDBNet, 23 blocks, 64 features, growth 32",
+      "license": "weights-not-separately-specified",
+      "source_license": "BSD-3-Clause",
+      "source": "https://github.com/xinntao/Real-ESRGAN/blob/master/docs/model_zoo.md"
+    },
+    "realesrgan-x4plus": {
+      "file": "RealESRGAN_x4plus.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.1.0/RealESRGAN_x4plus.pth",
+      "sha256": "4fa0d38905f75ac06eb49a7951b426670021be3018265fd191d2125df9d682f1",
+      "size": 67040989,
+      "scale": 4,
+      "architecture": "RRDBNet, 23 blocks, 64 features, growth 32",
+      "license": "weights-not-separately-specified",
+      "source_license": "BSD-3-Clause",
+      "source": "https://github.com/xinntao/Real-ESRGAN/blob/master/docs/model_zoo.md"
+    },
+    "realesrgan-anime-x4": {
+      "file": "RealESRGAN_x4plus_anime_6B.pth",
+      "url": "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.2.4/RealESRGAN_x4plus_anime_6B.pth",
+      "sha256": "f872d837d3c90ed2e05227bed711af5671a6fd1c9f7d7e91c911a61f155e99da",
+      "size": 17938799,
+      "scale": 4,
+      "architecture": "RRDBNet, 6 blocks, 64 features, growth 32",
+      "license": "weights-not-separately-specified",
+      "source_license": "BSD-3-Clause",
+      "source": "https://github.com/xinntao/Real-ESRGAN/blob/master/docs/model_zoo.md"
+    }
+  }
+}

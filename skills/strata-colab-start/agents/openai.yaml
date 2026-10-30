@@ -1,0 +1,6 @@
+interface:
+  display_name: "Start Strata Colab"
+  short_description: "Check and run the authenticated Colab server"
+  default_prompt: "Use $strata-colab-start to check my Strata Colab notebook and prepare its external API within my approved runtime budget."
+policy:
+  allow_implicit_invocation: true

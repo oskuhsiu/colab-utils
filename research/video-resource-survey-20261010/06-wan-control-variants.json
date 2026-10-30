@@ -1,0 +1,1051 @@
+[
+  {
+    "id": "CTRL30",
+    "topic": "talkverse-wan22-5b-long-audio-video",
+    "title": "TalkVerse official README",
+    "url": "https://github.com/snap-research/TalkVerse",
+    "publisher": "Snap Research",
+    "source_date": "2025-12-31",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "TalkVerse-5B is an audio-driven LoRA trained on the TalkVerse corpus and paired with the Wan2.2-TI2V-5B base plus Wav2Vec2-large-xlsr-53-english.",
+      "Single-video inference takes an image, audio file and prompt; offload_model=True and t5_cpu are documented as VRAM-saving flags for consumer GPUs such as RTX4090.",
+      "The batch script exposes INFER_FRAMES=120 and GUIDE_SCALE=6.5; the README describes the baseline as capable of minute-long generation.",
+      "The generate script saves video first and then merges the input audio, so the audio is an external track rather than a native generated soundtrack."
+    ],
+    "resources": {
+      "gpu": "Consumer GPU example is RTX4090; no measured card stated",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 120,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "Wan2.2-TI2V-5B plus TalkVerse-5B audio LoRA; Wav2Vec2 encoder",
+      "workflow": "TalkVerse generate.py s2v-5B with image/audio/prompt"
+    },
+    "limitations": "No L4/A100 wall time, peak VRAM, host RAM, seed or fixed-quality comparison; repository code/dataset/weights use Snap Inc. Non-Commercial License.",
+    "artifact_urls": [
+      "https://github.com/snap-research/TalkVerse",
+      "https://huggingface.co/snap-research/talkverse-s2v-5b",
+      "https://huggingface.co/Wan-AI/Wan2.2-TI2V-5B",
+      "https://huggingface.co/jonatasgrosman/wav2vec2-large-xlsr-53-english",
+      "https://zhenzhiwang.github.io/talkverse/"
+    ]
+  },
+  {
+    "id": "CTRL31",
+    "topic": "talkverse-paper-long-window-quality-and-limits",
+    "title": "TalkVerse paper",
+    "url": "https://arxiv.org/abs/2512.14938",
+    "publisher": "Snap Research authors",
+    "source_date": "2025-12-16",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The paper describes a Wan2.2-5B audio-driven baseline using a (t,h,w)=(4,16,16) VAE, sliding-window generation, motion-frame context, FramePack, and reference-image positional embeddings for long-video continuity.",
+      "It evaluates 40-second long videos at 25fps, corresponding to 1000 frames, and reports an author claim of about 10x lower inference cost than Wan-S2V-14B.",
+      "The paper says the 5B model can underperform on complex/extreme hand articulation and full-body motion; it also reports that LoRA training preserved better visual quality than full DiT fine-tuning for articulated hands and objects."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "paper dataset includes 720p/1080p clips; evaluation resolution not specified in cited abstract lines",
+      "frames": 1000,
+      "duration_s": 40,
+      "steps": null,
+      "time_s": null,
+      "precision": "Wan2.2-5B DiT + audio cross-attention/LoRA; exact inference dtype not stated",
+      "workflow": "TalkVerse sliding-window S2V with FramePack/context history"
+    },
+    "limitations": "The 10x cost statement is author-reported relative to Wan-S2V-14B and has no L4/A100 runtime row; quality claims are paper evaluation, not the requested hardware acceptance test.",
+    "artifact_urls": [
+      "https://arxiv.org/abs/2512.14938",
+      "https://zhenzhiwang.github.io/talkverse/"
+    ]
+  },
+  {
+    "id": "CTRL01",
+    "topic": "vace-official-models-and-resolution-contract",
+    "title": "VACE: All-in-One Video Creation and Editing",
+    "url": "https://github.com/ali-vilab/VACE/blob/main/README.md",
+    "publisher": "ali-vilab / Tongyi Lab",
+    "source_date": "2025-05-14",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The official repository describes VACE as an all-in-one model for reference-to-video, video-to-video, and masked video-to-video composition.",
+      "Wan2.1-VACE-1.3B is listed around 81x480x832 and Wan2.1-VACE-14B around 81x720x1280; the README says input resolution is flexible but optimal sizes are bounded.",
+      "The repository dates the full 1.3B and 14B model release to May 14, 2025 and provides preprocessing, inference, and benchmark assets."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1.3B ~480P; 14B ~720P",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": null,
+      "precision": "Wan VACE checkpoint; repository does not give a low/mid hardware benchmark",
+      "workflow": "ali-vilab/VACE preprocess + vace_wan_inference.py"
+    },
+    "limitations": "Model size/resolution table is a task contract, not a VRAM or quality score; no L4 or single-A100 wall time is reported.",
+    "artifact_urls": [
+      "https://github.com/ali-vilab/VACE",
+      "https://huggingface.co/Wan-AI/Wan2.1-VACE-1.3B",
+      "https://huggingface.co/Wan-AI/Wan2.1-VACE-14B",
+      "https://huggingface.co/datasets/ali-vilab/VACE-Benchmark"
+    ]
+  },
+  {
+    "id": "CTRL02",
+    "topic": "vace-input-control-and-long-video-boundary",
+    "title": "VACE UserGuide",
+    "url": "https://github.com/ali-vilab/VACE/blob/main/UserGuide.md",
+    "publisher": "ali-vilab / Tongyi Lab",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "VACE-recognizable inputs are src_video, src_mask, src_ref_images, and prompt; src_video may be depth, pose, flow, gray, layout or in/outpainting content, while white mask areas are generated and black areas retained.",
+      "The preprocessing table names DepthVideoAnnotator, FlowVisAnnotator, PoseBodyFaceVideoAnnotator, ScribbleVideoAnnotator, LayoutBboxAnnotator, LayoutTrackAnnotator and FrameRefExpandAnnotator, including first/last frame and first/last clip extension modes.",
+      "The guide says super-long videos are trimmed or uniformly sampled to around 5 seconds and recommends generating 5-second clips one by one with firstclip extension for temporal consistency."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 81,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "vace_preprocess.py or preprocess_demo.py, then vace_wan_inference.py"
+    },
+    "limitations": "The guide defines input semantics and a long-video procedure but does not state preprocessing GPU/RAM cost or identity/action quality scores.",
+    "artifact_urls": [
+      "https://github.com/ali-vilab/VACE/blob/main/vace/vace_preprocess.py",
+      "https://github.com/ali-vilab/VACE/blob/main/run_vace_pipeline.sh"
+    ]
+  },
+  {
+    "id": "CTRL03",
+    "topic": "vace-inference-settings",
+    "title": "VACE Wan inference script",
+    "url": "https://github.com/ali-vilab/VACE/blob/main/vace/vace_wan_inference.py",
+    "publisher": "ali-vilab / Tongyi Lab",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The script defaults frame_num to 81 and states that the number should be 4n+1.",
+      "The CLI exposes offload_model, t5_cpu, dit_fsdp, src_video, src_mask, src_ref_images, sample_steps, sample_shift, and sample_guide_scale; single-GPU mode defaults offload_model to true when unspecified.",
+      "The default model path is Wan2.1-VACE-1.3B and default size is 480p."
+    ],
+    "resources": {
+      "gpu": "single GPU command; model author does not identify a specific card",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "480p default",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": null,
+      "precision": "config dtype / optional CPU offload",
+      "workflow": "vace_wan_inference.py"
+    },
+    "limitations": "Flags establish reproducible controls but not a measured memory or runtime envelope.",
+    "artifact_urls": [
+      "https://github.com/ali-vilab/VACE/blob/main/vace/vace_wan_inference.py"
+    ]
+  },
+  {
+    "id": "CTRL04",
+    "topic": "vace-1.3b-model-card-resolution-stability",
+    "title": "Wan-AI/Wan2.1-VACE-1.3B model card",
+    "url": "https://huggingface.co/Wan-AI/Wan2.1-VACE-1.3B",
+    "publisher": "Wan-AI",
+    "source_date": "2025-05-19",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The model card lists VACE-1.3B as supporting 480P and VACE-14B as supporting both 480P and 720P.",
+      "It says 1.3B can technically generate 720P but has limited high-resolution training and is generally less stable, recommending 480P for optimal performance."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "480P recommended for VACE-1.3B",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Wan2.1 model repository / model card"
+    },
+    "limitations": "No memory, wall-time, or controlled identity/action measurements are provided.",
+    "artifact_urls": [
+      "https://huggingface.co/Wan-AI/Wan2.1-VACE-1.3B",
+      "https://huggingface.co/Wan-AI/Wan2.1-VACE-14B"
+    ]
+  },
+  {
+    "id": "CTRL05",
+    "topic": "vace-1.3b-24gb-class-firsthand-resource",
+    "title": "VACE 1.3B killed on A10G 24GB with 16GB RAM",
+    "url": "https://github.com/ali-vilab/VACE/issues/75",
+    "publisher": "VACE issue reporter and maintainer",
+    "source_date": "2025-05-27",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The reporter used an AWS g5.xlarge with NVIDIA A10G 24GB VRAM and 16GB RAM; the VACE 1.3B 480p/81-frame pipeline was killed while creating the pipeline.",
+      "The reporter states that 1.3B at 480p required about 21GB RAM and worked after moving to a 32GB RAM instance.",
+      "The reporter then states a 5-second 480p generation took about 15 minutes and nvidia-smi showed about 19GB VRAM usage."
+    ],
+    "resources": {
+      "gpu": "NVIDIA A10G",
+      "vram_gb": 24,
+      "ram_gb": 32,
+      "resolution": "480P",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": 50,
+      "time_s": 900,
+      "precision": "BF16 config with offload_model=true; exact peak not instrumented",
+      "workflow": "vace_wan_inference.py, vace-1.3B, offload_model=True"
+    },
+    "limitations": "A10G is not L4; RAM 32GB is the successful host, while the 21GB figure is the reporter's requirement estimate. No seed, control input, or quality review is recorded.",
+    "artifact_urls": [
+      "https://github.com/ali-vilab/VACE/issues/75"
+    ]
+  },
+  {
+    "id": "CTRL06",
+    "topic": "vace-1.3b-quality-failure",
+    "title": "VACE 1.3B object distortion report",
+    "url": "https://github.com/ali-vilab/VACE/issues/101",
+    "publisher": "VACE issue reporter",
+    "source_date": "2025-07-01",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "A reporter says objects in the video were severely distorted when using VACE Wan 1.3B I2V with default settings and asks which parameters to adjust."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "VACE Wan 1.3B I2V default settings"
+    },
+    "limitations": "The issue gives no input clip, seed, hardware, or reproduced fix; it is a reported failure, not a measured failure rate.",
+    "artifact_urls": [
+      "https://github.com/ali-vilab/VACE/issues/101"
+    ]
+  },
+  {
+    "id": "CTRL07",
+    "topic": "vace-14b-checkpoint-pairing-blockswap-and-failure",
+    "title": "VACE 14B OOM and checkpoint pairing issue",
+    "url": "https://github.com/kijai/ComfyUI-WanVideoWrapper/issues/562",
+    "publisher": "Kijai / ComfyUI-WanVideoWrapper maintainer and user",
+    "source_date": "2025-05-15",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "A user reports VACE 14B OOM on 24GB VRAM even after FP8; Kijai says block swapping enough blocks can fit 720p/81 frames in 24GB.",
+      "The same user reports about 89% VRAM but green noise/pixelated output at 480p/81 frames after pairing VACE 14B module with a Wan2.1 I2V base; Kijai says VACE must be paired with the T2V model, not I2V.",
+      "The user later reports 350 frames taking 4.5 hours with 14B blockswap versus about 40 minutes with 1.3B."
+    ],
+    "resources": {
+      "gpu": "24GB consumer GPU; exact model not stated in the issue",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": "720P fit claim; failed run reported 480P",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP8 e4m3fn VACE module/base, BF16 base/T5/VAE, SageAttention, 15-block swap in reported run",
+      "workflow": "ComfyUI-WanVideoWrapper VACE module + matching base model"
+    },
+    "limitations": "The 24GB fit statement is maintainer guidance, not a reproducible L4/A100 benchmark; exact GPU, RAM, seed and workflow revision are not given. The 4.5-hour timing is user-reported for 350 frames.",
+    "measurements": [
+      {
+        "gpu": "24GB consumer GPU",
+        "vram_gb": 24,
+        "ram_gb": null,
+        "resolution": "480P",
+        "frames": 81,
+        "duration_s": 5,
+        "steps": null,
+        "time_s": "failed/invalid output",
+        "precision": "FP8 e4m3fn module/base, BF16 base precision, SageAttention, blockswap 15",
+        "workflow": "VACE 14B module + Wan2.1 I2V base (mismatched pairing)"
+      },
+      {
+        "gpu": "24GB consumer GPU",
+        "vram_gb": 24,
+        "ram_gb": null,
+        "resolution": null,
+        "frames": 350,
+        "duration_s": null,
+        "steps": null,
+        "time_s": 16200,
+        "precision": "14B blockswap; exact precision not fully stated",
+        "workflow": "VACE 14B ComfyUI blockswap"
+      }
+    ],
+    "artifact_urls": [
+      "https://github.com/kijai/ComfyUI-WanVideoWrapper/issues/562"
+    ]
+  },
+  {
+    "id": "CTRL08",
+    "topic": "vace-comfy-workflow-and-preprocessed-control",
+    "title": "ComfyUI VACE tutorial",
+    "url": "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/wan/vace.mdx",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Comfy docs distinguish VACE 1.3B 480P and VACE 14B 480P/720P.",
+      "The V2V workflow takes a reference image and a preprocessed depth control video; the original video may be preprocessed with controlnet_aux nodes.",
+      "The docs recommend 640x640 for a first run and set frame count to the video duration."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "640x640 recommended first run",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "ComfyUI packaged VACE weights; exact model depends on template",
+      "workflow": "ComfyUI VACE JSON + preprocessed depth/control video"
+    },
+    "limitations": "The workflow page gives no L4/A100 timing or peak memory; the 640x640 value is an operational recommendation, not a quality claim.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan_vace_14B_v2v.json",
+      "https://raw.githubusercontent.com/Comfy-Org/example_workflows/refs/heads/main/video/wan/vace/v2v/post+depth.mp4",
+      "https://raw.githubusercontent.com/Comfy-Org/example_workflows/refs/heads/main/video/wan/vace/v2v/original.mp4"
+    ]
+  },
+  {
+    "id": "CTRL09",
+    "topic": "fun-control-camera-vacefun-model-provenance",
+    "title": "VideoX-Fun official README",
+    "url": "https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/README.md",
+    "publisher": "Alibaba PAI / VideoX-Fun",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "VideoX-Fun lists Wan2.2-Fun-A14B-Control for Canny, Depth, Pose, MLSD and trajectory control; Wan2.2-Fun-A14B-Control-Camera for camera lens control; and Wan2.2-VACE-Fun-A14B for VACE-style control plus subject specification.",
+      "The A14B control/camera families are listed as 512/768/1024 multi-resolution, 81 frames, 16fps; the 5B control/camera families are listed as 121 frames, 24fps.",
+      "The README states approximate storage rows of 64GB for A14B families and 23GB for 5B families, and documents model_cpu_offload, model_cpu_offload_and_qfloat8, and sequential_cpu_offload modes."
+    ],
+    "resources": {
+      "gpu": "README verifies Nvidia A10 24G and A100 40G/80G environments but gives no task-specific timing",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "A14B 512/768/1024; 5B resolution is model-family dependent",
+      "frames": "81 A14B; 121 5B",
+      "duration_s": "5.0 A14B at 16fps; ~5.04 5B at 24fps",
+      "steps": null,
+      "time_s": null,
+      "precision": "BF16 default in example scripts; qfloat8/CPU offload options",
+      "workflow": "VideoX-Fun Python/UI/ComfyUI"
+    },
+    "limitations": "Storage size is not VRAM requirement; README hardware verification is platform compatibility, not per-model low/mid benchmark.",
+    "artifact_urls": [
+      "https://github.com/aigc-apps/VideoX-Fun",
+      "https://huggingface.co/alibaba-pai/Wan2.2-Fun-A14B-Control",
+      "https://huggingface.co/alibaba-pai/Wan2.2-Fun-A14B-Control-Camera",
+      "https://huggingface.co/alibaba-pai/Wan2.2-Fun-5B-Control",
+      "https://huggingface.co/alibaba-pai/Wan2.2-Fun-5B-Control-Camera",
+      "https://huggingface.co/alibaba-pai/Wan2.2-VACE-Fun-A14B"
+    ]
+  },
+  {
+    "id": "CTRL10",
+    "topic": "fun-control-and-camera-script-contract",
+    "title": "VideoX-Fun Wan2.2 control and camera scripts",
+    "url": "https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/examples/wan2.2_fun/predict_v2v_control.py",
+    "publisher": "Alibaba PAI / VideoX-Fun",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The control script defaults sample_size to 832x480, video_length 81, fps 16, BF16, 50 inference steps, guidance scale 6, shift 5, and reads a control_video path.",
+      "The script exposes TeaCache threshold 0.10 with a note that Wan2.2-Fun-A14B families commonly use 0.15–0.20; it warns that larger thresholds can create slight content differences.",
+      "The camera script selects Wan2.2-Fun-A14B-Control-Camera, reads control_camera_txt, defaults to 480x832/81/16fps, and passes parsed per-frame camera control into control_camera_video."
+    ],
+    "resources": {
+      "gpu": "single-GPU defaults in script; no named GPU timing",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "832x480 control; 480x832 camera default",
+      "frames": 81,
+      "duration_s": 5.06,
+      "steps": 50,
+      "time_s": null,
+      "precision": "BF16 default; optional qfloat8/offload helper",
+      "workflow": "VideoX-Fun predict_v2v_control.py / predict_v2v_control_camera.py"
+    },
+    "limitations": "The script contract does not give peak memory, host RAM, camera-control accuracy, or fixed-seed comparison.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/examples/wan2.2_fun/predict_v2v_control.py",
+      "https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/examples/wan2.2_fun/predict_v2v_control_camera.py"
+    ]
+  },
+  {
+    "id": "CTRL11",
+    "topic": "fun-control-4090d-comfy-reference",
+    "title": "ComfyUI Wan2.2 Fun Control workflow and 4090D reference",
+    "url": "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/wan/wan2-2-fun-control.mdx",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The workflow offers FP8-scaled base and optional Wan2.2-Lightning 4-step LoRA versions; the docs warn the accelerated LoRA may lose video dynamics.",
+      "On an RTX4090D 24GB at 640x640/81 frames, the docs report FP8-scaled at 83% VRAM and about 524s first/520s second generation, and FP8-scaled plus 4-step LoRA at 89% and about 138s/79s.",
+      "The Comfy example uses a preprocessed pose video, matching high/low noise models and high/low LoRAs, and defaults 640x640 to avoid excessive processing time for low-VRAM users."
+    ],
+    "resources": {
+      "gpu": "RTX4090D",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": "640x640",
+      "frames": 81,
+      "duration_s": 5.06,
+      "steps": "base unspecified in page; accelerated 4-step LoRA",
+      "time_s": "524/520 base; 138/79 with 4-step LoRA, first/second",
+      "precision": "FP8-scaled high/low experts; optional matching high/low Lightning LoRAs",
+      "workflow": "ComfyUI video_wan2_2_14B_fun_control.json"
+    },
+    "limitations": "RTX4090D is outside the requested L4/A100 rows; no host RAM, seed, control-video preprocessing time, or quality metric is reported.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan2_2_14B_fun_control.json",
+      "https://raw.githubusercontent.com/Comfy-Org/example_workflows/refs/heads/main/video/wan/wan2.2_fun_control/control_video.mp4",
+      "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged"
+    ]
+  },
+  {
+    "id": "CTRL12",
+    "topic": "wan22-vace-fun-checkpoint-provenance",
+    "title": "Wan2.2-VACE-Fun-A14B model card",
+    "url": "https://huggingface.co/alibaba-pai/Wan2.2-VACE-Fun-A14B",
+    "publisher": "Alibaba PAI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The model card front matter names Wan-AI/Wan2.2-T2V-A14B as base_model.",
+      "It describes a VACE-trained Wan2.2 control weight that supports Canny, Depth, Pose, MLSD, trajectory control and subject/reference specification.",
+      "The model card lists 512/768/1024 multi-resolution prediction trained at 81 frames/16fps and provides generic control video plus reference-image demos."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "512/768/1024",
+      "frames": 81,
+      "duration_s": 5.06,
+      "steps": null,
+      "time_s": null,
+      "precision": "Wan2.2 T2V-A14B base plus VACE-Fun control weights",
+      "workflow": "VideoX-Fun VACE-Fun control/reference path"
+    },
+    "limitations": "No low/mid hardware measurements or identity/trajectory score; the 64GB row in the parent README is storage, not VRAM.",
+    "artifact_urls": [
+      "https://huggingface.co/alibaba-pai/Wan2.2-VACE-Fun-A14B",
+      "https://huggingface.co/alibaba-pai/Wan2.2-VACE-Fun-A14B/resolve/main/README.md",
+      "https://pai-aigc-photog.oss-cn-hangzhou.aliyuncs.com/wan_fun/asset_Wan2_2/v1.0/14b_vace_ref.mp4"
+    ]
+  },
+  {
+    "id": "CTRL13",
+    "topic": "fun-model-storage-and-workflow-files",
+    "title": "VideoX-Fun ComfyUI Wan2.2 setup guide",
+    "url": "https://github.com/aigc-apps/VideoX-Fun/blob/main/comfyui/wan2_2_fun/README.md",
+    "publisher": "Alibaba PAI / VideoX-Fun",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The setup guide lists A14B InP/Control/Control-Camera at 64.0GB storage and 5B InP/Control/Control-Camera at 23.0GB storage.",
+      "It lists Control modalities (Canny, Depth, Pose, MLSD, trajectory), Camera models, A14B 81 frames/16fps, and 5B 121 frames/24fps.",
+      "It provides ComfyUI chunked-loading and full-model workflow entries, including text/image-to-video control and image-to-video camera control."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "A14B 512/768/1024 family; 5B family unspecified in table",
+      "frames": "81 A14B; 121 5B",
+      "duration_s": "5.06 A14B at 16fps; 5.04 5B at 24fps",
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "ComfyUI chunked-loading/full-model templates"
+    },
+    "limitations": "Storage values do not establish VRAM/RAM; no direct L4/A100 run is recorded.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan2_2_14B_fun_control.json"
+    ]
+  },
+  {
+    "id": "CTRL14",
+    "topic": "wan-animate-official-contract-and-lora-boundary",
+    "title": "Wan2.2 official README: Wan-Animate",
+    "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/README.md",
+    "publisher": "Wan-Video / Wan-AI",
+    "source_date": "2025-09-19",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Wan-Animate takes a video and a character image and has animation mode (character image mimics motion) and replacement mode (character image replaces the input-video character).",
+      "Animation preprocessing uses pose retargeting and optional FLUX image editing; replacement preprocessing uses iterations, k, w_len, h_len and replace_flag for mask processing.",
+      "Single-GPU generation uses animate-14B with refert_num 1; replacement can use relighting LoRA. The README warns against Wan2.2 LoRA models on Wan-Animate because weight changes may cause unexpected behavior."
+    ],
+    "resources": {
+      "gpu": "single-GPU command; no model-author card specified",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "resolution_area example 1280x720",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "Wan2.2-Animate-14B; optional relighting LoRA in replacement",
+      "workflow": "Wan2.2 generate.py animate-14B"
+    },
+    "limitations": "No L4/A100 timing or peak memory in the text-readable README; GPU efficiency table is an embedded image not used here.",
+    "artifact_urls": [
+      "https://github.com/Wan-Video/Wan2.2/tree/main/wan/modules/animate",
+      "https://huggingface.co/Wan-AI/Wan2.2-Animate-14B"
+    ]
+  },
+  {
+    "id": "CTRL15",
+    "topic": "wan-animate-preprocess-models-and-failure-modes",
+    "title": "Wan-Animate preprocessing UserGuider",
+    "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/wan/modules/animate/preprocess/UserGuider.md",
+    "publisher": "Wan-Video / Wan-AI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Preprocessing requires pose detection (YOLOv10m and ViTPose wholebody), with SAM2 for replacement mask extraction and FLUX.1-Kontext-dev for optional enhanced retargeting.",
+      "Animation mode can use no retargeting, basic retargeting or enhanced retargeting; the guide says retargeting is not guaranteed and intermediate pose outputs should be checked.",
+      "Replacement mode pose retargeting is disabled by default; body-proportion mismatch can produce artifacts/deformation, and the simplified mask extractor is for single-person videos only.",
+      "Lower fps may improve generation efficiency but can cause stuttering/choppiness; resolution_area applies to preprocessing and generation."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "resolution_area controls target pixel area",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "preprocess_data.py + process_checkpoint det/pose2d/sam2/FLUX assets"
+    },
+    "limitations": "The guide names extra preprocessing models but gives no extra GPU/RAM measurements or preprocess wall time.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/wan/modules/animate/preprocess/preprocess_data.py",
+      "https://github.com/Wan-Video/Wan2.2/tree/main/examples/wan_animate"
+    ]
+  },
+  {
+    "id": "CTRL16",
+    "topic": "wan-animate-preprocess-cli",
+    "title": "Wan-Animate preprocess_data.py",
+    "url": "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/wan/modules/animate/preprocess/preprocess_data.py",
+    "publisher": "Wan-Video / Wan-AI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The script resolves det/yolov10m.onnx and pose2d/vitpose_h_wholebody.onnx from ckpt_path; replacement additionally resolves sam2/sam2_hiera_large.pt and enhanced retargeting resolves FLUX.1-Kontext-dev.",
+      "The CLI exposes resolution_area, fps, replace_flag, retarget_flag, use_flux, iterations, k, w_len and h_len, and calls ProcessPipeline with these settings."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1280x720 default area target",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Wan2.2 Animate ProcessPipeline"
+    },
+    "limitations": "CLI source confirms dependency paths and parameters but does not measure preprocessing resources.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/Wan-Video/Wan2.2/main/wan/modules/animate/preprocess/preprocess_data.py"
+    ]
+  },
+  {
+    "id": "CTRL17",
+    "topic": "infinitetalk-long-video-contract-and-weight-modifications",
+    "title": "InfiniteTalk official README",
+    "url": "https://github.com/MeiGen-AI/InfiniteTalk",
+    "publisher": "MeiGen-AI",
+    "source_date": "2025-08-19",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "InfiniteTalk is described as audio-driven video-to-video and image-to-video with unlimited-length generation; it supports 480P and 720P, streaming/clip modes, TeaCache and APG.",
+      "The required stack is Wan2.1-I2V-14B-480P base, TencentGameMate Chinese Wav2Vec2 audio encoder, and MeiGen-InfiniteTalk single/multi audio-condition weights.",
+      "The README exposes num_persistent_param_in_dit=0 for very-low-VRAM, FP8 quantization for single GPU, FusionX 8-step and LightX2V 4-step options.",
+      "The README says V2V can be unlimited but camera movement is not identical; SDEdit improves camera accuracy but causes color shift; I2V from one image is good up to about one minute, with stronger color shift beyond one minute; FusionX can worsen color shift after one minute and reduce ID preservation."
+    ],
+    "resources": {
+      "gpu": "single GPU command; exact card unspecified",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "infinitetalk-480 or infinitetalk-720",
+      "frames": 81,
+      "duration_s": 40,
+      "steps": "40 default; 8 FusionX; 4 LightX2V",
+      "time_s": null,
+      "precision": "BF16 base path; optional FP8 quantized path and LoRAs",
+      "workflow": "generate_infinitetalk.py streaming/clip"
+    },
+    "limitations": "The README provides no single L4/A100 peak VRAM/RAM/time, and its long-video claims are model-author guidance rather than a fixed-seed acceptance test.",
+    "artifact_urls": [
+      "https://github.com/MeiGen-AI/InfiniteTalk",
+      "https://huggingface.co/MeiGen-AI/InfiniteTalk",
+      "https://github.com/MeiGen-AI/InfiniteTalk/tree/main/examples",
+      "https://github.com/kijai/ComfyUI-WanVideoWrapper"
+    ]
+  },
+  {
+    "id": "CTRL18",
+    "topic": "infinitetalk-24gb-720p-oom",
+    "title": "InfiniteTalk 24GB RTX4090 720P OOM issue",
+    "url": "https://github.com/MeiGen-AI/InfiniteTalk/issues/187",
+    "publisher": "InfiniteTalk issue reporter",
+    "source_date": "2026-01-13",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The reporter ran a 5-second video/audio pair on RTX4090 24GB with 267GB RAM, 720p, 40 steps, streaming, offload_model=true and num_persistent_param_in_dit=0.",
+      "The run completed 40/40 sampling in 1:50:58 before failing during VAE decode with CUDA OOM: 23.52GiB total GPU, 21.61GiB in use, and a 1.99GiB allocation failure.",
+      "The reporter says the same setup runs at 480p, but does not provide a successful 720p output."
+    ],
+    "resources": {
+      "gpu": "RTX4090",
+      "vram_gb": 24,
+      "ram_gb": 267,
+      "resolution": "720P",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": 40,
+      "time_s": "6658 to VAE OOM",
+      "precision": "BF16 model config, offload_model=true, very-low-VRAM mode",
+      "workflow": "InfiniteTalk single_example_video.json, streaming"
+    },
+    "limitations": "RTX4090 is outside L4/A100 target; this is a failed 720p run and cannot establish a successful resource floor.",
+    "artifact_urls": [
+      "https://github.com/MeiGen-AI/InfiniteTalk/issues/187"
+    ]
+  },
+  {
+    "id": "CTRL19",
+    "topic": "infinitetalk-a10040-throughput-warning",
+    "title": "InfiniteTalk A100 40GB quantized speed issue",
+    "url": "https://github.com/MeiGen-AI/InfiniteTalk/issues/169",
+    "publisher": "InfiniteTalk issue reporter",
+    "source_date": "2025-12-14",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The issue title and body identify NVIDIA A100 40GB VRAM and 50GB RAM with the quantization model.",
+      "The reporter states that a 10-second video required 17 hours and asks how to speed it up."
+    ],
+    "resources": {
+      "gpu": "A100-40",
+      "vram_gb": 40,
+      "ram_gb": 50,
+      "resolution": null,
+      "frames": null,
+      "duration_s": 10,
+      "steps": null,
+      "time_s": 61200,
+      "precision": "quantization model; exact format and settings not stated",
+      "workflow": "InfiniteTalk; exact command not included in issue body"
+    },
+    "limitations": "No logs, resolution, frames, steps, seed or successful output are supplied; this is a throughput warning rather than a benchmark.",
+    "artifact_urls": [
+      "https://github.com/MeiGen-AI/InfiniteTalk/issues/169"
+    ]
+  },
+  {
+    "id": "CTRL20",
+    "topic": "infinitetalk-24gb-480p-firsthand-timing",
+    "title": "InfiniteTalk 4090 480P speed and acceleration report",
+    "url": "https://github.com/MeiGen-AI/InfiniteTalk/issues/210",
+    "publisher": "InfiniteTalk issue reporter and commenter",
+    "source_date": "2026-07-01",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The reporter used RTX4090 24GB, Wan2.1-I2V-14B-480P, InfiniteTalk single-person weights, infinitetalk-480, streaming, 8 steps, 81-frame chunks, max_frame_num 233, offload_model=true, low-VRAM mode, no LoRA and no TeaCache.",
+      "The reporter says a 10-second 480p video took 40 minutes; a later commenter reports about 15 minutes for 10 seconds using FusionX 8 steps and TeaCache on RTX4090.",
+      "The issue explicitly lists candidate accelerations as FusionX/LightX2V LoRA, TeaCache, disabling low-VRAM mode, and SageAttention; it does not provide a controlled quality comparison."
+    ],
+    "resources": {
+      "gpu": "RTX4090",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": "480P",
+      "frames": 81,
+      "duration_s": 10,
+      "steps": 8,
+      "time_s": "2400 no LoRA/TeaCache; ~900 later comment with FusionX+TeaCache",
+      "precision": "BF16 base, low-VRAM persistent params 0, no quant/LoRA in baseline",
+      "workflow": "InfiniteTalk streaming"
+    },
+    "limitations": "No seed, exact audio/input clip, host RAM or peak VRAM; RTX4090 is not L4/A100. The 15-minute value is a separate commenter configuration.",
+    "artifact_urls": [
+      "https://github.com/MeiGen-AI/InfiniteTalk/issues/210"
+    ]
+  },
+  {
+    "id": "CTRL21",
+    "topic": "multitalk-model-contract-and-low-vram-boundary",
+    "title": "MultiTalk official README",
+    "url": "https://raw.githubusercontent.com/MeiGen-AI/MultiTalk/main/README.md",
+    "publisher": "MeiGen-AI",
+    "source_date": "2025-06-14",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "MultiTalk takes a reference image, prompt and one or more audio streams, supports single/multi-person conversation, singing and cartoon, and lists 480p/720p output with up to 15 seconds.",
+      "The current code section says single-GPU inference supports 480p while 720p requires multiple GPUs; the model was trained on 81-frame videos at 25fps, with up to 201 frames possible but weaker prompt following at longer lengths.",
+      "The README announces low-VRAM 480p on one RTX4090, INT8 quantization, TeaCache, APG, and FusionX/LightX2V 4–8-step acceleration; its efficiency section says multi-person results were evaluated on A100 GPUs.",
+      "An A100 Google Colab example is linked, but the linked notebook is not text-readable without login."
+    ],
+    "resources": {
+      "gpu": "RTX4090 for low-VRAM claim; A100 for multi-person efficiency evaluation statement",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": "480P single GPU; 720P multi-GPU in current code",
+      "frames": "81 recommended; up to 201",
+      "duration_s": "3.24 at 81f/25fps; up to 8.04 at 201f/25fps",
+      "steps": "40 default; 10 possible; 8 FusionX; 4 LightX2V",
+      "time_s": null,
+      "precision": "BF16 base; INT8 quantized path; optional LoRA",
+      "workflow": "generate_multitalk.py streaming/clip; optional TTS"
+    },
+    "limitations": "No text-readable single-A100 timing/VRAM table and no L4 measurement; 15-second feature limit differs from InfiniteTalk's streaming contract.",
+    "artifact_urls": [
+      "https://github.com/MeiGen-AI/MultiTalk",
+      "https://huggingface.co/MeiGen-AI/MeiGen-MultiTalk",
+      "https://colab.research.google.com/drive/185OyRIpJDlpnRjhBRb7FnaRlq11BLZTa?usp=sharing",
+      "https://github.com/kijai/ComfyUI-WanVideoWrapper/tree/multitalk"
+    ]
+  },
+  {
+    "id": "CTRL22",
+    "topic": "multitalk-weight-linking-audio-mux-and-offload",
+    "title": "MultiTalk generation script",
+    "url": "https://raw.githubusercontent.com/MeiGen-AI/MultiTalk/main/generate_multitalk.py",
+    "publisher": "MeiGen-AI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The script builds MultiTalkPipeline with checkpoint_dir, quant_dir, wav2vec audio encoder, LoRA directory, quantization and optional persistent-parameter VRAM management.",
+      "Input local audio or Kokoro TTS is converted to wav2vec embeddings and saved as files; the script sets video_audio to the generated/supplied wav and passes it to save_video_ffmpeg when writing the output.",
+      "The script exposes streaming max_frames_num=1000, frame_num, motion_frame, sample steps, text/audio CFG, offload_model, INT8 quantization and LoRA controls."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "multitalk-480 or multitalk-720",
+      "frames": 81,
+      "duration_s": null,
+      "steps": 40,
+      "time_s": null,
+      "precision": "optional INT8 quantization; optional FusionX/LightX2V LoRA",
+      "workflow": "generate_multitalk.py + input JSON + external audio/TTS"
+    },
+    "limitations": "Code contract does not provide hardware timing or peak RAM/VRAM; audio is externally prepared and muxed.",
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/MeiGen-AI/MultiTalk/main/generate_multitalk.py",
+      "https://github.com/MeiGen-AI/MultiTalk/tree/main/examples"
+    ]
+  },
+  {
+    "id": "CTRL23",
+    "topic": "multitalk-long-video-drift",
+    "title": "MultiTalk face distortion and color drift report",
+    "url": "https://github.com/MeiGen-AI/MultiTalk/issues/93",
+    "publisher": "MultiTalk issue reporter",
+    "source_date": "2025-07-14",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "A reporter says that on longer MultiTalk videos, e.g. 20+ seconds, the face gradually becomes distorted and color slowly shifts, becoming noticeable across the full clip."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": 20,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "MultiTalk streaming; exact settings not supplied"
+    },
+    "limitations": "No input, seed, hardware, version or reproduction log; it is a user report, not a measured failure rate.",
+    "artifact_urls": [
+      "https://github.com/MeiGen-AI/MultiTalk/issues/93"
+    ]
+  },
+  {
+    "id": "CTRL24",
+    "topic": "multitalk-a100-multigpu-speed-unknown",
+    "title": "MultiTalk multi-GPU speed question",
+    "url": "https://github.com/MeiGen-AI/MultiTalk/issues/126",
+    "publisher": "MultiTalk issue reporter",
+    "source_date": "2025-07-29",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "A reporter asks why two A100s can be roughly as slow or slower than one A100 for a 5-second, 640x640 MultiTalk run using 4-step LightX2V, TeaCache, FSDP and Ulysses.",
+      "The issue contains the exact two-GPU command but no numeric one-vs-two timing result in the readable page."
+    ],
+    "resources": {
+      "gpu": "A100 x1 vs A100 x2",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "640x640",
+      "frames": 81,
+      "duration_s": 5,
+      "steps": 4,
+      "time_s": null,
+      "precision": "LightX2V LoRA + TeaCache + FSDP/Ulysses",
+      "workflow": "generate_multitalk.py multi-GPU command"
+    },
+    "limitations": "No direct timing, A100 memory size, host RAM, seed or output quality is reported; this cannot support an A100 speed estimate.",
+    "artifact_urls": [
+      "https://github.com/MeiGen-AI/MultiTalk/issues/126"
+    ]
+  },
+  {
+    "id": "CTRL25",
+    "topic": "svi-wan21-long-video-and-a100-environment",
+    "title": "Stable Video Infinity main README",
+    "url": "https://github.com/vita-epfl/Stable-Video-Infinity/blob/main/README.md",
+    "publisher": "VITA@EPFL / Stable Video Infinity authors",
+    "source_date": "2025-12-04",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The main branch is SVI on Wan2.1 and lists SVI-2.0, SVI-Shot, SVI-Film, SVI-Talk and SVI-Dance variants with image/prompt, audio or skeleton inputs.",
+      "The README says the official workflow creates infinite-length videos and shows a 3-minute interactive demo; its table includes a model-author claim that SVI-Shot does not drift/forget in a 20-minute test and SVI-Talk in a 10-minute test.",
+      "The reproduction environment was tested with A100 80G, CUDA 12.0 and torch 2.8.0; no A100 wall time or peak memory table is given.",
+      "The project states SVI LoRA requires modified padding settings and its official Comfy workflow; it warns against using the original Wan2.1 workflow directly."
+    ],
+    "resources": {
+      "gpu": "A100-80 test environment",
+      "vram_gb": 80,
+      "ram_gb": null,
+      "resolution": "Wan2.1 I2V-14B-480P base contract",
+      "frames": null,
+      "duration_s": 180,
+      "steps": null,
+      "time_s": null,
+      "precision": "SVI Wan2.1 LoRA; exact precision not given",
+      "workflow": "Stable-Video-Infinity official workflow / SVI-Shot"
+    },
+    "limitations": "A100-80 is an environment qualification, not a measured generation result; 20-minute no-drift text is an author claim and not a paired quality score.",
+    "artifact_urls": [
+      "https://github.com/vita-epfl/Stable-Video-Infinity",
+      "https://huggingface.co/vita-video-gen/svi-model",
+      "https://huggingface.co/datasets/vita-video-gen/svi-benchmark"
+    ]
+  },
+  {
+    "id": "CTRL26",
+    "topic": "svi-wan22-lora-contract-and-250s-command",
+    "title": "Stable Video Infinity Wan2.2 branch README",
+    "url": "https://raw.githubusercontent.com/vita-epfl/Stable-Video-Infinity/svi_wan22/README.md",
+    "publisher": "VITA@EPFL / Stable Video Infinity authors",
+    "source_date": "2025-12-26",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The Wan2.2 branch lists separate SVI 2.0 and SVI 2.0 Pro high-noise and low-noise LoRAs for the Wan2.2 I2V-A14B base.",
+      "The SVI 2.0 Pro command uses one CUDA-visible device, height 832, width 480, fps 15, cfg_scale 4, num_clips 50, num_overlap_frame 5 and num_motion_latent 1, and labels the run a 250-second generation.",
+      "The branch says it is built on Diffsynth 2.0, uses torch 2.7.1, and different PyTorch versions can produce different results at the same random seed."
+    ],
+    "resources": {
+      "gpu": "single CUDA-visible device; model author does not identify card",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "832x480",
+      "frames": null,
+      "duration_s": 250,
+      "steps": null,
+      "time_s": null,
+      "precision": "Wan2.2 I2V-A14B high/low SVI LoRA pair; torch 2.7.1 environment",
+      "workflow": "inference_svi_2.0_pro.py"
+    },
+    "limitations": "No GPU type, VRAM, host RAM or wall time; 250 seconds is command target, not a measured throughput or quality acceptance.",
+    "artifact_urls": [
+      "https://github.com/vita-epfl/Stable-Video-Infinity/tree/svi_wan22",
+      "https://huggingface.co/vita-video-gen/svi-model/tree/main/version-2.0",
+      "https://raw.githubusercontent.com/vita-epfl/Stable-Video-Infinity/svi_wan22/inference_svi_2.0_pro.py"
+    ]
+  },
+  {
+    "id": "CTRL27",
+    "topic": "svi-pro-first-last-continuation-seam-failures",
+    "title": "ComfyUI Wan SVI 2 Pro FLF continuation node",
+    "url": "https://github.com/Well-Made/ComfyUI-Wan-SVI2Pro-FLF",
+    "publisher": "Well-Made / ComfyUI community",
+    "source_date": "2026-02-20",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The node combines SVI 2 Pro motion continuity with Wan2.2 first/last-frame control, allowing continuation from an existing video with a next target frame, prompt, or both; included workflow groups can be duplicated beyond seven clips.",
+      "The node takes prev_samples tail, anchor_samples and optional end_samples; motion_latent_count 1–2 is typical and last frames can be hard-locked with concat_mask.",
+      "The author warns VAE split inconsistencies can produce ghosting/doubling at seams and exposes an overlap slider; prompts may be ignored if clip length is too short, recommending 81–101 frames to give a new action time to start."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": "81–101 suggested for prompt adaptation",
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "SVI Pro + Wan2.2 FLF latent nodes",
+      "workflow": "WanImageToVideoSVIProFLF + Image Batch Extend With Overlap"
+    },
+    "limitations": "No hardware/time/VRAM; community node is an implementation and failure report, not an independent quality benchmark.",
+    "artifact_urls": [
+      "https://github.com/Well-Made/ComfyUI-Wan-SVI2Pro-FLF",
+      "https://github.com/Well-Made/ComfyUI-Wan-SVI2Pro-FLF/tree/main/example_workflows"
+    ]
+  },
+  {
+    "id": "CTRL28",
+    "topic": "wan-long-video-community-artifact",
+    "title": "ComfyUI-WanExtended 403-frame demo",
+    "url": "https://github.com/ethanfel/ComfyUI-WanExtended",
+    "publisher": "ethanfel / ComfyUI community",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The README shows a 403-frame, 24fps, 720p demo built from two 161-frame segments plus one 81-frame segment.",
+      "The workflow combines SVI Pro Advanced, First-Middle-Last, VBVR physics LoRA and InfiniTalk lip sync, with each segment controlled by a middle frame and prompt."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "720P",
+      "frames": 403,
+      "duration_s": 16.79,
+      "steps": null,
+      "time_s": null,
+      "precision": "SVI Pro Advanced + other community LoRA/node stack",
+      "workflow": "ComfyUI-WanExtended example_workflows"
+    },
+    "limitations": "The demo is artifact evidence only; no GPU, RAM, disk, seed, wall time or controlled identity/lip-sync score is disclosed.",
+    "artifact_urls": [
+      "https://github.com/ethanfel/ComfyUI-WanExtended/tree/main/example_workflows"
+    ]
+  },
+  {
+    "id": "CTRL29",
+    "topic": "multitalk-a100-colab-access-boundary",
+    "title": "MultiTalk A100 Google Colab example",
+    "url": "https://colab.research.google.com/drive/185OyRIpJDlpnRjhBRb7FnaRlq11BLZTa?usp=sharing",
+    "publisher": "Braffolk / linked by MeiGen-AI MultiTalk",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "blocked",
+    "claims": [
+      "The MultiTalk README links this notebook as an A100 inference example provided by Braffolk.",
+      "The notebook page resolved to Google account sign-in during checking, so cells, hardware RAM, timing, peak VRAM and artifacts were not readable."
+    ],
+    "resources": {
+      "gpu": "A100 stated by the linking README",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": null,
+      "workflow": "Google Colab notebook; contents blocked by login"
+    },
+    "limitations": "No notebook cell or output was read; this source cannot support a numeric A100 result.",
+    "artifact_urls": [
+      "https://colab.research.google.com/drive/185OyRIpJDlpnRjhBRb7FnaRlq11BLZTa?usp=sharing"
+    ]
+  }
+]

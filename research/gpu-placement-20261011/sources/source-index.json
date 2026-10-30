@@ -1,0 +1,50 @@
+[
+  {
+    "file": "larry-pinned.py",
+    "source_url": "https://raw.githubusercontent.com/larryvrh/ComfyUI-MiniMax-H3-Turbo/4274783a23afcfdbea3b4876cb79effd6c510785/__init__.py",
+    "bytes": 26363,
+    "sha256": "a22f222f11dfc337552371f7f288bf5928cb1fa80a6afb3f24075a8315d02f06",
+    "retrieval": "primary raw source over HTTPS; content not executed",
+    "checked_date": "2026-10-11"
+  },
+  {
+    "file": "a100-supported-models.py",
+    "source_url": "https://raw.githubusercontent.com/Comfy-Org/ComfyUI/7f7fd918ed0815c5d5ef2ccfe44bfc8e72cfd217/comfy/supported_models.py",
+    "bytes": 88459,
+    "sha256": "5943d81bc0257b9b72b065a4ecb2f57c51c826e91f86c333b98fbe8a830e0cef",
+    "retrieval": "primary raw source over HTTPS; content not executed",
+    "checked_date": "2026-10-11"
+  },
+  {
+    "file": "k6-supported_model.py",
+    "source_url": "https://raw.githubusercontent.com/kandinskylab/kandinsky-6/f19c9b8ec2fcea5d391f5391983a540fc5e004da/comfyui/kandinsky6/supported_model.py",
+    "bytes": 1088,
+    "sha256": "7c2170ac999891aa4cac55c13c69422948d84492964dfbcb252ea3399024631b",
+    "retrieval": "primary raw source over HTTPS; content not executed",
+    "checked_date": "2026-10-11"
+  },
+  {
+    "file": "k6-model_base.py",
+    "source_url": "https://raw.githubusercontent.com/kandinskylab/kandinsky-6/f19c9b8ec2fcea5d391f5391983a540fc5e004da/comfyui/kandinsky6/model_base.py",
+    "bytes": 7560,
+    "sha256": "f8951222f0e3967edf80e71fe3755fabc12a066601724fe2172a29bfd7546521",
+    "retrieval": "primary raw source over HTTPS; content not executed",
+    "checked_date": "2026-10-11"
+  },
+  {
+    "file": "k6-nodes.py",
+    "source_url": "https://raw.githubusercontent.com/kandinskylab/kandinsky-6/f19c9b8ec2fcea5d391f5391983a540fc5e004da/comfyui/kandinsky6/nodes.py",
+    "bytes": 22803,
+    "sha256": "51b0c704e344edcb7d9425fc2203926bdaab13171dfe607d8609ac72453466df",
+    "retrieval": "primary raw source over HTTPS; content not executed",
+    "checked_date": "2026-10-11"
+  },
+  {
+    "file": "k6-ldm-model.py",
+    "source_url": "https://raw.githubusercontent.com/kandinskylab/kandinsky-6/f19c9b8ec2fcea5d391f5391983a540fc5e004da/comfyui/kandinsky6/ldm/model.py",
+    "bytes": 28854,
+    "sha256": "e7dbe8c6bcd56334b180eb3757a9590724e57704b8bf5bdd7ebada110f5b3399",
+    "retrieval": "primary raw source over HTTPS; content not executed",
+    "checked_date": "2026-10-11"
+  }
+]

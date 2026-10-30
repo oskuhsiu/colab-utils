@@ -1,0 +1,282 @@
+{
+  "checked": "2026-09-23",
+  "description": "Public Hugging Face file metadata; model weights were not downloaded for this check. All size totals are disk sizes, not peak VRAM.",
+  "files": [
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00001-of-00013.safetensors",
+      "bytes": 5227812968
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00002-of-00013.safetensors",
+      "bytes": 5164578856
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00003-of-00013.safetensors",
+      "bytes": 5164578872
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00004-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00005-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00006-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00007-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00008-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00009-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00010-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00011-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00012-of-00013.safetensors",
+      "bytes": 5164578896
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/transformer/model-00013-of-00013.safetensors",
+      "bytes": 4242305176
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00001-of-00014.safetensors",
+      "bytes": 4932328944
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00002-of-00014.safetensors",
+      "bytes": 4875990528
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00003-of-00014.safetensors",
+      "bytes": 4875990552
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00004-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00005-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00006-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00007-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00008-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00009-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00010-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00011-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00012-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00013-of-00014.safetensors",
+      "bytes": 4875990584
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/text_encoder/model-00014-of-00014.safetensors",
+      "bytes": 3270697008
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/video_vae/source/model.safetensors",
+      "bytes": 10415548320
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/audio_vae/model.safetensors",
+      "bytes": 605429308
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/processor/chat_template.json",
+      "bytes": 5499
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/processor/merges.txt",
+      "bytes": 1671839
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/processor/preprocessor_config.json",
+      "bytes": 390
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/processor/tokenizer.json",
+      "bytes": 7032403
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/processor/tokenizer_config.json",
+      "bytes": 11003
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/processor/video_preprocessor_config.json",
+      "bytes": 385
+    },
+    {
+      "repo": "MiniMaxAI/MiniMax-H3",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "file": "FL2VA/processor/vocab.json",
+      "bytes": 2776833
+    },
+    {
+      "repo": "lightx2v/Minimax-h3-Turbo",
+      "revision": "3ec17a324ced54151364f24f8b5fb6bf7e26414f",
+      "file": "minimax_h3_fl2v_turbo_8step_v1.0_768p_bf16.safetensors",
+      "bytes": 1383677808
+    },
+    {
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "1c41cfca8ebba91d0af792a05c5761fb2c3a7975",
+      "file": "diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+      "bytes": 20970379616
+    },
+    {
+      "repo": "Comfy-Org/MiniMax-H3",
+      "revision": "1c41cfca8ebba91d0af792a05c5761fb2c3a7975",
+      "file": "text_encoders/qwen3vl_32b_minimax_h3_int8_convrot.safetensors",
+      "bytes": 27141342152
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "file": "minimax-h3-fl2va-pruned-nf4.safetensors",
+      "bytes": 10483868433
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "file": "minimax-h3-text-encoder-nf4.safetensors",
+      "bytes": 15324775807
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "file": "video_vae_nf4.safetensors",
+      "bytes": 1613201536
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "file": "audio_vae_nf4.safetensors",
+      "bytes": 284004112
+    },
+    {
+      "repo": "DiffSynth-Studio/MiniMax-H3-NF4",
+      "revision": "363fdc8fbd7ae55f5b9e7fb87cf3d508df28ee0d",
+      "file": "minimax-h3-fl2va-nf4.safetensors",
+      "bytes": 17162138303
+    },
+    {
+      "repo": "lightx2v/Minimax-h3-Turbo",
+      "revision": "3ec17a324ced54151364f24f8b5fb6bf7e26414f",
+      "file": "minimax_h3_fl2v_turbo_4step_v1.2_768p_bf16.safetensors",
+      "bytes": 1383677808
+    },
+    {
+      "repo": "lightx2v/Minimax-h3-Turbo",
+      "revision": "3ec17a324ced54151364f24f8b5fb6bf7e26414f",
+      "file": "minimax_h3_fl2v_turbo_4step_v1.0_768p_bf16.safetensors",
+      "bytes": 1383677808
+    }
+  ]
+}

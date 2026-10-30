@@ -1,0 +1,321 @@
+[
+  {
+    "id": "WF01",
+    "topic": "MiniMax H3 native T2VA",
+    "title": "Comfy-Org MiniMax H3 Text-to-Video workflow",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_minimax_h3_t2v.json",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "UI JSON uses the native MiniMaxH3ImageToVideo subgraph, ResolutionSelector, res_multistep sampler and a 20-step base path with optional turbo controls.",
+      "The graph lists minimax_h3_fl2va_pruned_int8_convrot.safetensors, qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors, video/audio VAE files, and optional FL2V Turbo LoRA URLs.",
+      "The native canvas is documented as a 768px short edge capped at 1344x768 and duration is snapped to the 17k+5 frame grid at 24fps."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "up to 1344x768 documented",
+      "frames": null,
+      "duration_s": 5,
+      "steps": 20,
+      "time_s": null,
+      "precision": "int8 ConvRot diffusion; NVFP4-AWQ text encoder; VAE files as named",
+      "workflow": "ComfyUI editor/UI JSON",
+      "host_ram_gb": null,
+      "offload": null,
+      "disk_gb": 37.34,
+      "target_profiles": {
+        "L4_24GB": "unknown",
+        "A100_40GB": "unknown",
+        "A100_80GB": "unknown"
+      }
+    },
+    "limitations": ["No L4 or single-A100 run, peak VRAM, host RAM, or quality acceptance was read.", "FL2VA and Ref2VA are distinct model contracts."] ,
+    "artifact_urls": [
+      "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_minimax_h3_t2v.json",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_fl2va_pruned_int8_convrot.safetensors",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/text_encoders/qwen3vl_32b_minimax_h3_nvfp4_awq.safetensors",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_video_vae_int8_convrot.safetensors",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/vae/minimax_h3_audio_vae_fp32.safetensors"
+    ],
+    "node_dependencies": ["ComfyUI native H3 nodes"],
+    "contracts": {"inputs": ["prompt", "width", "height", "duration", "optional first_frame", "optional last_frame"], "sampler": "res_multistep; simple/base 20 steps; turbo branch documented separately"}
+  },
+  {
+    "id": "WF02",
+    "topic": "MiniMax H3 native I2V/FLF",
+    "title": "Comfy-Org MiniMax H3 Image-to-Video workflow",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_minimax_h3_i2v.json",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The UI graph exposes first_frame and last_frame as optional IMAGE inputs on MiniMaxH3ImageToVideo.",
+      "The graph uses the FL2VA diffusion model and shared Qwen3-VL/text and video/audio VAE files; turbo mode changes to the listed H3 FL2V LoRA path.",
+      "The official guide says I2V can use one or both keyframes and keeps the same 768px-short-edge and 17k+5 frame rules."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "up to 1344x768 documented", "frames": null, "duration_s": null, "steps": 20, "time_s": null, "precision": "int8 ConvRot diffusion; NVFP4-AWQ text encoder", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": 37.34, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["No target-GPU run or paired first/last-frame quality result.", "A first/last image is an input contract, not a V2V workflow."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_minimax_h3_i2v.json", "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/input/transparent_rgb_gaming_mouse.png", "https://huggingface.co/Comfy-Org/MiniMax-H3/tree/main"],
+    "node_dependencies": ["ComfyUI native H3 nodes"],
+    "contracts": {"inputs": ["prompt", "optional first_frame", "optional last_frame", "width", "height", "duration"], "sampler": "native H3 res_multistep; turbo_steps exposed"}
+  },
+  {
+    "id": "WF03",
+    "topic": "MiniMax H3 native R2V",
+    "title": "Comfy-Org MiniMax H3 Reference-to-Video workflow",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_minimax_h3_r2v.json",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The graph uses MiniMaxH3ReferenceToVideo and a separate minimax_h3_ref2va_pruned_int8_convrot.safetensors diffusion file.",
+      "The documented reference inputs are up to 9 images, 3 videos with optional paired soundtracks, and 3 standalone audio clips.",
+      "The graph documents ref_image_size match versus max, res_multistep sampling, and packed video/audio latent decoding."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "H3 native canvas documented up to 1344x768", "frames": null, "duration_s": null, "steps": 20, "time_s": null, "precision": "int8 ConvRot Ref2VA; NVFP4-AWQ text encoder", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": 37.34, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["Ref2VA is not interchangeable with FL2VA or FastH3 V2.", "No hardware timing, peak memory, or controlled identity/quality score."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_minimax_h3_r2v.json", "https://huggingface.co/Comfy-Org/MiniMax-H3/resolve/main/diffusion_models/minimax_h3_ref2va_pruned_int8_convrot.safetensors", "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/minimax/minimax-h3-native.mdx"],
+    "node_dependencies": ["ComfyUI native H3 nodes"],
+    "contracts": {"inputs": ["ref_images", "ref_videos", "ref_video_audios", "ref_audios", "tagged prompt", "ref_image_size"], "sampler": "res_multistep; official note says beta/normal can outperform simple for reference-heavy prompts"}
+  },
+  {
+    "id": "WF04",
+    "topic": "FastVideo FastH3 V2",
+    "title": "Comfy-Org FastH3 8-Step V2 T2VA/FL2VA templates",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/refs/heads/main/templates/video_fastvideo_fasth3_t2v.json",
+    "publisher": "Comfy-Org / FastVideo",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The current raw template names fastvideo_fasth3_8step_v2_pruned_int8_convrot.safetensors and uses native MiniMax H3 multimodal nodes with Comfy kitchen attention.",
+      "Official docs require ComfyUI 0.36.0 or later, fixed 8 steps, H3 17k+5 frame grid at 24fps, and scope limited to T2VA/FL2VA; Ref2VA was not distilled.",
+      "The workflow notes VSA keep_percent 10 starting at 20% schedule and H3 video/audio sigma shifts 10/3."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "up to 1344x768 documented", "frames": null, "duration_s": 5, "steps": 8, "time_s": null, "precision": "int8 V2 diffusion; shared H3 NVFP4 text/VAE files", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": 38.4, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["Changing the fixed 8-step schedule is documented as quality degrading.", "No L4/A100 output or peak memory; V2 must not be mixed with the older 4-step VSA checkpoint."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Comfy-Org/workflow_templates/refs/heads/main/templates/video_fastvideo_fasth3_t2v.json", "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/refs/heads/main/templates/video_fastvideo_fasth3_i2v.json", "https://huggingface.co/FastVideo/FastVideo-FastH3-Comfy/resolve/main/diffusion_models/fastvideo_fasth3_8step_v2_pruned_int8_convrot.safetensors", "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/minimax/minimax-h3-fastvideo.mdx"],
+    "node_dependencies": ["ComfyUI >= 0.36.0", "Comfy Kitchen attention build as selected by template"],
+    "contracts": {"inputs": ["prompt", "optional first_frame", "optional last_frame", "width", "height", "duration"], "sampler": "res_multistep + simple, exactly 8 steps; sigma shift video=10/audio=3; VSA keep_percent=10"}
+  },
+  {
+    "id": "WF05",
+    "topic": "Wan VACE",
+    "title": "Comfy-Org Wan2.1 VACE T2V/I2V/V2V workflow family",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan_vace_14B_t2v.json",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The template includes WanVaceToVideo, KSampler, Wan VAE, UMT5 and optional CausVid LoRA branches; VACE accepts control_video, control_masks and reference_image inputs.",
+      "The in-graph note states VACE-1.3B supports 480P only and VACE-14B supports 480P and 720P.",
+      "Official tutorial documents reference-to-video, control-video V2V, inpainting, outpainting and first/last-frame variants; V2V may use preprocessed depth/Canny inputs."
+    ],
+    "resources": {"gpu": "RTX 4090 note only", "vram_gb": null, "ram_gb": null, "resolution": "1280x720 and 640x640 examples", "frames": 81, "duration_s": null, "steps": 4, "time_s": null, "precision": "fp16 VACE/UMT5 in documented default; LoRA branch optional", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": null, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["Tutorial timing is RTX 4090 only: 81f 720P about 40min and 49f 640x640 about 7min.", "Base 20-step and CausVid 2-4-step branches coexist; they are not one universal setting.", "No target GPU quality or memory acceptance."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan_vace_14B_t2v.json", "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan_vace_14B_v2v.json", "https://raw.githubusercontent.com/Comfy-Org/example_workflows/refs/heads/main/video/wan/vace/v2v/vace_v2v.mp4", "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/diffusion_models/wan2.1_vace_14B_fp16.safetensors", "https://huggingface.co/Comfy-Org/Wan_2.1_ComfyUI_repackaged/resolve/main/split_files/vae/wan_2.1_vae.safetensors"],
+    "node_dependencies": ["ComfyUI native Wan/VACE nodes", "comfyui_controlnet_aux for optional preprocessing", "ComfyUI-KJNodes in related graphs"],
+    "contracts": {"inputs": ["prompt", "optional reference image", "optional control video", "optional mask"], "sampler": "native KSampler; template note base steps=20/cfg=6 and CausVid steps=2-4/cfg=1"}
+  },
+  {
+    "id": "WF06",
+    "topic": "Wan Animate",
+    "title": "Comfy-Org Wan2.2 Animate character replace / move workflow",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan2_2_14B_animate.json",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The graph uses WanAnimateToVideo with a reference image, pose/driving video, CLIP Vision and segmentation/preprocessing nodes; it exposes Mix character replace and Move pose transfer modes.",
+      "The graph lists fp8 17.14GB and BF16 32.18GB Animate diffusion alternatives, UMT5, CLIP Vision, Wan VAE, LightX2V I2V LoRA and Relight LoRA.",
+      "The built-in node contract requires width/height multiples of 16, length multiple of 4, and supports pose_strength, pose/reference strengths, continuation and video_frame_offset."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "template branch 640x640; extended branch present", "frames": 77, "duration_s": null, "steps": null, "time_s": null, "precision": "fp8 or bf16 Animate diffusion; UMT5 fp8; CLIP Vision", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": 26.9, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["No target GPU timing/peak memory; graph has segmentation and preprocessing assets beyond core weights.", "Long/high-resolution video is explicitly an OOM risk in template notes."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/video_wan2_2_14B_animate.json", "https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/resolve/main/Wan22Animate/Wan2_2-Animate-14B_fp8_e4m3fn_scaled_KJ.safetensors", "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/diffusion_models/wan2.2_animate_14B_bf16.safetensors", "https://huggingface.co/Comfy-Org/Wan_2.2_ComfyUI_Repackaged/resolve/main/split_files/clip_vision/clip_vision_h.safetensors"],
+    "node_dependencies": ["comfyui_controlnet_aux", "ComfyUI-KJNodes", "ComfyUI-segment-anything-2"],
+    "contracts": {"inputs": ["reference_image", "pose_video", "optional continuation", "pose strengths", "prompt"], "sampler": "WanAnimateToVideo creates conditioning/start latent; downstream sampler branch is graph-defined"}
+  },
+  {
+    "id": "WF07",
+    "topic": "Kijai WanVideoWrapper",
+    "title": "WanVideoWrapper 14B first/last-frame example",
+    "url": "https://raw.githubusercontent.com/kijai/ComfyUI-WanVideoWrapper/main/example_workflows/wanvideo_2_1_14B_FLF2V_720P_example_02.json",
+    "publisher": "Kijai",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The UI JSON contains WanVideoModelLoader, WanVideoBlockSwap, WanVideoLoraSelect, WanVideoClipVisionEncode, WanVideoSampler and WanVideoDecode, with explicit start/end image Set/Get nodes.",
+      "The example uses block swap 20 and a LightX2V I2V 14B 480p LoRA; README says text encoder, CLIP Vision, transformer and VAE each have dedicated model locations.",
+      "The wrapper README says GGUF can load in the main model loader but also warns the project is WIP and model-specific node types are not generally mixable."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "graph includes 640x640 inputs; 720P title", "frames": null, "duration_s": null, "steps": null, "time_s": null, "precision": "fp8 scaled/GGUF options documented; example uses wrapper model loader", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": "block swap node set to 20 in example", "disk_gb": null, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["No L4/A100 first-hand timing or quality; README examples are other GPUs/tasks.", "Wrapper/native/WanVideoWrapper model objects cannot be assumed interchangeable.", "Compile/cache behavior and LoRA resident memory vary with block swap."],
+    "artifact_urls": ["https://raw.githubusercontent.com/kijai/ComfyUI-WanVideoWrapper/main/example_workflows/wanvideo_2_1_14B_FLF2V_720P_example_02.json", "https://github.com/kijai/ComfyUI-WanVideoWrapper", "https://huggingface.co/Kijai/WanVideo_comfy/tree/main", "https://huggingface.co/Kijai/WanVideo_comfy_fp8_scaled/tree/main"],
+    "node_dependencies": ["ComfyUI-WanVideoWrapper", "ComfyUI-KJNodes for utility nodes in example", "optional Triton/SageAttention per README"],
+    "contracts": {"inputs": ["start image", "end image", "prompt", "optional CLIP Vision image embeds"], "sampler": "WanVideoSampler owns steps/cfg/shift/scheduler/offload/context/cache inputs; exact values vary by example"}
+  },
+  {
+    "id": "WF08",
+    "topic": "VideoX-Fun Wan2.2 VACE-Fun",
+    "title": "Wan2.2 VACE-Fun A14B control-video UI workflow",
+    "url": "https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/comfyui/wan2_2_vace_fun/v1/wan2.2_vace_fun_workflow_v2v_control.json",
+    "publisher": "aigc-apps / VideoX-Fun",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The UI JSON uses LoadWan2_2VaceFunModel with Wan2.2-VACE-Fun-A14B, sequential_cpu_offload, and Wan2.2 sampler inputs for control_video, optional start/end images and subject reference images.",
+      "The example has 81 frames, width 640, 50 steps, cfg 6, Flow scheduler, shift 12 and a VHS video load/combine path at 16fps.",
+      "VideoX-Fun docs list A14B control/inpaint weights at 64.0GB and 5B control weights at 23.0GB; the ComfyUI install requires VideoX-Fun, VideoHelperSuite and KJNodes."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "width 640; height follows control/video path", "frames": 81, "duration_s": null, "steps": 50, "time_s": null, "precision": "bf16 in example model loader", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": "sequential_cpu_offload explicitly selected", "disk_gb": 64.0, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["Weight file size is not a VRAM peak or A100/L4 run result.", "No direct target-GPU video/timing/quality evidence."],
+    "artifact_urls": ["https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/comfyui/wan2_2_vace_fun/v1/wan2.2_vace_fun_workflow_v2v_control.json", "https://github.com/aigc-apps/VideoX-Fun/blob/main/comfyui/README.md", "https://github.com/aigc-apps/VideoX-Fun/blob/main/comfyui/wan2_2_fun/README.md", "https://huggingface.co/alibaba-pai/Wan2.2-Fun-A14B-Control"],
+    "node_dependencies": ["VideoX-Fun", "ComfyUI-VideoHelperSuite", "ComfyUI-KJNodes"],
+    "contracts": {"inputs": ["control_video", "prompt", "negative_prompt", "optional start_image", "optional end_image", "optional subject_ref_images", "optional RIFLEX"], "sampler": "Flow; 50 steps; cfg 6; shift 12 in example"}
+  },
+  {
+    "id": "WF09",
+    "topic": "FastH3 VSA 4-step experimental",
+    "title": "ComfyUI-FastH3-VSA strict T2VA proof workflow",
+    "url": "https://raw.githubusercontent.com/exportAnything/ComfyUI-FastH3-VSA/main/examples/fast_h3_vsa_t2va_workflow.json",
+    "publisher": "exportAnything / FastH3 VSA community integration",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The JSON wires UNETLoader to FastH3VSAPatch, then MiniMaxH3SigmaShift video=12/audio=3, native H3 conditioning, simple 4-step scheduler and audio/video decode.",
+      "The repository README reports a local strict-VSA generation of 5.17 seconds at 608x352 and 124 frames with synchronized stereo audio, 300 VSA calls and zero fallbacks; GPU and host RAM are not stated.",
+      "The repository requires a pinned ComfyUI compatibility patch and a specific Comfy Kitchen Actions artifact; it explicitly says minimum VRAM is unknown and rejects MultiGPU clones."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "608x352 reported local output", "frames": 124, "duration_s": null, "steps": 4, "time_s": 5.17, "precision": "int8 ConvRot FastH3 VSA checkpoint", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": 22.9, "target_profiles": {"L4_24GB": "unknown; minimum VRAM not established", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["The 5.17s result is a local author report with no GPU identity, RAM, seed or complete command log.", "Experimental patch changes ComfyUI core files; ordinary PyPI comfy-kitchen wheel is explicitly the wrong binary for this preview."],
+    "artifact_urls": ["https://raw.githubusercontent.com/exportAnything/ComfyUI-FastH3-VSA/main/examples/fast_h3_vsa_t2va_workflow.json", "https://github.com/exportAnything/ComfyUI-FastH3-VSA", "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree"],
+    "node_dependencies": ["ComfyUI-FastH3-VSA", "pinned ComfyUI gate patch", "specific Comfy Kitchen Actions artifact"],
+    "contracts": {"inputs": ["prompt", "608x352/124-frame example", "native H3 text/video/audio VAE"], "sampler": "4 steps, simple, res_multistep; VSA keep_percent=10; sigma shift 12/3"}
+  },
+  {
+    "id": "WF10",
+    "topic": "LTX official nodepack",
+    "title": "Lightricks ComfyUI-LTXVideo LTX-2.3 single-stage distilled full workflow",
+    "url": "https://raw.githubusercontent.com/Lightricks/ComfyUI-LTXVideo/master/example_workflows/2.3/LTX-2.3_T2V_I2V_Single_Stage_Distilled_Full.json",
+    "publisher": "Lightricks",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The full UI JSON contains LTXVConditioning, EmptyLTXVLatentVideo/Audio, LTXVConcatAVLatent/SeparateAVLatent, LTXVScheduler, MultimodalGuider, LTXVPreprocess and audio/video VAE nodes.",
+      "The graph uses ltx-2.3-22b-dev.safetensors and a Gemma 3 text encoder path; the JSON also contains an optional GemmaAPITextEncode/API-key branch.",
+      "Lightricks README states a CUDA GPU with 32GB+ VRAM and 100GB+ free disk before using LTX-2 workflows."
+    ],
+    "resources": {"gpu": "CUDA GPU 32GB+ prerequisite from README", "vram_gb": 32, "ram_gb": null, "resolution": "960x544 in graph", "frames": 121, "duration_s": null, "steps": null, "time_s": null, "precision": "22B dev checkpoint; exact runtime precision depends on model file/loader", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": 100.0, "target_profiles": {"L4_24GB": "outside official prerequisite", "A100_40GB": "possible by VRAM prerequisite only; no run", "A100_80GB": "possible by VRAM prerequisite only; no run"}},
+    "limitations": ["32GB+/100GB are nodepack prerequisites, not a measured A100 benchmark.", "API key branch and local encoder branch must not be conflated; no L4 result."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Lightricks/ComfyUI-LTXVideo/master/example_workflows/2.3/LTX-2.3_T2V_I2V_Single_Stage_Distilled_Full.json", "https://github.com/Lightricks/ComfyUI-LTXVideo", "https://docs.ltx.io/open-source-model/integration-tools/comfy-ui/"],
+    "node_dependencies": ["Lightricks/ComfyUI-LTXVideo", "ComfyUI core LTX nodes", "local Gemma encoder or optional LTX API path"],
+    "contracts": {"inputs": ["prompt", "optional image", "optional audio latent", "frame_rate", "width", "height"], "sampler": "LTXVScheduler/manual sigmas and MultimodalGuider; exact graph has multiple sampler stages"}
+  },
+  {
+    "id": "WF11",
+    "topic": "FramePack",
+    "title": "Kijai ComfyUI-FramePackWrapper HV example",
+    "url": "https://raw.githubusercontent.com/kijai/ComfyUI-FramePackWrapper/main/example_workflows/framepack_hv_example.json",
+    "publisher": "Kijai",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The UI JSON uses DownloadAndLoadFramePackModel, FramePackFindNearestBucket, FramePackSampler, CLIPVisionEncode and VAEEncode, with optional start/end latent and image embedding interpolation.",
+      "README permits either autodownload to a diffusers directory or a single FP8/BF16 transformer file; text encoder, VAE and SigCLIP come from Comfy-Org HunyuanVideo repackaged/sigclip repos.",
+      "FramePackSampler exposes steps, TeaCache threshold, cfg, guidance_scale, latent_window_size, total_second_length and GPU memory preservation."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "nearest bucket; example graph input 704x544 image path", "frames": null, "duration_s": 5, "steps": 30, "time_s": null, "precision": "bf16/FP8 selectable", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": "load_device/offload and gpu_memory_preservation controls in node", "disk_gb": null, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["Wrapper README is explicitly WIP; a KJNodes issue reports missing-node/load errors.", "Upstream FramePack 6GB claims are not wrapper-specific validation and no target-GPU timing was read."],
+    "artifact_urls": ["https://raw.githubusercontent.com/kijai/ComfyUI-FramePackWrapper/main/example_workflows/framepack_hv_example.json", "https://huggingface.co/lllyasviel/FramePackI2V_HY/tree/main", "https://huggingface.co/Kijai/HunyuanVideo_comfy/blob/main/FramePackI2V_HY_fp8_e4m3fn.safetensors", "https://huggingface.co/Comfy-Org/sigclip_vision_384/tree/main"],
+    "node_dependencies": ["ComfyUI-FramePackWrapper", "ComfyUI-KJNodes/ComfyUI_essentials nodes used by example"],
+    "contracts": {"inputs": ["start image", "end image", "prompt", "optional initial video latent", "optional image embeddings"], "sampler": "FramePackSampler; default node steps=30, cfg=1, guidance_scale=10, latent_window_size=9, total_second_length=5"}
+  },
+  {
+    "id": "WF12",
+    "topic": "Hunyuan Video",
+    "title": "Comfy-Org Hunyuan Video text-to-video workflow",
+    "url": "https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/hunyuan_video_text_to_video.json",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The graph uses EmptyHunyuanLatentVideo at 848x480x73, Euler sampler, simple scheduler at 20 steps, ModelSamplingSD3=7 and FluxGuidance=6.",
+      "The graph loads HunyuanVideo T2V 720p BF16 and Hunyuan VAE, with a note to select FP8 weight_dtype when memory is insufficient.",
+      "VAEDecodeTiled is the default path with tile_size 256, overlap 64/64 and temporal tile 8."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "848x480", "frames": 73, "duration_s": null, "steps": 20, "time_s": null, "precision": "BF16 default; FP8 weight_dtype fallback note", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": null, "offload": null, "disk_gb": null, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["T2V-only graph; no target-GPU run or visual acceptance.", "Tiled decode lowers decode-memory pressure but does not establish end-to-end VRAM."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Comfy-Org/workflow_templates/main/templates/hunyuan_video_text_to_video.json", "https://huggingface.co/Comfy-Org/HunyuanVideo_repackaged/tree/main/split_files"],
+    "node_dependencies": ["ComfyUI native Hunyuan nodes"],
+    "contracts": {"inputs": ["prompt", "848x480x73 latent"], "sampler": "Euler/simple, 20 steps, ModelSamplingSD3 shift=7, FluxGuidance=6"}
+  },
+  {
+    "id": "WF13",
+    "topic": "city96 GGUF low-VRAM community workflow",
+    "title": "Cordux Wan2.2 14B low-VRAM T2V/I2V GGUF workflow",
+    "url": "https://raw.githubusercontent.com/Cordux/ComfyUI-Wan2.2-workflow/main/WAN2.2.json",
+    "publisher": "Cordux; city96 GGUF dependency",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The UI JSON includes city96 GGUF loading plus rgthree, cg-use-everywhere, Easy-Use, VHS, KJNodes, memory cleanup, custom scripts and efficiency nodes.",
+      "The README defines Q3/Q4/Q5 main GGUF, city96 UMT5 Q3_K_M/Q4_K_M, Wan VAE, 512x512 default, FPS*seconds+1 frame calculation, T2V/I2V toggle and last-frame chaining.",
+      "Author benchmark reports RTX 3050 6GB, 1 second/16 frames at 15fps, 4 steps, about 4.6 minutes; model loading, sampling and VAE decode are separated."
+    ],
+    "resources": {"gpu": "RTX 3050 6GB (author-reported)", "vram_gb": 6, "ram_gb": 16, "resolution": "512x512 default; benchmark resolution not stated", "frames": 16, "duration_s": 1, "steps": 4, "time_s": 276, "precision": "Q4_K main + Q3_K_M UMT5 in tested configuration", "workflow": "ComfyUI editor/UI JSON", "host_ram_gb": 16, "offload": "aggressive CPU offload about 9GB stated", "disk_gb": 15, "target_profiles": {"L4_24GB": "not measured; lower-GPU workflow only", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["The rapid-AIO model is a third-party merge; no controlled comparison to official Wan2.2.", "RTX3050 data cannot be promoted to L4/A100 results; no quality score beyond author wording."],
+    "artifact_urls": ["https://raw.githubusercontent.com/Cordux/ComfyUI-Wan2.2-workflow/main/WAN2.2.json", "https://github.com/Cordux/ComfyUI-Wan2.2-workflow", "https://github.com/city96/ComfyUI-GGUF", "https://huggingface.co/befox/WAN2.2-14B-Rapid-AllInOne-GGUF/tree/main/v10", "https://huggingface.co/city96/umt5-xxl-encoder-gguf/tree/main"],
+    "node_dependencies": ["ComfyUI-GGUF (city96)", "rgthree-comfy", "cg-use-everywhere", "ComfyUI-Easy-Use", "ComfyUI-VideoHelperSuite", "ComfyUI-KJNodes", "comfyui_memory_cleanup", "ComfyUI-Custom-Scripts", "efficiency-nodes-comfyui"],
+    "contracts": {"inputs": ["prompt", "optional image", "width", "height", "seconds", "fps"], "sampler": "4-step rapid-AIO graph; GGUF loader and CPU offload are required for intended low-VRAM path"}
+  },
+  {
+    "id": "WF14",
+    "topic": "Wan2.1 GGUF plus post-processing",
+    "title": "safzanpirani Wan2.1 I2V GGUF upscale and frame-interpolation workflow",
+    "url": "https://github.com/safzanpirani/comfyui-workflows/blob/main/wan2.1%2Bupscale%2Bframegen-gguf-video.json",
+    "publisher": "safzanpirani",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The repository describes a complete Wan2.1 I2V GGUF generation -> upscale -> frame interpolation workflow and provides a drag/drop JSON plus PNG metadata workflow.",
+      "README lists KJNodes, rgthree, VideoHelperSuite, city96 ComfyUI-GGUF and ComfyUI Frame Interpolation for the video graph.",
+      "README names city96 Wan2.1 I2V 14B 480P Q6_K GGUF, UMT5 FP8, Wan VAE and CLIP Vision as model inputs."
+    ],
+    "resources": {"gpu": null, "vram_gb": null, "ram_gb": null, "resolution": "Wan2.1 480P I2V source; upscale target not stated", "frames": null, "duration_s": null, "steps": null, "time_s": null, "precision": "Q6_K GGUF diffusion + UMT5 FP8", "workflow": "ComfyUI editor/UI JSON and PNG metadata", "host_ram_gb": null, "offload": null, "disk_gb": null, "target_profiles": {"L4_24GB": "unknown", "A100_40GB": "unknown", "A100_80GB": "unknown"}},
+    "limitations": ["No target-GPU benchmark, peak VRAM/RAM or quality acceptance in the repository.", "Post-processing node requirements and model versions must be installed together."],
+    "artifact_urls": ["https://github.com/safzanpirani/comfyui-workflows/blob/main/wan2.1%2Bupscale%2Bframegen-gguf-video.json", "https://huggingface.co/city96/Wan2.1-I2V-14B-480P-gguf/tree/main", "https://github.com/city96/ComfyUI-GGUF"],
+    "node_dependencies": ["ComfyUI-KJNodes", "rgthree-comfy", "ComfyUI-VideoHelperSuite", "ComfyUI-GGUF", "ComfyUI Frame Interpolation"],
+    "contracts": {"inputs": ["source image", "prompt", "Wan2.1 I2V GGUF"], "sampler": "graph-defined; post-generation upscale and interpolation branches"}
+  }
+]

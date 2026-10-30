@@ -1,0 +1,363 @@
+{
+  "checked_date": "2026-10-11",
+  "task": "L4/T4/Kaggle placement evaluation; no new GPU allocated",
+  "assets_source": "projects/video-model-cp-20261011/assets.json",
+  "a100_successful_original_clips": 39,
+  "weight_totals": [
+    {
+      "trial": "L01",
+      "assets": [
+        "L-D",
+        "L-TE",
+        "L-CV",
+        "L-AV",
+        "L-UP"
+      ],
+      "all_model_files_bytes": 39689918812,
+      "all_model_files_gib": 36.964117374271154,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "L02",
+      "assets": [
+        "L-D",
+        "L-TE",
+        "L-DV",
+        "L-AV",
+        "L-UP"
+      ],
+      "all_model_files_bytes": 39709872236,
+      "all_model_files_gib": 36.98270044848323,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "L03",
+      "assets": [
+        "L-Q6",
+        "L-TE",
+        "L-CV",
+        "L-AV",
+        "L-UP"
+      ],
+      "all_model_files_bytes": 36845233068,
+      "all_model_files_gib": 34.314797323197126,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "L03-Q4",
+      "assets": [
+        "L-Q4",
+        "L-TE",
+        "L-CV",
+        "L-AV",
+        "L-UP"
+      ],
+      "all_model_files_bytes": 33272472492,
+      "all_model_files_gib": 30.987404745072126,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "L04",
+      "assets": [
+        "L-M17",
+        "L-TE",
+        "L-CV",
+        "L-AV",
+        "L-UP"
+      ],
+      "all_model_files_bytes": 35196227180,
+      "all_model_files_gib": 32.77904091402888,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "L05",
+      "assets": [
+        "L-D",
+        "L-TE",
+        "L-CV",
+        "L-AV"
+      ],
+      "all_model_files_bytes": 38694140060,
+      "all_model_files_gib": 36.036726143211126,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "H01",
+      "assets": [
+        "W-H3",
+        "W-TE",
+        "W-V",
+        "W-A",
+        "W-UP",
+        "W-T1",
+        "W-T2",
+        "W-T3",
+        "W-T4",
+        "W-T5",
+        "W-PDD",
+        "W-PDDL"
+      ],
+      "all_model_files_bytes": 53270832454,
+      "all_model_files_gib": 49.61232883296907,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "H02",
+      "assets": [
+        "H-D",
+        "H-TE",
+        "H-V",
+        "H-A",
+        "H-LARRY"
+      ],
+      "all_model_files_bytes": 52307891576,
+      "all_model_files_gib": 48.71552025526762,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement",
+      "alternate_nvfp4_awq_te_gib": 38.04796559270471,
+      "alternate_configuration_status": "not generated with this combination on A100/L4/T4/Kaggle; TE alone was generated in earlier FastH3"
+    },
+    {
+      "trial": "H03",
+      "assets": [
+        "W-H3",
+        "W-TE",
+        "W-V",
+        "W-A",
+        "W-UP",
+        "W-T1",
+        "W-T2",
+        "W-T3",
+        "W-T4",
+        "W-T5",
+        "W-LX4"
+      ],
+      "all_model_files_bytes": 53282084598,
+      "all_model_files_gib": 49.622808208689094,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "H04",
+      "assets": [
+        "H-D",
+        "H-TE",
+        "H-V",
+        "H-A",
+        "H-LX8"
+      ],
+      "all_model_files_bytes": 53484234760,
+      "all_model_files_gib": 49.81107521802187,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement",
+      "alternate_nvfp4_awq_te_gib": 39.14352055545896,
+      "alternate_configuration_status": "not generated with this combination on A100/L4/T4/Kaggle; TE alone was generated in earlier FastH3"
+    },
+    {
+      "trial": "H05",
+      "assets": [
+        "H-D",
+        "H-TE",
+        "H-V",
+        "H-A",
+        "H-HYPER"
+      ],
+      "all_model_files_bytes": 55440355072,
+      "all_model_files_gib": 51.63285422325134,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement",
+      "alternate_nvfp4_awq_te_gib": 40.965299560688436,
+      "alternate_configuration_status": "not generated with this combination on A100/L4/T4/Kaggle; TE alone was generated in earlier FastH3"
+    },
+    {
+      "trial": "H06",
+      "assets": [
+        "H-D",
+        "H-TE",
+        "H-V",
+        "H-A"
+      ],
+      "all_model_files_bytes": 51528041760,
+      "all_model_files_gib": 47.98922851681709,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement",
+      "alternate_nvfp4_awq_te_gib": 37.321673854254186,
+      "alternate_configuration_status": "not generated with this combination on A100/L4/T4/Kaggle; TE alone was generated in earlier FastH3"
+    },
+    {
+      "trial": "H07",
+      "assets": [
+        "H-W6",
+        "H-TE",
+        "H-V",
+        "H-A",
+        "H-LARRY"
+      ],
+      "all_model_files_bytes": 47321258596,
+      "all_model_files_gib": 44.071356389671564,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement",
+      "alternate_nvfp4_awq_te_gib": 33.40380172710866,
+      "alternate_configuration_status": "not generated with this combination on A100/L4/T4/Kaggle; TE alone was generated in earlier FastH3"
+    },
+    {
+      "trial": "C01",
+      "assets": [
+        "K-TE",
+        "K-CLIP",
+        "K-V",
+        "K-A",
+        "K-VOC",
+        "K-VCFG",
+        "K-LITE"
+      ],
+      "all_model_files_bytes": 25416128714,
+      "all_model_files_gib": 23.67061443068087,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "C02",
+      "assets": [
+        "K-TE",
+        "K-CLIP",
+        "K-V",
+        "K-A",
+        "K-VOC",
+        "K-VCFG",
+        "K-PRO8"
+      ],
+      "all_model_files_bytes": 50482123447,
+      "all_model_files_gib": 47.015141180716455,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "C03",
+      "assets": [
+        "K-TE",
+        "K-CLIP",
+        "K-V",
+        "K-A",
+        "K-VOC",
+        "K-VCFG",
+        "K-PRO"
+      ],
+      "all_model_files_bytes": 79379523194,
+      "all_model_files_gib": 73.92794191278517,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    },
+    {
+      "trial": "B01",
+      "assets": [
+        "B-H",
+        "B-L"
+      ],
+      "all_model_files_bytes": 29064995394,
+      "all_model_files_gib": 27.068886341527104,
+      "scope": "downloaded file bytes, not resident RAM or GPU requirement"
+    }
+  ],
+  "resource_observations": [
+    {
+      "job": "C01-T01-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/C01-T01-s42-sd/resources.jsonl",
+      "samples": 41,
+      "first_gpu_used_gib": 0.41796875,
+      "sampled_peak_gpu_used_gib": 40.908203125,
+      "first_process_tree_rss_gib": 1.1325035095214844,
+      "sampled_peak_process_tree_rss_gib": 24.253856658935547,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H02-T01-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H02-T01-s42-sd/resources.jsonl",
+      "samples": 24,
+      "first_gpu_used_gib": 22.720703125,
+      "sampled_peak_gpu_used_gib": 71.974609375,
+      "first_process_tree_rss_gib": 11.140621185302734,
+      "sampled_peak_process_tree_rss_gib": 35.0399169921875,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H04-T01-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H04-T01-s42-sd/resources.jsonl",
+      "samples": 25,
+      "first_gpu_used_gib": 70.072265625,
+      "sampled_peak_gpu_used_gib": 72.009765625,
+      "first_process_tree_rss_gib": 35.34787368774414,
+      "sampled_peak_process_tree_rss_gib": 51.83924865722656,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H05-T01-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H05-T01-s42-sd/resources.jsonl",
+      "samples": 26,
+      "first_gpu_used_gib": 64.103515625,
+      "sampled_peak_gpu_used_gib": 69.31640625,
+      "first_process_tree_rss_gib": 73.09264373779297,
+      "sampled_peak_process_tree_rss_gib": 104.03518295288086,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H06-T01-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H06-T01-s42-sd/resources.jsonl",
+      "samples": 38,
+      "first_gpu_used_gib": 64.10546875,
+      "sampled_peak_gpu_used_gib": 66.16796875,
+      "first_process_tree_rss_gib": 61.327308654785156,
+      "sampled_peak_process_tree_rss_gib": 61.327308654785156,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H07-T01-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H07-T01-s42-sd/resources.jsonl",
+      "samples": 25,
+      "first_gpu_used_gib": 70.009765625,
+      "sampled_peak_gpu_used_gib": 70.9921875,
+      "first_process_tree_rss_gib": 54.08189010620117,
+      "sampled_peak_process_tree_rss_gib": 86.1014175415039,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H01-T01-s42-sd-r2",
+      "source": "projects/video-model-cp-20261011/results/records/H01-T01-s42-sd-r2/resources.jsonl",
+      "samples": 41,
+      "first_gpu_used_gib": 0.0,
+      "sampled_peak_gpu_used_gib": 3.900390625,
+      "first_process_tree_rss_gib": 0.02004241943359375,
+      "sampled_peak_process_tree_rss_gib": 54.95960235595703,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H01-T02-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H01-T02-s42-sd/resources.jsonl",
+      "samples": 38,
+      "first_gpu_used_gib": 0.0,
+      "sampled_peak_gpu_used_gib": 3.900390625,
+      "first_process_tree_rss_gib": 0.021648406982421875,
+      "sampled_peak_process_tree_rss_gib": 55.04658508300781,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H01-T03-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H01-T03-s42-sd/resources.jsonl",
+      "samples": 38,
+      "first_gpu_used_gib": 0.0,
+      "sampled_peak_gpu_used_gib": 3.900390625,
+      "first_process_tree_rss_gib": 0.021541595458984375,
+      "sampled_peak_process_tree_rss_gib": 55.05439758300781,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    },
+    {
+      "job": "H01-I01-s42-sd",
+      "source": "projects/video-model-cp-20261011/results/records/H01-I01-s42-sd/resources.jsonl",
+      "samples": 40,
+      "first_gpu_used_gib": 0.0,
+      "sampled_peak_gpu_used_gib": 3.962890625,
+      "first_process_tree_rss_gib": 0.02164459228515625,
+      "sampled_peak_process_tree_rss_gib": 56.415306091308594,
+      "interpretation_limit": "Whole GPU sampled memory, not isolated minimum requirement. Comfy may retain preceding models; summed process-tree RSS may count shared pages. H01 is a separate cold CLI process for each row."
+    }
+  ],
+  "actual_l4_source": "artifacts/fast-h3-l4/notebook_l4_smoke_20261009T021350_9bcd99b7/hardware.json",
+  "actual_t4_source": "projects/fast-h3-t4-20261011/attempt02-result/hardware.json",
+  "evidence_limits": [
+    "A100 whole-GPU peaks are not portable memory requirements.",
+    "File bytes are not inference peak memory.",
+    "Kaggle runtime was not opened or measured in this assessment.",
+    "All deployment settings suggested for other GPUs remain untested unless explicitly identified as earlier FastH3 measurements."
+  ]
+}

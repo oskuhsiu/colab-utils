@@ -1,0 +1,149 @@
+{
+  "checked_at": "2026-10-09T04:44:00Z",
+  "scope": "Source-backed research on making MiniMax H3/FastH3 video content follow requirements; no model download, GPU run, private-media copy, or product/skill edit.",
+  "answer": {
+    "mode_boundary": "FastH3 Preview v1 4-step and FastH3 8-Step V2 public cards are T2AV-only students. Native H3 Ref2VA uses a separate reference transformer. Feeding shared ComfyUI native reference conditioning into a FastH3 T2VA student is experimental_ref2va_ood and is not a reference-fidelity guarantee.",
+    "prompt_contract": "Choose the actual mode first. Ref2VA uses subject_definitions, summary, retention_analysis, detailed_description, overall_soundscape, non_diegetic_music. Base modes use the documented alignment line when applicable plus integrated_multimodal_description, overall_soundscape, non_diegetic_music. Stable reference labels and speaker IDs must match serialized inputs and actual vocal order.",
+    "acceptance_contract": "Inspect original-size frames and the supplied references for identity, hair, costume, prop count/orientation/geometry, action causality, scene/shot continuity, and audio/dialogue; separately verify decoded fps, frame count, duration, audio sample rate/channels, and subtitle/ASR timing. Successful decode is not content pass."
+  },
+  "sources": [
+    {
+      "id": "S1",
+      "title": "MiniMax H3 h3-prompt-writing skill and base/ref guides",
+      "url": "https://github.com/MiniMax-AI/MiniMax-H3/tree/d21241f0a4b3acbb34c97dae47fa417b7065e438/skills/h3-prompt-writing",
+      "revision": "d21241f0a4b3acbb34c97dae47fa417b7065e438",
+      "source_date": "2026-08-15",
+      "checked": "2026-10-09",
+      "facts": [
+        "Modes are T2VA, I2VA, FL2VA, L2VA, and Ref2VA.",
+        "Ref2VA sections are ordered subject_definitions, summary, retention_analysis, detailed_description, overall_soundscape, non_diegetic_music.",
+        "Reference labels keep their meaning across sections; a picture used only to define identity/costume is cited inside a Subject, while a concrete keyframe can be a standalone Picture.",
+        "Base prompts place visuals, actions, speakers, dialogue, and diegetic audio on the timeline; stable S IDs follow actual vocal order; dialogue stays verbatim in <d>; soundscape excludes dialogue.",
+        "Later shots use strictly increasing cut times within the requested duration; the guide recommends concrete visual/audio detail over abstract adjectives."
+      ]
+    },
+    {
+      "id": "S2",
+      "title": "MiniMax H3 model card",
+      "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/42ed227ee7df40d41602854ae760620d6eb651fe/README.md",
+      "revision": "42ed227ee7df40d41602854ae760620d6eb651fe",
+      "source_date": "2026-08-13 lastModified",
+      "checked": "2026-10-09",
+      "facts": [
+        "FL2VA supports zero, one, or two input images for T2V, first/last-frame, or first-and-last-frame use.",
+        "Ref2VA supports at most 9 images, 3 video clips (each 2-15 seconds, total 15 seconds), 3 audio clips (same duration limits), and 12 mixed files.",
+        "FL2VA and Ref2VA are separate task-specific BF16 checkpoints; the README lists reproducible local 768p T2VA, FL2VA, and Ref2VA cases."
+      ]
+    },
+    {
+      "id": "S3",
+      "title": "ComfyUI native MiniMax H3 node and official R2V guide",
+      "url": "https://github.com/Comfy-Org/ComfyUI/blob/a4b5a045e56fc334903db8457b728b64e006119c/comfy_extras/nodes_minimax_h3.py",
+      "docs_url": "https://github.com/Comfy-Org/docs/blob/2c665405b557f2d8a36d75dfc41018ec31b18e56/tutorials/video/minimax/minimax-h3-native.mdx",
+      "revision": "ComfyUI a4b5a045e56fc334903db8457b728b64e006119c; docs 2c665405b557f2d8a36d75dfc41018ec31b18e56",
+      "source_date": "2026-10-09 node commit; docs checked 2026-10-09",
+      "facts": [
+        "Reference presentation order is images, then videos (paired soundtrack label before its video), then standalone audio; ordinals are 1-based per type.",
+        "The node exposes up to 9 images, 3 videos, 3 video soundtracks, and 3 standalone audio clips. ref_image_size=match scales down to generation area; max uses up to a 2048px short edge and can be slower; references are never upscaled.",
+        "A video reference is sampled for Qwen at 2 fps with timestamps, while the VAE block keeps its 24-fps frames. A video needs at least 5 frames and is cropped to the 17k+5 grid.",
+        "The official R2V guide says to assign each reference a job (identity, style, motion, camera, voice), and says R2V uses ref2va weights distinct from fl2va; these are input guidance/weight boundaries, not output guarantees."
+      ]
+    },
+    {
+      "id": "S4",
+      "title": "FastVideo FastH3 4-step and 8-Step V2 model cards",
+      "urls": [
+        "https://huggingface.co/FastVideo/FastVideo-FastH3-4-step-Preview-v1-VSA-DataFree/blob/5ea076f35b84da4c3c82217112fa733d8eea2ae1/README.md",
+        "https://huggingface.co/FastVideo/FastVideo-FastH3-8-Step-V2/blob/3da2ddfe1954d9cda4c05b643dc0f26007a655c5/README.md"
+      ],
+      "revisions": ["5ea076f35b84da4c3c82217112fa733d8eea2ae1", "3da2ddfe1954d9cda4c05b643dc0f26007a655c5"],
+      "source_dates": ["2026-09-04 lastModified", "2026-09-15 lastModified"],
+      "checked": "2026-10-09",
+      "facts": [
+        "4-step Preview is a four-forward, step-1300, data-free DMD2/VSA-H3 T2AV checkpoint with 90% sparsity and 64-token tiles; its card says difficult motion, fine detail, and some audio may remain below base H3.",
+        "8-Step V2 is a different eight-forward, step-1300 DMD2/VSA-H3 T2AV checkpoint with 80% sparsity and 64-token tiles; its card also says FL2VA and Ref2VA were not distilled.",
+        "The cards support a matched schedule/seed/prompt comparison, but do not establish that 4 steps always fail or 8 steps always repair fidelity."
+      ]
+    },
+    {
+      "id": "S5",
+      "title": "FastVideo distilled checkpoint schedules",
+      "url": "https://github.com/hao-ai-lab/FastVideo/blob/2b164405c3d15ed2d222d0582d6db09ffc5ee6b2/docs/inference/fasth3-distilled.md",
+      "revision": "2b164405c3d15ed2d222d0582d6db09ffc5ee6b2",
+      "source_date": "2026-10-07",
+      "checked": "2026-10-09",
+      "facts": [
+        "FastH3 OmniRef PDD-8 is a separate Ref2VA transformer_ref student with 32 PDD heads sampled in eight blocks; references must be ordered and at least one image or video is required.",
+        "Its contract uses Ref2VA shifts 12/3, VSA reference policy p2_multi_region, and 128-token tiles.",
+        "The 128-token PDD reference path runs only on sm100a/sm103a block-sparse kernels and has no Triton fallback; the documented GB200 example peaks near 103 GiB for a 480x832 124-frame request. This is not an L4 suitability claim."
+      ]
+    },
+    {
+      "id": "S6",
+      "title": "Local final-03 known limitations",
+      "path": "projects/midautumn-h3/final-03/README.md",
+      "source_date": "2026-09-27",
+      "checked": "2026-10-09",
+      "facts": [
+        "A nine-segment Original50 BF16 Ref2VA assembly passed media decode/format checks but retained only approximate identity; face/hair, collar/belt/skirt details, arrow feather/shaft geometry/direction, and moon-scene details varied across segments.",
+        "The README explicitly says the run was not a fair 8-versus-50 comparison and does not claim full identity consistency; audio was not manually heard in that environment."
+      ]
+    }
+  ],
+  "operational_matrix": [
+    {
+      "topic": "Prompt serialization",
+      "action": "Select actual T2VA/FL2VA/Ref2VA mode; keep official fields/labels/order; put dialogue in timed detailed description; use stable S IDs; store final serialized prompt.",
+      "boundary": "Input conformance only; no output fidelity guarantee.",
+      "acceptance": "Parse prompt, verify every label maps to an actual ordered input, inspect shot times against duration, and check dialogue timing."
+    },
+    {
+      "topic": "Reference crop/order/size",
+      "action": "Record source path/hash, pixel crop, role, node socket order, ref_image_size, and VAE connections; compare match vs max only with the same seed/prompt.",
+      "boundary": "Comfy native Ref2VA behavior; FastH3 T2VA plus ref conditioning is OOD. max is a speed/conditioning tradeoff, not a face lock.",
+      "acceptance": "Inspect reference manifest and original-size output face/hair/costume at close, speech, turn, and maximum-motion frames."
+    },
+    {
+      "topic": "Identity and costume",
+      "action": "Define one Subject for the person; bind original photo to identity and costume image/text to clothing; if same person has multiple refs say so explicitly.",
+      "boundary": "Subject/retention language is model intent; multiple images are not proven better and exact-face words are not hard constraints.",
+      "acceptance": "Compare face shape/eyes/nose/mouth/hair/age impression and full-body garment separately against original refs."
+    },
+    {
+      "topic": "Arrow/action geometry",
+      "action": "Use a positive physical chain with one actor/one prop and explicit count, hand, direction, release, trajectory, and impact; isolate in a short shot before mixing with identity/camera moves.",
+      "boundary": "Operational hypothesis derived from prompt semantics and local failures; no source proves wording guarantees geometry.",
+      "acceptance": "Dense frame sampling checks arrow count, shaft/feather continuity, aim direction, causal release, and hit location."
+    },
+    {
+      "topic": "Moon/empty scene",
+      "action": "Use an independent empty-scene prompt that names visible lunar surface, Earth/sky placement, camera direction, lighting, and temporal change; keep character descriptions out of that shot.",
+      "boundary": "A clean empty shot does not prove other shots or cross-segment background continuity.",
+      "acceptance": "Check first/middle/last and dense samples for unwanted people, extra celestial objects, scene swaps, and landmarks."
+    },
+    {
+      "topic": "Dialogue/audio",
+      "action": "Use exact original dialogue inside <d>; assign S IDs by actual vocal event; keep soundscape free of dialogue; preserve audio and subtitle time bases.",
+      "boundary": "ASR can hallucinate words or miss speech; no audio input support in the local final-03 run means no manual-hearing claim there.",
+      "acceptance": "Cross-check decoded audio, waveform/duration, ASR word times, subtitle times, and manual listening when available."
+    },
+    {
+      "topic": "Step comparison",
+      "action": "Use each checkpoint's own trained ladder/shifts/backend; compare same prompt, refs, crop, seed, dimensions, duration, and event frames.",
+      "boundary": "4 vs 8 and 50 comparisons are only case-specific unless all other variables match; schedule endpoint conventions differ by runtime.",
+      "acceptance": "Score identity, action causality, geometry, scene, audio, and cross-segment continuity separately; do not replace content QA with speed or successful decode."
+    }
+  ],
+  "unverified_hypotheses": [
+    "Explicit role assignment, affirmative physical descriptions, reduced reference ambiguity, and separated character/action shots may improve this task, but no checked source quantifies or guarantees the effect.",
+    "A max-size or face-focused crop may preserve more identity information than match-size input, but the local references explicitly call this a design choice rather than an identity guarantee.",
+    "FastH3 T2VA plus shared native Ref2VA reference nodes may produce useful OOD behavior, but no source or local run establishes its reference fidelity."
+  ],
+  "not_supported_claims": [
+    "A specific word guarantees an unchanged face or unwarped object.",
+    "More reference images always improve identity.",
+    "Four steps always produce bad quality, or eight steps always fix it.",
+    "An OmniRef PDD contract is an L4 recipe."
+  ],
+  "no_gpu_work_performed": true
+}

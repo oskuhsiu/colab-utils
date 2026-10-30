@@ -1,0 +1,6 @@
+interface:
+  display_name: "Use Strata Colab API"
+  short_description: "Talk to an already-running Strata API safely"
+  default_prompt: "Use $strata-colab-client to verify my current session and send a short chat request."
+policy:
+  allow_implicit_invocation: true

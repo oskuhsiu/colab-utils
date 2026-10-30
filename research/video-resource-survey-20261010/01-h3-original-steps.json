@@ -1,0 +1,550 @@
+[
+  {
+    "id": "H3O01",
+    "topic": "official-base-checkpoints-and-input-contract",
+    "title": "MiniMax H3 official Hugging Face model card",
+    "url": "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/README.md",
+    "publisher": "MiniMax",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "H3-Base-FL2VA and H3-Base-Ref2VA are separate task-specific BF16 checkpoints.",
+      "FL2VA supports text-to-audio-video and first/last-frame-to-audio-video with zero, one, or two images; Ref2VA supports reference images, videos, and audio.",
+      "The released Base checkpoints are CFG-distilled Omni Transformer weights.",
+      "Ref2VA limits are at most 9 images, 3 video clips, 3 audio clips, 15 seconds total per video/audio category, and 12 mixed files; output is 24 FPS, 32 kHz stereo, 4–15 seconds, with 768-pixel short edge by default."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "768p Base default short edge; 2K through H3-Regenerate-2K API",
+      "frames": null,
+      "duration_s": "4–15",
+      "steps": null,
+      "time_s": null,
+      "precision": "BF16",
+      "workflow": "MiniMax H3 Base FL2VA or Ref2VA local deployment"
+    },
+    "limitations": "The card does not report single-GPU L4 or A100 host-RAM, VRAM-peak, or end-to-end timing; H3-Regenerate-2K is not open-sourced.",
+    "artifact_urls": [
+      "https://huggingface.co/MiniMaxAI/MiniMax-H3",
+      "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/scripts/readme/reproducible-768p-fl2va-request.sh",
+      "https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/main/scripts/readme/reproducible-768p-ref2va-request.sh"
+    ]
+  },
+  {
+    "id": "H3O02",
+    "topic": "base-forward-count-and-cfg",
+    "title": "Hugging Face Diffusers MiniMax-H3 ModularPipeline source",
+    "url": "https://github.com/huggingface/diffusers/blob/main/src/diffusers/modular_pipelines/minimax_h3/modular_pipeline.py",
+    "publisher": "Hugging Face Diffusers / MiniMax team",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Video and audio schedulers use shifts 12.0 and 3.0 inside one transformer call per denoise step.",
+      "Guidance is baked into the weights; the pipeline has no guider, negative_prompt, or guidance_scale, and every denoise step runs exactly one forward pass.",
+      "The pipeline exposes t2va, fl2va, and ref2va workflows over the corresponding transformer partitions.",
+      "The Ref2VA blocks state that audio references cannot be the only references."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": "N denoise steps = N transformer forwards in this pipeline",
+      "time_s": null,
+      "precision": null,
+      "workflow": "Diffusers ModularPipeline t2va/fl2va/ref2va"
+    },
+    "limitations": "This source does not provide the Base default step count or hardware benchmark; sigma-point conventions may differ in wrappers.",
+    "artifact_urls": [
+      "https://github.com/huggingface/diffusers/blob/main/src/diffusers/modular_pipelines/minimax_h3/modular_blocks_minimax_h3.py",
+      "https://github.com/huggingface/diffusers/blob/main/docs/source/en/api/schedulers/minimax_h3.md"
+    ]
+  },
+  {
+    "id": "H3O03",
+    "topic": "base-default-sampling-and-low-vram",
+    "title": "DiffSynth-Studio MiniMax-H3 documentation",
+    "url": "https://diffsynth-studio-doc.readthedocs.io/en/latest/Model_Details/MiniMax-H3.html",
+    "publisher": "DiffSynth-Studio / ModelScope",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The NF4 quick start enables VRAM management and states a minimum of 7GB VRAM for that path.",
+      "The example uses 480x832, 124 frames, 50 inference steps, and BF16 computation with CPU offload configuration.",
+      "The MiniMaxH3Pipeline interface defaults to 768x1344, 124 frames, 50 inference steps, cfg_scale 1.0, video flow_shift 12.0, audio_flow_shift 3.0, and tiled VAE true with tile size 256 and overlap 64.",
+      "The documentation states negative_prompt has no effect by default because the model is CFG-distilled; video and audio use independent sigma schedules."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": 7,
+      "ram_gb": null,
+      "resolution": "480x832 example; interface defaults 1344x768",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 50,
+      "time_s": null,
+      "precision": "BF16 compute with NF4 quantized components in quick start",
+      "workflow": "DiffSynth MiniMaxH3Pipeline with VRAM management and CPU offload"
+    },
+    "limitations": "The 7GB value is a framework minimum declaration, not a complete L4 benchmark; no host-RAM, peak-memory, or wall-time measurement is supplied.",
+    "artifact_urls": [
+      "https://modelscope.cn/models/DiffSynth-Studio/MiniMax-H3-NF4",
+      "https://github.com/modelscope/DiffSynth-Studio/blob/main/diffsynth/pipelines/minimax_h3_audio_video.py"
+    ]
+  },
+  {
+    "id": "H3O04",
+    "topic": "comfy-native-base-and-turbo",
+    "title": "Comfy-Org native MiniMax H3 workflows",
+    "url": "https://github.com/Comfy-Org/docs/blob/main/tutorials/video/minimax/minimax-h3-native.mdx",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Native T2V/I2V workflows use the FL2VA model; R2V uses the separate Ref2VA model.",
+      "The native T2V/I2V workflow defaults to 20 steps; turbo_mode uses the FL2VA 8-step Lightning LoRA with default turbo strength 1.0.",
+      "The native R2V workflow defaults to 20 steps and its optional Lightning LoRA is Ref2VA 4-step; the page describes slightly lower audio and motion quality in turbo mode.",
+      "R2V supports at most 9 images, 3 videos, and 3 standalone audio clips; match and max reference resize modes are documented."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1344x768 native 16:9 short-edge example",
+      "frames": "17*n+5 grid",
+      "duration_s": null,
+      "steps": "20 Base default; 8 FL2VA turbo; 4 Ref2VA turbo",
+      "time_s": null,
+      "precision": "INT8 ConvRot DiT, NVFP4-AWQ text encoder, INT8 ConvRot video VAE, FP32 audio VAE in storage example",
+      "workflow": "ComfyUI native T2V/I2V/R2V"
+    },
+    "limitations": "The quality description is workflow documentation, not a controlled benchmark or identity-retention score; host RAM and L4/A100 timing are absent.",
+    "artifact_urls": [
+      "https://github.com/Comfy-Org/workflow_templates/blob/main/templates/video_minimax_h3_t2v.json",
+      "https://github.com/Comfy-Org/workflow_templates/blob/main/templates/video_minimax_h3_r2v.json",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3"
+    ]
+  },
+  {
+    "id": "H3O05",
+    "topic": "lightx2v-turbo-contracts",
+    "title": "ModelTC Minimax-H3-Turbo model specifications",
+    "url": "https://github.com/ModelTC/Minimax-H3-Turbo",
+    "publisher": "ModelTC / LightX2V",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The author table lists FL2VA 4-step v0.1 at 544p with shifts 12/3 and 4 NFE; FL2VA 8-step v1.0 at 544p with shifts 12/3 and 8 NFE; FL2VA 4/8-step v1.0 768p at 1344x768 with shifts 6/3; and Ref2VA 4-step v0.1 at 544p with shifts 12/3.",
+      "The table marks FL2VA 8-step v1.0 recommended inference as 8 or 4 NFE, while the other listed variants use their trained NFE.",
+      "The repository's ComfyUI graphs default T2VA/I2VA to FL2VA 8-step v1.0 and Ref2VA to Ref2VA 4-step v0.1.",
+      "The repository gives a four-NFE sigma example and states its distilled reference-image training uses match resize."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "544p mixed aspect ratios; 1344x768 for 768p variants",
+      "frames": null,
+      "duration_s": null,
+      "steps": "4 or 8 NFE by artifact",
+      "time_s": null,
+      "precision": "BF16 LoRA artifacts plus matching H3 base",
+      "workflow": "LightX2V Diffusers or ComfyUI"
+    },
+    "limitations": "The table defines adapter contracts but does not provide L4/A100 memory or controlled quality measurements.",
+    "artifact_urls": [
+      "https://huggingface.co/lightx2v/Minimax-h3-Turbo",
+      "https://github.com/ModelTC/Minimax-H3-Turbo/blob/main/COMFYUI_SETUP_AND_INFERENCE.md",
+      "https://github.com/ModelTC/Minimax-H3-Turbo/tree/main/example_workflows"
+    ]
+  },
+  {
+    "id": "H3O06",
+    "topic": "wrapper-steps-versus-forward-count",
+    "title": "vLLM-Omni MiniMax-H3 Turbo recipe",
+    "url": "https://github.com/vllm-project/vllm-omni/blob/main/recipes/MiniMaxAI/MiniMax-H3.md",
+    "publisher": "vLLM-Omni",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The recipe table lists FL2VA 4-step artifacts with 4 forwards and num_inference_steps 5, and FL2VA 8-step artifacts with 8 forwards and num_inference_steps 9.",
+      "544p artifacts use flow_shift 12; 768p artifacts use flow_shift 6; audio_flow_shift is 3 across the listed family.",
+      "Requests are validated against the loaded artifact's task, step, and shift contract; mismatches are rejected rather than silently accepted.",
+      "Ref2VA rows require a separate ref2va server/task and are not served by the FL2VA command."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "544p and 768p artifact families",
+      "frames": null,
+      "duration_s": null,
+      "steps": "4/8 denoiser forwards; wrapper request uses 5/9 sigma points",
+      "time_s": null,
+      "precision": "BF16 LightX2V artifacts",
+      "workflow": "vLLM-Omni H3 server with FL2VA or Ref2VA task"
+    },
+    "limitations": "No L4/A100 host-RAM benchmark is reported; request-step and forward-step conventions are specific to this recipe.",
+    "artifact_urls": [
+      "https://huggingface.co/lightx2v/Minimax-h3-Turbo",
+      "https://github.com/vllm-project/vllm-omni/tree/main/recipes/MiniMaxAI"
+    ]
+  },
+  {
+    "id": "H3O07",
+    "topic": "hyperflow-eight-step-distillation",
+    "title": "Video Rebirth HyperFlow for MiniMax-H3",
+    "url": "https://github.com/Video-Rebirth/hyperflow",
+    "publisher": "Video Rebirth",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "HyperFlow is an 8-step LoRA obtained by data-free flow self-distillation.",
+      "The official H3 base weights, VAEs, conditioner, and t2va/fl2va/ref2va workflows remain in use; only the LoRA and loader are added.",
+      "The adapter is rank 256/alpha 256 over 316 modules and is about 2.8GB; its fixed sigma grid uses video/audio shifts 12/3.",
+      "The source states the standard Diffusers 50-point schedule performs 49 model forwards while HyperFlow performs 8; HyperFlow takes the step count from the weights file instead of num_inference_steps.",
+      "The dedicated load_hyperflow_lora loader installs HyperFlow's TwoTimeEmbedder and endpoint-time keys; the README says it is not a generic LoRA for diffusers load_lora_adapter."
+    ],
+    "resources": {
+      "gpu": "1 GPU auto CPU-offload recipe; optional Ulysses up to 4 GPUs",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 124,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "BF16 base/adapter path",
+      "workflow": "Official Diffusers ModularPipeline t2va/fl2va/ref2va with HyperFlow loader"
+    },
+    "limitations": "The 24GB reserve margin mentioned by the source was validated on H200, not L4; its 49-forward wording is a sigma-point convention and should not overwrite DiffSynth's separate implementation loop evidence. The adapter requires the dedicated HyperFlow loader rather than generic LoRA loading.",
+    "artifact_urls": [
+      "https://huggingface.co/videorebirth/hyperflow",
+      "https://github.com/Video-Rebirth/hyperflow/tree/main/examples"
+    ]
+  },
+  {
+    "id": "H3O08",
+    "topic": "community-turbo-provenance-and-compatibility",
+    "title": "drbaph MiniMax-H3 Turbo LoRAs for ComfyUI",
+    "url": "https://huggingface.co/drbaph/MiniMax-H3-Turbo-Lora-ComfyUI",
+    "publisher": "drbaph",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "HyperFlow conversions are attributed to Video Rebirth; LightX2V files are Dynamic-SVD resizes of named official LightX2V FL2V/Ref2V artifacts.",
+      "The current v4 step-600 EMA pruned workflow uses 6–8 steps, Euler, Beta, strength 1.0, video shift 12, and audio shift 4–6; the author labels 8 steps for quality/motion/audio stability and 4 steps for matching LightX2V FL2V/Ref2V workflows.",
+      "The LightX2V resized files use an average projection rank of 21.724359; the card explicitly says weight-reconstruction similarity is not a perceptual video-quality score.",
+      "Pruned compatibility conversions remove 51 AdaLN pairs because their dimensions do not match the pruned/curve-form base; the author says these conversions should not be assumed identical to the original full-model LoRA."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "768p for named v1.1 FL2V files; other variants not uniformly specified",
+      "frames": null,
+      "duration_s": null,
+      "steps": "4/6/8 depending on adapter/workflow",
+      "time_s": null,
+      "precision": "BF16 adapter conversions; pruned/curve-form compatibility",
+      "workflow": "ComfyUI pruned MiniMax-H3 FL2VA/Ref2VA workflows"
+    },
+    "limitations": "No controlled L4/A100 benchmark; community conversions have base-model compatibility constraints and author-described experimental variants.",
+    "artifact_urls": [
+      "https://huggingface.co/drbaph/MiniMax-H3-Turbo-Lora-ComfyUI/resolve/main/fl_minimax_h3_turbo_lora_example_workflow.json",
+      "https://huggingface.co/drbaph/MiniMax-H3-Turbo-Lora-ComfyUI/blob/main/minimax_h3_turbo_v4_step600_ema_pruned_comfyui.safetensors",
+      "https://huggingface.co/videorebirth/hyperflow"
+    ]
+  },
+  {
+    "id": "H3O09",
+    "topic": "pdd-eight-step-official-acceleration",
+    "title": "Alibaba PAI MiniMax-H3 Acc LoRAs",
+    "url": "https://huggingface.co/alibaba-pai/MiniMax-H3-Acc-LoRAs",
+    "publisher": "Alibaba PAI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The model card describes Parallel Decoding Distillation (PDD) applied to MiniMax-H3 for few-step generation.",
+      "It publishes one BF16 rank-64/network-alpha-64 Acc LoRA for FL2VA and one matching Acc LoRA for Ref2VA, both named 8Step.",
+      "The card's demo table compares each Acc adapter with Base and MiniMax-H3-Turbo 4-step examples at LoRA weight 1.0.",
+      "The quick-start scripts use Diffusers MiniMax-H3 ModularPipeline and derive the required inference steps from the adapter configuration.",
+      "The PDD loading path uses apply_pdd_lora and requires diffusers >= 0.40.0."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "768p demo for FL2VA; Ref2VA demo resolution not specified in card text",
+      "frames": null,
+      "duration_s": null,
+      "steps": 8,
+      "time_s": null,
+      "precision": "BF16 rank-64/network-alpha-64 adapter",
+      "workflow": "VideoX-Fun / Diffusers ModularPipeline FL2VA or Ref2VA"
+    },
+    "limitations": "The card does not report L4/A100 memory, RAM, wall time, or an independent quality evaluation; it is a matching-base adapter rather than a standalone base checkpoint. A generic single-LoRA loader cannot be assumed to install its PDD head bank; use the documented apply_pdd_lora path.",
+    "artifact_urls": [
+      "https://huggingface.co/alibaba-pai/MiniMax-H3-Acc-LoRAs/tree/main",
+      "https://github.com/aigc-apps/VideoX-Fun/tree/main/examples/minimax_h3"
+    ]
+  },
+  {
+    "id": "H3O10",
+    "topic": "fl2va-ref2va-weight-selection-merge",
+    "title": "smhfacct MiniMax H3 FL2VA/Ref2VA hybrid models",
+    "url": "https://huggingface.co/smhfacct/Minimax-H3-fl2va-ref2va-hybrid-models",
+    "publisher": "smhfacct",
+    "source_date": "2026-08-16",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The variants are created from official pruned INT8-ConvRot FL2VA and Ref2VA checkpoints by tensor-level weight selection, with FL2VA as the base and later-block Ref2VA adaln_proj ranges b15–49, b20–49, b25–49, or b30–49.",
+      "The author says no additional training, fine-tuning, or gradient optimization was performed.",
+      "The model card assigns b30–49 closer to FL2VA and b20–49 closer to Ref2VA, describing a gradual subjective tradeoff between raw visual/audio quality and reference capability.",
+      "The intended tasks are text/image/video/audio-to-video reference workflows; the card warns that results vary by prompt, reference type, and settings."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "Pruned INT8-ConvRot checkpoint",
+      "workflow": "Ref2VA-style reference-conditioned workflow with merged FL2VA base"
+    },
+    "limitations": "This is an experimental subjective merge; no independent reproduction, identity metric, audio metric, or L4/A100 benchmark was supplied.",
+    "artifact_urls": [
+      "https://huggingface.co/smhfacct/Minimax-H3-fl2va-ref2va-hybrid-models/tree/main",
+      "https://huggingface.co/smhfacct/Minimax-H3-fl2va-ref2va-hybrid-models/blob/main/minimax_h3_hybrid_fl2va_ref2va_b30-49-int8.safetensors"
+    ]
+  },
+  {
+    "id": "H3O11",
+    "topic": "experimental-community-weight-modifications",
+    "title": "Kijai MiniMax-H3-experimental",
+    "url": "https://huggingface.co/Kijai/MiniMax-H3-experimental",
+    "publisher": "Kijai",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The card describes its ref LoRA as the difference between FL2VA and Ref2VA and explicitly calls it completely experimental with unknown use case.",
+      "Its PDMD LoRAs were converted and rank-reduced from pdmd2026 2NFE and 4NFE LoRAs; its DMAD LoRA links to ZhengmingYu/DMAD.",
+      "The card lists W4A8 and W6A8 formats, requires ComfyUI 0.31.0, and says int8-convrot VAE needs ComfyUI 0.36.0 for maximum speed benefit.",
+      "The card reports an int8-convrot light VAE as about 1.3x faster for decoding, while the ref LoRA task utility remains unconfirmed."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": "PDMD source files 2/4 NFE; other experimental files unspecified",
+      "time_s": null,
+      "precision": "W4A8/W6A8 experimental weights plus BF16 LoRAs",
+      "workflow": "ComfyUI experimental MiniMax-H3 paths"
+    },
+    "limitations": "No identity/audio quality, task success, L4/A100 memory, or timing evidence; the author explicitly marks the ref LoRA use case unknown.",
+    "artifact_urls": [
+      "https://huggingface.co/Kijai/MiniMax-H3-experimental/tree/main/loras",
+      "https://huggingface.co/pdmd2026/pdmd_4NFE_lora",
+      "https://huggingface.co/ZhengmingYu/DMAD"
+    ]
+  },
+  {
+    "id": "H3O12",
+    "topic": "a100-official-benchmark",
+    "title": "NVIDIA SANA Sol Engine MiniMax-H3 DataCenter benchmark",
+    "url": "https://nvlabs.github.io/Sana/Sol-Engine/H3-DataCenter/",
+    "publisher": "NVIDIA SANA Team",
+    "source_date": "2026-08-09",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The page benchmarks 4x A100 SM80 using the original BF16 checkpoint with no model offload, Ulysses-4, warm batch 1, 1344x768, 124 frames, and 50 steps.",
+      "Dense end-to-end time is 217.32 seconds and full-opt time is 61.28 seconds on 4x A100; full-opt peak memory is 49,126 MiB per A100.",
+      "The full-opt path uses Triton SM80 Sol-Attn; the page reports generated audio with every clip."
+    ],
+    "resources": {
+      "gpu": "4x NVIDIA A100 SM80",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1344x768",
+      "frames": 124,
+      "duration_s": 5.1667,
+      "steps": 50,
+      "time_s": "217.32 dense; 61.28 full-opt",
+      "precision": "BF16 original checkpoint",
+      "workflow": "SANA Sol Engine full-opt, Ulysses-4, no model offload"
+    },
+    "limitations": "The source does not state whether the A100 nodes are 40GB or 80GB and does not report host RAM; this is a 4-GPU high-resource benchmark, not a single-A100 or L4 result.",
+    "artifact_urls": [
+      "https://github.com/NVlabs/Sana/tree/sol-engine/candidates",
+      "https://github.com/MiniMax-AI/MiniMax-H3"
+    ]
+  },
+  {
+    "id": "H3O13",
+    "topic": "a100-80gb-community-benchmark",
+    "title": "zenryokukikai MiniMax-H3 WebUI GPU measurements",
+    "url": "https://github.com/zenryokukikai/minimax-h3-webui/blob/main/README.md",
+    "publisher": "zenryokukikai",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "At 864x480, 20 steps, 124 frames (5.17 seconds), the author reports A100 80GB with INT8 ConvRot and Triton at 4.25 seconds per iteration and 110 seconds total.",
+      "The same repo reports 16.9 seconds per iteration for 1344x768 under its A100 80GB INT8 ConvRot setup."
+    ],
+    "resources": {
+      "gpu": "NVIDIA A100 80GB SM80",
+      "vram_gb": 80,
+      "ram_gb": null,
+      "resolution": "864x480 benchmark; 1344x768 per-iteration row",
+      "frames": 124,
+      "duration_s": 5.17,
+      "steps": 20,
+      "time_s": "110 total; 4.25 s/iteration at 864x480",
+      "precision": "INT8 ConvRot",
+      "workflow": "ComfyUI native with comfy-kitchen Triton backend"
+    },
+    "limitations": "No host-RAM value, stage breakdown, warm/cold qualification, or controlled Base/Turbo quality comparison is given.",
+    "artifact_urls": [
+      "https://github.com/zenryokukikai/minimax-h3-webui/tree/main/scripts",
+      "https://github.com/zenryokukikai/minimax-h3-webui/tree/main/workflows"
+    ]
+  },
+  {
+    "id": "H3O14",
+    "topic": "a100-80gb-high-ram-community-case",
+    "title": "Marwanto606 Modal A100-80GB ComfyUI case",
+    "url": "https://www.marwanto606.com/2026/08/cara-menjalankan-minimax-h3-di-comfyui-menggunakan-gpu-modal-dot-com.html",
+    "publisher": "Marwanto606",
+    "source_date": "2026-08-10",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The author reports a Modal A100-80GB with 1TB RAM running ComfyUI MiniMax-H3 T2V at 960x544 for 10 seconds.",
+      "The reported usage is 50.62GB VRAM, 100.8GB RAM, and 307.08 seconds generation time.",
+      "The listed stack includes pruned INT8 ConvRot diffusion, NVFP4 Qwen text encoder, video/audio VAE files, and a Turbo LoRA."
+    ],
+    "resources": {
+      "gpu": "A100-80GB",
+      "vram_gb": 80,
+      "ram_gb": 1024,
+      "resolution": "960x544",
+      "frames": null,
+      "duration_s": 10,
+      "steps": null,
+      "time_s": 307.08,
+      "precision": "INT8 ConvRot diffusion, NVFP4 text encoder, VAE files and Turbo LoRA as listed",
+      "workflow": "ComfyUI T2V on Modal"
+    },
+    "limitations": "The author says time varies with prompt; steps, seed, warm/cold state, and stage timing are not specified, so this is a single first-hand case rather than a controlled benchmark.",
+    "artifact_urls": [
+      "https://huggingface.co/Comfy-Org/MiniMax-H3",
+      "https://huggingface.co/drbaph/MiniMax-H3-Turbo-Lora-ComfyUI"
+    ]
+  },
+  {
+    "id": "H3O15",
+    "topic": "l4-24gb-community-benchmarks",
+    "title": "ComfyUI MiniMax-H3 L4 workflows",
+    "url": "https://github.com/revolverocelot1/ComfyUI-MiniMax-H3-L4-Workflows/blob/main/README.md",
+    "publisher": "revolverocelot1",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The repository is preconfigured for NVIDIA L4 24GB VRAM and 32GB RAM with INT8 quantization and NVFP4 text encoding.",
+      "Its table reports native 15–20-step T2V/I2V at about 3.5–4.5 minutes, native R2V at 4–5 minutes, Turbo 6-step T2V/I2V at 2.5–3 minutes, Turbo 6-step R2V at 3–4 minutes, and unaccelerated 20-step T2V at 12–15 minutes.",
+      "The repository includes separate T2V, I2V, and R2V workflow JSON files for native and Turbo paths."
+    ],
+    "resources": {
+      "gpu": "NVIDIA L4",
+      "vram_gb": 24,
+      "ram_gb": 32,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": "15–20 native; 6 Turbo; 20 unaccelerated baseline",
+      "time_s": "210–270 native T2V/I2V; 240–300 native R2V; 150–180 Turbo T2V/I2V; 180–240 Turbo R2V; 720–900 baseline",
+      "precision": "INT8 diffusion and NVFP4 text encoder",
+      "workflow": "ComfyUI custom SpeedStack and Turbo workflows"
+    },
+    "limitations": "The table omits resolution, frame count, seed, warm/cold state, I/O breakdown, and independent quality checks; the repository also contains NSFW-specific workflows, which are outside this report's claims.",
+    "artifact_urls": [
+      "https://github.com/revolverocelot1/ComfyUI-MiniMax-H3-L4-Workflows/tree/main",
+      "https://github.com/revolverocelot1/ComfyUI-MiniMax-H3-L4-Workflows/blob/main/minimax_h3_t2v_turbo_l4.json",
+      "https://github.com/revolverocelot1/ComfyUI-MiniMax-H3-L4-Workflows/blob/main/minimax_h3_r2v_turbo_l4.json"
+    ]
+  },
+  {
+    "id": "H3O16",
+    "topic": "disk-and-24gb-component-size",
+    "title": "MiniMax-AI awesome integration index",
+    "url": "https://github.com/MiniMax-AI/awesome-minimax-h3-integration",
+    "publisher": "MiniMax-AI",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The index lists a 24GB-card starting stack of pruned INT8 ConvRot DiT 19.53GiB plus NVFP4-AWQ text encoder 14.61GiB.",
+      "It lists the original MiniMaxAI repository at 464.2GiB total, with each original transformer partition at 61.73GiB, and marks DiffSynth NF4 path at an 8GB VRAM floor.",
+      "The index states FL2VA typically has higher raw output while Ref2VA accepts more reference material with lower base quality, and that Ref Patch can partially bridge the gap."
+    ],
+    "resources": {
+      "gpu": "24GB class card; exact GPU not fixed",
+      "vram_gb": 24,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": "Pruned INT8 ConvRot DiT + NVFP4-AWQ text encoder",
+      "workflow": "ComfyUI/DiffSynth component stacks",
+      "disk_gb": 464.2
+    },
+    "limitations": "This is a first-party curated index, not a benchmark; component file sizes are disk sizes, not peak VRAM or host-RAM measurements, and the FL2VA/Ref2VA quality wording has no score table.",
+    "artifact_urls": [
+      "https://huggingface.co/MiniMaxAI/MiniMax-H3",
+      "https://huggingface.co/Comfy-Org/MiniMax-H3",
+      "https://modelscope.cn/models/DiffSynth-Studio/MiniMax-H3-NF4"
+    ]
+  }
+]

@@ -1,0 +1,1042 @@
+[
+  {
+    "id": "OTH01",
+    "topic": "LTXV 0.9.x official models and controls",
+    "title": "LTX-Video official repository",
+    "url": "https://github.com/Lightricks/LTX-Video",
+    "publisher": "Lightricks",
+    "source_date": "2025-07-16",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The 0.9.8 release lists 13B dev, 13B distilled, 13B mix, 2B distilled, FP8 variants and a detailer IC-LoRA; distilled checkpoints derive from the same 13B dev base.",
+      "The 0.9.7 distilled model recommends 8 or fewer diffusion steps and does not require CFG or STG; the 2B 0.9.6 distilled release is described as 15x faster than the non-distilled model.",
+      "The repository documents 1216x704 at 30fps as the new default and says 0.9.8 supports up to 60 seconds; resolution should be divisible by 32 and frames follow 8k+1, with best results below 1280x720 and 257 frames.",
+      "Supported controls include multiple keyframes, video extension, video-to-video, IC-LoRA detailer, depth, pose and canny control, plus LoRA training for control/effect adapters."
+    ],
+    "resources": {
+      "gpu": "H100 example for 0.9.7 distilled; no L4/A100 qualification",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1216x704 default; divisible by 32",
+      "frames": "8k+1; best below 257",
+      "duration_s": 60,
+      "steps": 8,
+      "time_s": null,
+      "precision": "BF16/FP8 variants",
+      "workflow": "official ComfyUI-LTXVideo workflows"
+    },
+    "measurements": [
+      {
+        "gpu": "H100",
+        "resolution": "HD (exact dimensions not stated in the cited line)",
+        "frames": null,
+        "duration_s": null,
+        "steps": 8,
+        "time_s": 10,
+        "note": "Author statement for 0.9.7 distilled HD generation; not a 0.9.8 L4/A100 benchmark."
+      }
+    ],
+    "limitations": "The README does not publish L4/A100 peak VRAM, host RAM or paired wall-time. The 10-second H100 statement belongs to 0.9.7, not a controlled 0.9.8 test.",
+    "artifact_urls": [
+      "https://github.com/Lightricks/ComfyUI-LTXVideo",
+      "https://huggingface.co/Lightricks/ltxv-13b-0.9.8-distilled",
+      "https://huggingface.co/Lightricks/LTX-Video-ICLoRA-depth-13b-0.9.7",
+      "https://huggingface.co/Lightricks/LTX-Video-ICLoRA-pose-13b-0.9.7",
+      "https://huggingface.co/Lightricks/LTX-Video-ICLoRA-canny-13b-0.9.7"
+    ]
+  },
+  {
+    "id": "OTH02",
+    "topic": "LTX-2.5 official audio-video model and pipelines",
+    "title": "LTX-2 official Python inference and trainer repository",
+    "url": "https://github.com/Lightricks/LTX-2",
+    "publisher": "Lightricks",
+    "source_date": "2025-10-23",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "LTX-2.5 is the recommended model; the quick start downloads a 22B distilled transformer, Gemma 4 12B text encoder, video VAE, audio VAE and spatial upsampler.",
+      "The model list distinguishes 22B dev for guided two-stage TI2Vid/Keyframe/A2Vid pipelines from 22B distilled for DistilledPipeline, DFR, ICLoRA and DubIt.",
+      "Pipelines include text/image-to-video, video-to-video, keyframe interpolation, audio-to-video, retake, HDR, Dub-It and text-to-audio; audio is a model modality rather than a post-remux-only feature.",
+      "The quick start defaults to 121 frames and the DFR example states 1024x1536 at 24fps; UHD 4K is 3840x2176."
+    ],
+    "resources": {
+      "gpu": "No single-GPU inference qualification in README",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "1024x1536 default; 3840x2176 4K path",
+      "frames": 121,
+      "duration_s": 5.04,
+      "steps": [
+        8,
+        4
+      ],
+      "time_s": null,
+      "precision": "BF16 checkpoints; FP8/NVFP4 runtime options",
+      "workflow": "DistilledPipeline or DFRPipeline"
+    },
+    "limitations": "The repository has no L4/A100 inference wall-time or peak VRAM. The 80GB+ and 32GB low-VRAM statements in the linked trainer README concern training, not generation.",
+    "artifact_urls": [
+      "https://huggingface.co/Lightricks/LTX-2.5",
+      "https://huggingface.co/Lightricks/LTX-2.5-22b-IC-LoRA-Pixel-Spatial-Upscaler",
+      "https://github.com/Lightricks/ComfyUI-LTXVideo"
+    ]
+  },
+  {
+    "id": "OTH03",
+    "topic": "LTX-2 pipeline grid, two-stage and audio contracts",
+    "title": "LTX-2 pipeline reference",
+    "url": "https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-pipelines/docs/pipelines.md",
+    "publisher": "Lightricks",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "DistilledPipeline uses 8 predefined sigmas, 8 steps in stage 1 and 4 in stage 2, with a spatial upsampler and no guidance.",
+      "DFR stage 1 is half resolution and stage 2 applies a 2x spatial detailing IC-LoRA; optional temporal rounds double playback fps while preserving approximate wall-clock duration.",
+      "DFR final dimensions must be divisible by 64, or by 128 with spatial-upscalings=2; num_frames must be 8k+1. From 121 frames, playback is 24/48/96fps for temporal rounds 0/1/2.",
+      "A2Vid takes audio input and returns original waveform; Dub-It uses video/audio reference tokens and matched lip movements/speaker context."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Divisible by 64; 3840x2176 for 4K",
+      "frames": "8k+1",
+      "duration_s": 5.04,
+      "steps": [
+        8,
+        4
+      ],
+      "time_s": null,
+      "precision": "LTX-2.5+ Euler ancestral",
+      "workflow": "DFRPipeline / A2VidPipelineTwoStage / DubItPipeline"
+    },
+    "limitations": "This is an execution contract and pipeline description, not a hardware benchmark or a claim of identity fidelity outside Dub-It.",
+    "artifact_urls": [
+      "https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-pipelines/docs/optimization.md",
+      "https://github.com/Lightricks/LTX-2/tree/main/packages/ltx-pipelines"
+    ]
+  },
+  {
+    "id": "OTH04",
+    "topic": "LTX-2 precision and offload options",
+    "title": "LTX-2 optimization documentation",
+    "url": "https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-pipelines/docs/optimization.md",
+    "publisher": "Lightricks",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Official runtime quantization policies include FP8 cast, FP8 scaled matrix multiplication, NVFP4 cast and NVFP4 prequant.",
+      "FP8 cast downcasts linear weights during loading and works without extra dependencies; FP8 scaled MM is aimed at Hopper+ native FP8; NVFP4 requires Blackwell SM>=10 and ltx_kernels.",
+      "The docs recommend expandable CUDA segments and CPU/disk offload for memory-constrained or CUDA-graph single-GPU paths.",
+      "The docs do not publish absolute VRAM or wall-time figures for these policies."
+    ],
+    "resources": {
+      "gpu": "FP8 any supported GPU; NVFP4 Blackwell SM>=10",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "FP8 cast",
+        "FP8 scaled MM",
+        "NVFP4 cast",
+        "NVFP4 prequant"
+      ],
+      "workflow": "LTX pipeline CLI --quantization and --offload"
+    },
+    "limitations": "No L4/A100 measurement, no quality comparison, and NVFP4 is not applicable to L4/A100 hardware.",
+    "artifact_urls": [
+      "https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-pipelines/docs/pipelines.md",
+      "https://github.com/Lightricks/LTX-2/blob/main/packages/ltx-trainer/README.md"
+    ]
+  },
+  {
+    "id": "OTH05",
+    "topic": "HunyuanVideo-1.5 official base and distilled versions",
+    "title": "HunyuanVideo-1.5 official repository",
+    "url": "https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5",
+    "publisher": "Tencent Hunyuan",
+    "source_date": "2025-11-20",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "HunyuanVideo-1.5 is an 8.3B T2V/I2V model; official minimum GPU memory is 14GB with model offloading enabled.",
+      "The 480p I2V step-distilled checkpoint is recommended at 8 or 12 steps; 4 steps is faster with slightly reduced quality. Official RTX4090 end-to-end claim is within 75 seconds and about 75% faster, but is not an L4/A100 test.",
+      "Base, CFG-distilled, step-distilled and SR checkpoints are listed for 480p/720p; command defaults are 121 frames and 50 steps, with 480p/720p resolution choices.",
+      "The repo documents CFG distill at 50 steps, 480p I2V step distill at 8/12 steps, 480→720 SR at 6 steps and 720→1080 SR at 8 steps; CPU/group offload and FP8 GEMM options are available."
+    ],
+    "resources": {
+      "gpu": "Single NVIDIA GPU with CPU/model offload",
+      "vram_gb": 14,
+      "ram_gb": null,
+      "resolution": "480p or 720p; SR to 720p/1080p",
+      "frames": 121,
+      "duration_s": null,
+      "steps": 50,
+      "time_s": 75,
+      "precision": "BF16 default; FP8 GEMM supported",
+      "workflow": "official generate.py or ComfyUI templates"
+    },
+    "measurements": [
+      {
+        "gpu": "RTX 4090",
+        "resolution": "480p I2V",
+        "frames": null,
+        "duration_s": null,
+        "steps": [
+          8,
+          12
+        ],
+        "time_s": 75,
+        "note": "Official author claim; not L4/A100."
+      }
+    ],
+    "limitations": "No L4/A100 wall-time or peak host RAM. The official 14GB number assumes offload and does not establish a specific L4 execution. No first-party native audio or identity guarantee is documented.",
+    "artifact_urls": [
+      "https://github.com/Tencent-Hunyuan/HunyuanVideo-1.5/blob/main/ComfyUI/README.md",
+      "https://huggingface.co/lightx2v/Hy1.5-Distill-Models",
+      "https://huggingface.co/Comfy-Org/HunyuanVideo_1.5_repackaged"
+    ]
+  },
+  {
+    "id": "OTH06",
+    "topic": "HunyuanVideo-1.5 LightX2V 4-step and FP8",
+    "title": "Hy1.5-Distill-Models model card",
+    "url": "https://huggingface.co/lightx2v/Hy1.5-Distill-Models",
+    "publisher": "LightX2V",
+    "source_date": "2025-11-24",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card publishes 4-step HunyuanVideo-1.5 T2V models: base 16.7GB and scaled FP8 E4M3 8.85GB.",
+      "The LightX2V recipe requires infer_steps=4, guidance_scale=1, denoising_step_list [1000,750,500,250], 81 frames, 16fps and 16:9; offload is supported on consumer RTX30/40/50 GPUs.",
+      "The author describes 4-step distillation as approximately 25x faster than standard 50-step inference and FP8 as roughly 50% memory reduction; neither has a target L4/A100 wall-time measurement in this card.",
+      "The card says current distilled support is 480p and still requires original HunyuanVideo-1.5 structure/weights."
+    ],
+    "resources": {
+      "gpu": "Consumer RTX30/40/50 stated; no named target GPU",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "480p",
+      "frames": 81,
+      "duration_s": 5.06,
+      "steps": 4,
+      "time_s": null,
+      "precision": [
+        "BF16 base",
+        "FP8 E4M3"
+      ],
+      "workflow": "LightX2V HunyuanVideo-1.5 T2V"
+    },
+    "limitations": "Speed and memory numbers are author claims without L4/A100 run logs; no quality comparison beyond the claim of maintained quality.",
+    "artifact_urls": [
+      "https://github.com/ModelTC/LightX2V",
+      "https://huggingface.co/lightx2v/Hy1.5-Quantized-Models"
+    ]
+  },
+  {
+    "id": "OTH07",
+    "topic": "HunyuanVideo original official high-resource baseline",
+    "title": "HunyuanVideo official repository",
+    "url": "https://github.com/Tencent-Hunyuan/HunyuanVideo",
+    "publisher": "Tencent Hunyuan",
+    "source_date": "2024-12-03",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The original HunyuanVideo is a 13B model; official peak GPU memory is 60GB for 720x1280x129f and 45GB for 544x960x129f, with an 80GB GPU recommended.",
+      "Official single-GPU dimensions include 540p/720p aspect-ratio buckets, each with 129 frames; the example uses 50 inference steps and CPU offload.",
+      "Official FP8 weights and scales save about 10GB of GPU memory."
+    ],
+    "resources": {
+      "gpu": "Single 80GB GPU tested",
+      "vram_gb": [
+        45,
+        60
+      ],
+      "ram_gb": null,
+      "resolution": "544x960 or 720x1280; 540p/720p buckets",
+      "frames": 129,
+      "duration_s": null,
+      "steps": 50,
+      "time_s": null,
+      "precision": [
+        "BF16/FP16 base",
+        "FP8 weights"
+      ],
+      "workflow": "sample_video.py or native ComfyUI nodes"
+    },
+    "limitations": "This model is outside the L4/ A100 40GB low/mid envelope in BF16; FP8 save claim is not an L4 qualification and no native audio is documented.",
+    "artifact_urls": [
+      "https://huggingface.co/tencent/HunyuanVideo",
+      "https://github.com/Tencent-Hunyuan/HunyuanVideo/blob/main/README.md"
+    ]
+  },
+  {
+    "id": "OTH08",
+    "topic": "HunyuanVideo original GGUF quantization",
+    "title": "HunyuanVideo GGUF direct conversion",
+    "url": "https://huggingface.co/city96/HunyuanVideo-gguf",
+    "publisher": "city96",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card is a direct GGUF conversion of tencent/HunyuanVideo for native ComfyUI HunyuanVideo nodes, not a finetune.",
+      "The 13B card lists Q3_K_S 6.09GB, Q4_K_S/Q4_0 7.74GB, Q4_K_M 7.88GB, Q5_K_M 9.45GB, Q6_K 11GB, Q8_0 14GB and BF16 25.6GB.",
+      "The card gives loader placement and quantization file sizes but no VRAM peak, wall-time or controlled quality comparison."
+    ],
+    "resources": {
+      "gpu": "No named GPU",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "GGUF Q3_K_S",
+        "Q4_K_M",
+        "Q5_K_M",
+        "Q8_0",
+        "BF16"
+      ],
+      "workflow": "ComfyUI native HunyuanVideo + ComfyUI-GGUF"
+    },
+    "limitations": "File size is not peak VRAM; no L4/A100 output or quality data. It is the original 13B model, not HunyuanVideo-1.5.",
+    "artifact_urls": [
+      "https://github.com/city96/ComfyUI-GGUF",
+      "https://github.com/Tencent-Hunyuan/HunyuanVideo"
+    ]
+  },
+  {
+    "id": "OTH09",
+    "topic": "FramePack official F1/P1 and low-VRAM contract",
+    "title": "FramePack official README",
+    "url": "https://raw.githubusercontent.com/lllyasviel/FramePack/main/README.md",
+    "publisher": "lllyasviel / FramePack",
+    "source_date": "2025-05-03",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "FramePack is a next-frame-section model with constant-length context; F1 released 2025-05-03 and P1 anti-drifting/history discretization results are dated June/July 2025.",
+      "Official requirements are RTX30/40/50 with FP16/BF16 and at least 6GB GPU memory; a 13B model can generate one minute at 30fps/1800 frames at that floor.",
+      "Author speed on RTX4090 is 2.5s/frame unoptimized or 1.5s/frame with TeaCache; laptop RTX3060/3070Ti is 4–8x slower.",
+      "For one sanity-check example, the author says about 30% of users obtain the shown typical worse TeaCache result and the other 70% obtain hardware-dependent random results. The page advises full diffusion for final quality. This is not a general quality success-rate measurement."
+    ],
+    "resources": {
+      "gpu": "RTX30/40/50 class requirement; 4090 speed example",
+      "vram_gb": 6,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": 1800,
+      "duration_s": 60,
+      "steps": null,
+      "time_s": null,
+      "precision": "FP16/BF16; bnb/GGUF optional community paths",
+      "workflow": "official demo_gradio.py GUI",
+      "calculated_time_s": 2700,
+      "timing_basis": "Calculated from author 1.5s/frame x 1800 frames, not a timed 60-second clip; excluded from measured-latency counts."
+    },
+    "limitations": "No official L4/A100 measurement or fixed output resolution. 4090/laptop figures cannot be converted into L4 throughput. No native audio claim.",
+    "artifact_urls": [
+      "https://github.com/lllyasviel/FramePack",
+      "https://huggingface.co/lllyasviel/FramePackI2V_HY"
+    ]
+  },
+  {
+    "id": "OTH10",
+    "topic": "FramePack real failure and slow run evidence",
+    "title": "FramePack issue #117: RTX 3090 and 64GB RAM slow generation",
+    "url": "https://github.com/lllyasviel/FramePack/issues/117",
+    "publisher": "FramePack GitHub issue / community users",
+    "source_date": "2025-04-19",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The issue body logs an RTX3090 run with 24GB VRAM and 64GB RAM; dynamic swap preserves 6GB for the transformer and 8GB for offload.",
+      "The logged 512x768 output grows through 33, 69, 105 and 145 frames, with 25 steps per section taking roughly 3:57–4:11 each; the issue title reports about 16 minutes for a 5-second video.",
+      "A community reply reports TeaCache plus SageAttention around 10 minutes for 5 seconds, while another RTX3060 report records roughly 7 minutes per generated second; the thread also records missing attention kernels and later ghosting concerns."
+    ],
+    "resources": {
+      "gpu": "RTX3090 24GB; comments also RTX3060 12GB",
+      "vram_gb": 24,
+      "ram_gb": 64,
+      "resolution": "512x768",
+      "frames": 145,
+      "duration_s": 5,
+      "steps": 25,
+      "time_s": 960,
+      "precision": "BF16 dynamic swap",
+      "workflow": "FramePack one-click package; TeaCache/SageAttention variants"
+    },
+    "limitations": "Single issue thread with changing software/kernel setup; no L4/A100 and no controlled quality score. It is evidence of failure/slow path, not a general speed law.",
+    "artifact_urls": [
+      "https://github.com/lllyasviel/FramePack/issues/151"
+    ]
+  },
+  {
+    "id": "OTH11",
+    "topic": "FramePack NF4 community quantization",
+    "title": "FramePack Studio issue #349: on-the-fly NF4 quantization",
+    "url": "https://github.com/FP-Studio/framepack-studio/issues/349",
+    "publisher": "FP-Studio / community fork",
+    "source_date": "2025-08-06",
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "The fork reports 4-bit NF4 on FramePack F1 and original models, with LoRA support in release 0.5.1; the 8-bit integer option did not work.",
+      "Tests on RTX3060 12GB with approximately 7GB free VRAM compare BF16 vs NF4 seconds/iteration at multiple resolutions; at 704x544 with magcache enabled, second-section BF16 is 10.62s/it and NF4 9.82s/it; at 832x640, BF16 15.03 and NF4 15.16s/it.",
+      "The author reports ghosting on fast movement, worse at lower resolutions, and says NF4 is loaded fully in VRAM."
+    ],
+    "resources": {
+      "gpu": "RTX3060 12GB Ubuntu",
+      "vram_gb": 12,
+      "ram_gb": null,
+      "resolution": [
+        "704x544",
+        "832x640"
+      ],
+      "frames": null,
+      "duration_s": 2,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "BF16",
+        "bitsandbytes NF4"
+      ],
+      "workflow": "FramePack Studio fork, F1/original, magcache on/off"
+    },
+    "measurements": [
+      {
+        "gpu": "RTX3060 12GB",
+        "resolution": "704x544",
+        "frames": null,
+        "duration_s": 2,
+        "steps": null,
+        "time_s": {
+          "bf16_s_per_it": 10.62,
+          "nf4_s_per_it": 9.82
+        },
+        "note": "Second section, magcache on; author reports about 7GB free VRAM needed."
+      }
+    ],
+    "limitations": "Community fork and RTX3060 only; no L4/A100, no MP4 quality metric, and lower-bit visual artifacts are explicitly reported.",
+    "artifact_urls": [
+      "https://github.com/FP-Studio/framepack-studio",
+      "https://github.com/lllyasviel/FramePack"
+    ]
+  },
+  {
+    "id": "OTH12",
+    "topic": "CogVideoX official versions, memory and timing",
+    "title": "CogVideo and CogVideoX official README",
+    "url": "https://raw.githubusercontent.com/zai-org/CogVideo/main/README.md",
+    "publisher": "ZhipuAI / THUDM",
+    "source_date": "2024-11-08",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The latest listed family is CogVideoX1.5-5B and 5B-I2V; older 2B, 5B and 5B-I2V remain available.",
+      "CogVideoX1.5 supports 1360x768, 16N+1 frames (default 81), 5 or 10 seconds at 16fps; old 2B/5B family uses 720x480, 8N+1 frames (default 49), 6 seconds at 8fps.",
+      "Diffusers memory entries are from 10GB BF16 and 7GB INT8 for 1.5-5B, 5GB BF16 and 4.4GB INT8 for 2B; official A100/H100 timing at 50 steps is about 1000/550s for 1.5-5B and 180/90s for 2B.",
+      "Official data explanation says memory tests used A100/H100 optimizations and were not measured on other architectures; INT8 is slower, INT4 is unsupported, and TorchAO/Optimum-Quanto can quantize components.",
+      "The repo links I2V, V2V continuation, CogVideoX-ControlNet, interpolation and ConsisID adapters."
+    ],
+    "resources": {
+      "gpu": "A100/H100 for timing and memory tables",
+      "vram_gb": [
+        4.4,
+        10
+      ],
+      "ram_gb": null,
+      "resolution": "1360x768 (1.5); 720x480 (older family)",
+      "frames": 81,
+      "duration_s": [
+        5,
+        10
+      ],
+      "steps": 50,
+      "time_s": 1000,
+      "precision": [
+        "BF16",
+        "FP16",
+        "FP8",
+        "INT8"
+      ],
+      "workflow": "Diffusers with sequential CPU offload/VAE slicing/tiling"
+    },
+    "measurements": [
+      {
+        "gpu": "A100",
+        "resolution": "1.5-5B",
+        "frames": 81,
+        "duration_s": 5,
+        "steps": 50,
+        "time_s": 1000
+      },
+      {
+        "gpu": "H100",
+        "resolution": "1.5-5B",
+        "frames": 81,
+        "duration_s": 5,
+        "steps": 50,
+        "time_s": 550
+      },
+      {
+        "gpu": "A100",
+        "resolution": "2B",
+        "frames": 49,
+        "duration_s": 6,
+        "steps": 50,
+        "time_s": 180
+      },
+      {
+        "gpu": "H100",
+        "resolution": "2B",
+        "frames": 49,
+        "duration_s": 6,
+        "steps": 50,
+        "time_s": 90
+      }
+    ],
+    "limitations": "No L4 measurement; official note limits memory testing to A100/H100. No native audio branch in the official repo; ControlNet/ConsisID are linked derivatives, not base-model guarantees.",
+    "artifact_urls": [
+      "https://github.com/kijai/ComfyUI-CogVideoXWrapper",
+      "https://github.com/TheDenk/cogvideox-controlnet",
+      "https://github.com/PKU-YuanGroup/ConsisID"
+    ]
+  },
+  {
+    "id": "OTH13",
+    "topic": "CogVideoX-Fun controls and low-resource execution",
+    "title": "VideoX-Fun official repository",
+    "url": "https://raw.githubusercontent.com/aigc-apps/VideoX-Fun/main/README.md",
+    "publisher": "Alibaba PAI / AIGC Apps",
+    "source_date": "2025-01-21",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The repo verifies execution on RTX3060 12GB, RTX3090 24GB, V100 16GB, A10 24GB and A100 40/80GB and asks for about 60GB disk.",
+      "GPU memory modes are model_cpu_offload, model_cpu_offload_and_qfloat8 and sequential_cpu_offload; qfloat8 saves more GPU memory with a possible small performance reduction.",
+      "CogVideoX-Fun V1.5-5B-InP is trained for 512/768/1024 resolutions, 85 frames at 8fps; V1.1 InP/Pose/Control variants cover 512/768/1024/1280, 49 frames at 8fps.",
+      "Official scripts support text-to-video, image-to-video with start/end images, video-to-video, and controlled video generation using Canny, Pose or Depth; model zoo lists MLSD, trajectory and camera-control variants."
+    ],
+    "resources": {
+      "gpu": [
+        "RTX3060 12GB",
+        "RTX3090 24GB",
+        "V100 16GB",
+        "A10 24GB",
+        "A100 40GB",
+        "A100 80GB"
+      ],
+      "vram_gb": [
+        12,
+        16,
+        24,
+        40,
+        80
+      ],
+      "ram_gb": null,
+      "resolution": "512/768/1024/1280 depending on version",
+      "frames": [
+        49,
+        85
+      ],
+      "duration_s": [
+        6.125,
+        10.625
+      ],
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "BF16/FP16",
+        "qfloat8 offload"
+      ],
+      "workflow": "VideoX-Fun Python, WebUI or ComfyUI entry"
+    },
+    "limitations": "No L4/A100 wall-time or peak VRAM table; tested A10 is not L4. No native audio evidence. The resolution/frame claims describe training/output contract, not a quality guarantee.",
+    "artifact_urls": [
+      "https://github.com/aigc-apps/VideoX-Fun",
+      "https://huggingface.co/alibaba-pai/CogVideoX-Fun-V1.5-5b-InP",
+      "https://huggingface.co/alibaba-pai/CogVideoX-Fun-V1.1-5b-Control"
+    ]
+  },
+  {
+    "id": "OTH14",
+    "topic": "Mochi-1 official model and memory boundary",
+    "title": "Genmo Mochi official repository",
+    "url": "https://github.com/genmoai/mochi",
+    "publisher": "Genmo",
+    "source_date": "2024-11-05",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Mochi 1 is a 10B Apache-2.0 text-to-video model with LoRA training support; official code exposes a MochiSingleGPUPipeline with CPU offload.",
+      "The official code example uses height 480, width 848, 31 frames and 64 inference steps; initial release output is 480p.",
+      "The repo states approximately 60GB VRAM for single-GPU execution, recommends at least one H100, and says ComfyUI can optimize below 20GB without giving a measurement.",
+      "Official limitations include motion warping/distortion in edge cases and poor animated-content performance; no I2V, control or native audio contract is documented."
+    ],
+    "resources": {
+      "gpu": "Single H100 recommended; single-GPU native path about 60GB",
+      "vram_gb": 60,
+      "ram_gb": null,
+      "resolution": "480x848 example",
+      "frames": 31,
+      "duration_s": 1.03,
+      "steps": 64,
+      "time_s": null,
+      "precision": "BF16 example",
+      "workflow": "MochiSingleGPUPipeline with CPU offload"
+    },
+    "limitations": "Official native path is outside low/mid resources; the ComfyUI <20GB statement is unquantified. No L4/A100 generation benchmark, audio or identity guarantee.",
+    "artifact_urls": [
+      "https://huggingface.co/genmo/mochi-1-preview",
+      "https://comfyanonymous.github.io/ComfyUI_examples/mochi/"
+    ]
+  },
+  {
+    "id": "OTH15",
+    "topic": "Mochi ComfyUI FP8 path",
+    "title": "ComfyUI official Mochi example",
+    "url": "https://comfyanonymous.github.io/ComfyUI_examples/mochi/",
+    "publisher": "ComfyUI",
+    "source_date": "2024-11-05",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The workflow accepts BF16/FP16 files or FP8 files and provides an all-in-one FP8 checkpoint.",
+      "ComfyUI says FP8 files can help with memory issues and may be faster on GPUs with FP8 operations, but quality is lower than 16-bit files."
+    ],
+    "resources": {
+      "gpu": "FP8-capable GPU recommended for speed",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "Mochi workflow; official example has no explicit output table",
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "BF16/FP16",
+        "FP8"
+      ],
+      "workflow": "ComfyUI Mochi example"
+    },
+    "limitations": "No peak VRAM, speed, A100/L4 or output-quality measurement beyond the qualitative FP8 warning.",
+    "artifact_urls": [
+      "https://huggingface.co/Comfy-Org/mochi_preview_repackaged"
+    ]
+  },
+  {
+    "id": "OTH16",
+    "topic": "Mochi community GGUF quantization",
+    "title": "calcuis Mochi GGUF test pack",
+    "url": "https://huggingface.co/calcuis/mochi",
+    "publisher": "calcuis",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card is a GGUF quantized Mochi test pack for ComfyUI GGUF nodes with a workflow JSON.",
+      "Files include Mochi Q3_K_M 4.31GB, T5 text encoder Q4_0 2.9GB and Mochi VAE FP8 E4M3 460MB; the card also lists Q4_0 2.9GB, Q8_0 5.06GB and F16 9.53GB.",
+      "The author says the revised workflow bypasses OOM and is around 50% faster with the new FP8 VAE file, but supplies no named GPU/time log."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "GGUF Q3_K_M",
+        "GGUF Q4_0",
+        "GGUF Q8_0",
+        "FP8 VAE"
+      ],
+      "workflow": "ComfyUI GGUF node workflow"
+    },
+    "limitations": "File sizes and an unqualified speed claim do not establish VRAM or L4/A100 output quality. No native audio/control evidence.",
+    "artifact_urls": [
+      "https://huggingface.co/calcuis/mochi/tree/main",
+      "https://github.com/city96/ComfyUI-GGUF"
+    ]
+  },
+  {
+    "id": "OTH17",
+    "topic": "Pyramid Flow low-memory single-GPU route",
+    "title": "Pyramid Flow official repository",
+    "url": "https://github.com/jy0205/Pyramid-Flow",
+    "publisher": "Pyramid Flow authors",
+    "source_date": "2024-11-13",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The official model has miniFLUX and SD3 variants; miniFLUX supports 384p video up to 5s and 768p video up to 10s, all at 24fps, and supports text-conditioned image-to-video.",
+      "CPU offloading allows inference below 12GB GPU memory, and sequential CPU offload below 8GB, with an efficiency penalty.",
+      "A single A100 generates a 5s 768p 24fps video in 5.5 minutes; 4 A100s take 2.5 minutes. I2V example uses [10,10,10] inference steps.",
+      "Official repo includes DiT fine-tuning code but no control, native audio, quantized model or identity consistency claim."
+    ],
+    "resources": {
+      "gpu": "Single A100 timing; CPU offload supports lower-memory single GPU",
+      "vram_gb": 8,
+      "ram_gb": null,
+      "resolution": "640x384 or 1280x768",
+      "frames": null,
+      "duration_s": [
+        5,
+        10
+      ],
+      "steps": [
+        10,
+        10,
+        10
+      ],
+      "time_s": 330,
+      "precision": "Autocast dtype in official example",
+      "workflow": "PyramidDiTForVideoGeneration / Gradio"
+    },
+    "measurements": [
+      {
+        "gpu": "A100",
+        "resolution": "768p",
+        "frames": null,
+        "duration_s": 5,
+        "steps": null,
+        "time_s": 330
+      },
+      {
+        "gpu": "4x A100",
+        "resolution": "768p",
+        "frames": null,
+        "duration_s": 5,
+        "steps": null,
+        "time_s": 150
+      }
+    ],
+    "limitations": "No L4/A100-40GB split, no host RAM peak, no direct quality score for offload, and no quantized checkpoint evidence.",
+    "artifact_urls": [
+      "https://huggingface.co/rain1011/pyramid-flow-miniflux",
+      "https://huggingface.co/rain1011/pyramid-flow-sd3"
+    ]
+  },
+  {
+    "id": "OTH18",
+    "topic": "EasyAnimate V5.1 single GPU matrix and controls",
+    "title": "EasyAnimate official repository",
+    "url": "https://github.com/aigc-apps/EasyAnimate",
+    "publisher": "Alibaba PAI / AIGC Apps",
+    "source_date": "2025-01-21",
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "EasyAnimate V5.1 uses Qwen2-VL text encoding and Flow sampling; it supports bilingual Chinese/English, LoRA/reward training, common control inputs, trajectory control and camera control.",
+      "The 12B memory matrix marks 24GB as runnable at 384x672x25/49, 576x1008x25/49 and 768x1344x25, but not 768x1344x49; 40GB and 80GB rows can run all listed sizes.",
+      "At 25 steps on A10 24GB, 12B times are approximately 120s/240s/320s/750s for 384x672x25/49 and 576x1008x25/49; A100 80GB times are 45/90/120/300/265/710s across the six listed sizes.",
+      "Memory modes are model_cpu_offload, model_cpu_offload_and_qfloat8 and sequential_cpu_offload; sequential offload is slower."
+    ],
+    "resources": {
+      "gpu": [
+        "A10 24GB",
+        "A100 80GB"
+      ],
+      "vram_gb": [
+        24,
+        80
+      ],
+      "ram_gb": null,
+      "resolution": "384x672, 576x1008, 768x1344",
+      "frames": [
+        25,
+        49
+      ],
+      "duration_s": [
+        3.125,
+        6.125
+      ],
+      "steps": 25,
+      "time_s": 120,
+      "precision": [
+        "BF16",
+        "qfloat8"
+      ],
+      "workflow": "EasyAnimate V5.1 Python/WebUI/ComfyUI"
+    },
+    "measurements": [
+      {
+        "gpu": "A10 24GB",
+        "resolution": "384x672x25",
+        "frames": 25,
+        "duration_s": 3.125,
+        "steps": 25,
+        "time_s": 120
+      },
+      {
+        "gpu": "A10 24GB",
+        "resolution": "576x1008x49",
+        "frames": 49,
+        "duration_s": 6.125,
+        "steps": 25,
+        "time_s": 750
+      },
+      {
+        "gpu": "A100 80GB",
+        "resolution": "768x1344x49",
+        "frames": 49,
+        "duration_s": 6.125,
+        "steps": 25,
+        "time_s": 710
+      }
+    ],
+    "limitations": "The 24GB result is A10, not L4. No A100 40GB timing and no native audio. Matrix icons encode offload modes but do not provide peak VRAM or host RAM.",
+    "artifact_urls": [
+      "https://huggingface.co/alibaba-pai/EasyAnimateV5.1-12b-zh",
+      "https://huggingface.co/alibaba-pai/EasyAnimateV5.1-12b-zh-Control",
+      "https://github.com/aigc-apps/EasyAnimate/tree/main/comfyui"
+    ]
+  },
+  {
+    "id": "OTH19",
+    "topic": "StepVideo A100-80 capacity edge and multi-GPU reference",
+    "title": "Step-Video-T2V official README",
+    "url": "https://github.com/stepfun-ai/Step-Video-T2V",
+    "publisher": "StepFun",
+    "source_date": "2025-02-17",
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "Step-Video-T2V is a 30B model supporting up to 204 frames; a Turbo checkpoint uses inference-step distillation.",
+      "Official requirements report 78.55GB peak for 768x768x204f and 77.64GB for 544x992x204f at 50 steps; flash-attn times are 860s and 743s respectively and 80GB is recommended.",
+      "Best-practice settings are 30–50 steps for base and 10–15 for Turbo, both at 204 frames; single-GPU quantization is delegated to DiffSynth-Studio.",
+      "Step-Video-TI2V adds 102-frame image-to-video, motion score and camera control, but its README states single GPU can take longer and requires CPU offload for high-resolution."
+    ],
+    "resources": {
+      "gpu": "80GB recommended; official table tested on four GPUs",
+      "vram_gb": 78.55,
+      "ram_gb": null,
+      "resolution": "768x768 or 544x992",
+      "frames": 204,
+      "duration_s": null,
+      "steps": 50,
+      "time_s": 860,
+      "precision": null,
+      "workflow": "Step-Video-T2V or DiffSynth-Studio quantized path",
+      "num_gpus": 4
+    },
+    "limitations": "The official benchmark was on four GPUs and is high-resource evidence. A nominal 80GB GPU recommendation alone does not establish single-A100 High RAM qualification; 78.55GB peak is near the A100-80 capacity edge. No direct L4 or A100-40GB qualification.",
+    "artifact_urls": [
+      "https://github.com/stepfun-ai/Step-Video-TI2V",
+      "https://github.com/modelscope/DiffSynth-Studio"
+    ]
+  },
+  {
+    "id": "OTH20",
+    "topic": "LTX-2.3 community IQ4/GGUF",
+    "title": "gguf-org LTX-2.3 GGUF card",
+    "url": "https://huggingface.co/gguf-org/ltx2.3-gguf",
+    "publisher": "gguf-org / chatpig",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card provides an LTX-2.3 22B dev IQ4_XS GGUF and a q4_0 text projection, plus a universal FP8 E4M3 checkpoint for ComfyUI setup.",
+      "The model file sizes listed are IQ4_XS 14.8GB and IQ4_NL 15.4GB; the card states this is a GGUF quantization of Lightricks/LTX-2.3 and gives no hardware/time benchmark.",
+      "The card says no extra node is required under its described ComfyUI setup but warns that protobuf may be needed for a GGUF Gemma encoder."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "IQ4_XS",
+        "IQ4_NL",
+        "FP8 E4M3 checkpoint"
+      ],
+      "workflow": "ComfyUI native LTX-2.3 with GGUF diffusion model"
+    },
+    "limitations": "No L4/A100 run, VRAM peak, host RAM, speed or quality comparison; IQ file size cannot be treated as VRAM requirement.",
+    "artifact_urls": [
+      "https://huggingface.co/gguf-org/ltx2.3-gguf/tree/main",
+      "https://github.com/Lightricks/ComfyUI-LTXVideo"
+    ]
+  },
+  {
+    "id": "OTH21",
+    "topic": "LTX-2.3 official Comfy quant formats and high-GPU measurement",
+    "title": "Comfy-Org LTX-2.3 quantization documentation",
+    "url": "https://github.com/Comfy-Org/comfy-quants/blob/main/docs/quantization/ltx2.md",
+    "publisher": "Comfy-Org",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "official",
+    "access": "full-text",
+    "claims": [
+      "The LTX-2.3 exporter supports FP8 E4M3/E5M2, MXFP8, NVFP4, INT8 W8A8 and INT8 tensorwise; MXFP8/NVFP4 require Blackwell SM>=10 while INT8 tensorwise requires SM>=7.5.",
+      "On an RTX PRO 6000 Blackwell with 512²x49 frames + audio, 20 Euler steps, the table reports BF16 46.1GB artifact/53.7GB peak/2.37 it/s; FP8 E4M3 29.1GB/36.7GB/2.27 it/s; NVFP4 21.7GB/29.6GB/1.56 it/s; INT8 tensorwise 29.2GB/38.6GB/2.73 it/s.",
+      "The same run reports video PSNR versus BF16 of 38.5dB FP8, 38.3dB MXFP8, 32.1dB NVFP4 and 45.4dB INT8 tensorwise; output contains 49 frames and FLAC audio."
+    ],
+    "resources": {
+      "gpu": "RTX PRO 6000 Blackwell",
+      "vram_gb": [
+        29.6,
+        53.7
+      ],
+      "ram_gb": null,
+      "resolution": "512x512",
+      "frames": 49,
+      "duration_s": null,
+      "steps": 20,
+      "time_s": null,
+      "precision": [
+        "BF16",
+        "FP8 E4M3",
+        "MXFP8",
+        "NVFP4",
+        "INT8 tensorwise"
+      ],
+      "workflow": "stock ComfyUI exporter and native LTXAV nodes"
+    },
+    "measurements": [
+      {
+        "format": "BF16",
+        "artifact_gb": 46.1,
+        "peak_vram_gb": 53.7,
+        "it_per_s": 2.37,
+        "psnr_db": null
+      },
+      {
+        "format": "FP8 E4M3",
+        "artifact_gb": 29.1,
+        "peak_vram_gb": 36.7,
+        "it_per_s": 2.27,
+        "psnr_db": 38.5
+      },
+      {
+        "format": "NVFP4",
+        "artifact_gb": 21.7,
+        "peak_vram_gb": 29.6,
+        "it_per_s": 1.56,
+        "psnr_db": 32.1
+      },
+      {
+        "format": "INT8 tensorwise",
+        "artifact_gb": 29.2,
+        "peak_vram_gb": 38.6,
+        "it_per_s": 2.73,
+        "psnr_db": 45.4
+      }
+    ],
+    "limitations": "RTX PRO 6000 Blackwell is outside requested L4/A100 boundary; values are not extrapolated. PSNR is a source-reported metric for the cited setup, not a broad visual evaluation.",
+    "artifact_urls": [
+      "https://github.com/Comfy-Org/comfy-quants",
+      "https://huggingface.co/Lightricks/LTX-2.3"
+    ]
+  },
+  {
+    "id": "OTH22",
+    "topic": "LTXV 2B community GGUF",
+    "title": "city96 LTX-Video GGUF card",
+    "url": "https://huggingface.co/city96/LTX-Video-gguf",
+    "publisher": "city96",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "model-author",
+    "access": "full-text",
+    "claims": [
+      "The card is a direct GGUF conversion of Lightricks/LTX-Video, not a finetune, and is intended for ComfyUI-GGUF.",
+      "For 2B parameters it lists Q3_K_S 0.985GB, Q4_K_M 1.42GB, Q5_K_M 1.56GB, Q6_K 1.72GB, Q8_0 2.17GB and BF16/F16 3.94GB."
+    ],
+    "resources": {
+      "gpu": null,
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": null,
+      "frames": null,
+      "duration_s": null,
+      "steps": null,
+      "time_s": null,
+      "precision": [
+        "GGUF Q3_K_S",
+        "Q4_K_M",
+        "Q5_K_M",
+        "Q6_K",
+        "Q8_0",
+        "BF16"
+      ],
+      "workflow": "ComfyUI-GGUF LTXV 2B"
+    },
+    "limitations": "No target-GPU VRAM/time or output-quality benchmark; file size alone cannot establish a runnable video configuration.",
+    "artifact_urls": [
+      "https://github.com/city96/ComfyUI-GGUF",
+      "https://github.com/Lightricks/LTX-Video"
+    ]
+  },
+  {
+    "id": "OTH23",
+    "topic": "HunyuanVideo-1.5 community slow/failure evidence",
+    "title": "HunyuanVideo-1.5 ComfyUI community timing report",
+    "url": "https://www.reddit.com/r/comfyui/comments/1p6p5zz/hynuyanvideo_15_i2v_takes_forever_1.5h_on_5080/",
+    "publisher": "r/comfyui community post",
+    "source_date": null,
+    "checked_date": "2026-10-10",
+    "source_type": "firsthand-community",
+    "access": "full-text",
+    "claims": [
+      "A user reports official 720p I2V FP16 workflow without upscale taking about 1.5 hours for a 5-second clip at 50 steps, with about 110 seconds per step; 480p was roughly twice as fast.",
+      "Replies recommend 4/8-step LightX2V LoRA and 848x480 starting sizes, but those replies do not give a reproducible paired hardware/VRAM/MP4 record."
+    ],
+    "resources": {
+      "gpu": "RTX5080 (post author); commenters mention RTX2060 Super/3090",
+      "vram_gb": null,
+      "ram_gb": null,
+      "resolution": "720p I2V; 480p comparison",
+      "frames": null,
+      "duration_s": 5,
+      "steps": 50,
+      "time_s": 5400,
+      "precision": "FP16",
+      "workflow": "official ComfyUI HunyuanVideo-1.5 workflow"
+    },
+    "limitations": "A community failure/slow report with no attached reproducible package; RTX5080 is outside target hardware and should not be generalized. Replies mix configuration advice with other model discussions.",
+    "artifact_urls": [
+      "https://huggingface.co/Comfy-Org/HunyuanVideo_1.5_repackaged"
+    ]
+  }
+]

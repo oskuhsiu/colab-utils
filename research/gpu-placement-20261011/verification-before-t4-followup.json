@@ -1,0 +1,18 @@
+{
+  "status": "pass",
+  "checked_date": "2026-10-11",
+  "scope": "documentation, primary-source snapshots, local evidence calculations; no GPU/runtime generation",
+  "main_report": "doc/VIDEO_MODEL_L4_T4_KAGGLE.md",
+  "report_sha256": "fe3b9b9ad744616b378c55a42582e0e52c0fbb3ccd5f8cdbb26c35023be6c282",
+  "local_markdown_targets_validated": 16,
+  "primary_source_snapshots": 6,
+  "a100_original_report_preserved": true,
+  "original_research_lineage_hash_preserved": true,
+  "a100_successful_original_clip_count_unchanged": 39,
+  "advisor_review": "no material blocker; candidates not described as demonstrated fits",
+  "new_colab_gpu_allocations": 0,
+  "new_generated_clips": 0,
+  "kaggle_runtime_tested": false,
+  "record_status": "assessment recorded; user requested recording only; follow-up runtime trials not started",
+  "advisor_review_scope": "model evaluation reviewed before the administrative status note was added"
+}

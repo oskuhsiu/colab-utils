@@ -1,0 +1,19 @@
+{
+  "status": "pass",
+  "checked_date": "2026-10-11",
+  "scope": "documentation, primary-source snapshots, local evidence calculations; no GPU/runtime generation",
+  "main_report": "doc/VIDEO_MODEL_L4_T4_KAGGLE.md",
+  "report_sha256": "b6f328c68e2e7f93e3db21571ccfe203e259625c576bfbb9d1f017fdcbdbafc1",
+  "local_markdown_targets_validated": 16,
+  "primary_source_snapshots": 6,
+  "a100_original_report_preserved": true,
+  "original_research_lineage_hash_preserved": true,
+  "a100_successful_original_clip_count_unchanged": 39,
+  "advisor_review": "no material blocker; candidates not described as demonstrated fits",
+  "new_colab_gpu_allocations": 0,
+  "new_generated_clips": 0,
+  "kaggle_runtime_tested": false,
+  "record_status": "assessment recorded; user requested recording only; follow-up runtime trials not started",
+  "advisor_review_scope": "Original offline assessment reviewed separately; T4 follow-up conclusions reviewed in root/c01_free_t4_review with frame-only limits.",
+  "followup_t4": "C01 probe and288p5s completed separately; original39A100clips unchanged; seeprojects/kandinsky6-lite-t4-20261011/verification.json"
+}
