@@ -50,9 +50,33 @@ non_diegetic_music:
 
 `detailed_description` 建立風格後以 `[Shot 1]` 起頭，首鏡不帶 cut timestamp；後鏡如 `[Shot 2] At 00:03.500, ...`，時間遞增且在片長內。首次清楚出現人物時用 Subject 及具體可見特徵，後鏡沿用。Ref 指南通常建議 350–500 英文詞，依內容分配，不用重複限制湊詞。攝影 `pull out` 指退後，`zoom out` 指焦距變化；描述可見過程，區分人物移動與鏡頭移動。
 
-說話在主時間軸用 `<Subject N> (S1) ... <d>[語言] 原台詞</d>`。S 編號依本段實際發聲順序並跨鏡沿用，不等於 Subject 編號；未發聲者不加 S。跨片段需要聲線一致時另保存角色→聲音描述。旁白依指南用 `says in an off-screen voiceover` 並交代畫面人物嘴唇閉合；跨鏡台詞用 `<scenetrans>`，片尾截斷用 `<cutoff>`。
+說話在主時間軸用 `<Subject N> (S1) ... <d>[語言] 原台詞</d>`。S 編號依本段實際發聲順序並跨鏡沿用，不等於 Subject 編號；未發聲者不加 S。跨片段需要聲線一致時另保存角色→聲音描述。旁白可用 `says in an off-screen voiceover` 描述；畫面人物的發音動作須另依下述本地發聲方式指定。跨鏡台詞用 `<scenetrans>`，片尾截斷用 `<cutoff>`。
 
 `overall_soundscape` 描述環境、物理動作與非語言聲音；`<d>` 台詞留在主時間軸。`non_diegetic_music` 描述觀眾聽到的配樂，無配樂寫 `N/A`。
+
+## 本地表演與發聲方式交接
+
+含角色表演或內心話時，生成前依 [情緒與表演](../../video-production/references/emotion-and-performance.md) 決定情緒進程、逐句 `delivery`、`voice_mode`、嘴型及聲音聽感／可聽對象。這是本地製作標註，不是新增 H3 欄位或特殊 tag；在既有畫面與語音描述中表達，實際能力另驗。
+
+把逐句的語速、重音、停頓、氣息與情緒變化寫進當句發聲描述，與動作、表情和時點接上；Ref2VA 放在 `detailed_description`，Base 放在 `integrated_multimodal_description`，維持各自原有欄位。共用角色文字保留聲線身份，當句表演照分鏡轉入；核最終序列化文字，而非只檢查 metadata 有 `delivery`。表演、模式、音效及聲音處理寫在台詞 tag 外，`<d>[語言] ...</d>` 只放實際要聽到的文本。
+
+口說描述對應角色的同步發音動作。心聲／旁白可用畫外 voiceover 形式承載，但須另外說明其敘事層、聲音與嘴型；實際人在畫外出聲則描述其位置與遮擋，不將它混作在鏡角色心聲。非發音限制僅作用於相關角色與時窗，同鏡其他口說角色仍正常發音。
+
+以下為當句局部寫法示例，完整 prompt 仍需原有六欄及正確來源綁定；同一句台詞只寫一次，避免重複朗讀：
+
+心聲（觀眾有聲，角色無該句發音嘴型）：
+
+```text
+<Subject 1> (S1) is heard in her private inner voice, retaining her recognizable voice but with a slightly hollow resonance and a short, soft tail. Her urgency tightens the breath and quickens the words. On screen her jaw stays tense and she holds her breath without articulating the following words: <d>[Chinese] 別出聲。</d>.
+```
+
+無聲的說話（嘴型對應心聲，現場沒有另一次口說）：
+
+```text
+<Subject 1> silently mouths the following words toward her companion. In that same interval, her own private inner voice (S1) is heard with slightly hollow resonance, suppressed urgency and a breath caught before the last word: <d>[Chinese] 別出聲。</d>. Her lips articulate this sentence in sync with the inner voice; no separate in-world spoken voice is produced.
+```
+
+提交前確認模式沒有互相衝突：普通心聲保留無發音動作，無聲說話明確保留嘴型加同一句心聲；情緒仍存在於聲音處理之下。原生輸出未能區分時，按已允許工具採適用控制或獨立配音／後製，再驗實際聲畫，不能因語法正確就宣稱表演、空洞聽感或嘴型已成功。
 
 ## Base：三欄與 keyframe 首行
 
@@ -62,6 +86,6 @@ T2VA 用 `integrated_multimodal_description`、`overall_soundscape`、`non_diege
 
 ## 最終輸入檢查
 
-保存經核對的序列化 prompt 與來源對照，檢查：模式／欄序／keyframe 首行符合實際接線；所有 label 有來源且 Subject、retention、畫面用途一致；`[Shot 1]`、遞增切鏡時間與對白時間有效；S 編號依發聲順序；初末服裝、道具、地標、位置與當段時序無矛盾。空鏡使用自己的場景描述，角色／聲線共用文字僅帶入需要的鏡頭。
+保存經核對的序列化 prompt 與來源對照，檢查：模式／欄序／keyframe 首行符合實際接線；所有 label 有來源且 Subject、retention、畫面用途一致；`[Shot 1]`、遞增切鏡時間與對白時間有效；S 編號依發聲順序；初末服裝、道具、地標、位置與當段時序無矛盾；情緒、逐句表演、發聲方式、嘴型與聲音處理符合分鏡且已進入實際提示。空鏡使用自己的場景描述，角色／聲線共用文字僅帶入需要的鏡頭。
 
 此檢查證明輸入符合所選規格；`fully_preserved`、exact face 或否定句不構成像素硬鎖。輸入故障診斷看 [visual-quality.md](visual-quality.md)，模型／loader 看 [models.md](models.md)。
