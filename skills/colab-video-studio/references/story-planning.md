@@ -19,6 +19,8 @@
 
 小說／短劇改編或跨集製作時，可用相鄰 skill 的 [短劇前製與交接模板](../../video-production/references/drama-preproduction.md) 整理劇本、共用角色／場景／關鍵道具及逐鏡聲畫。轉成 Studio job 時，再依 [執行契約](workflow.md) 填入實際 asset IDs、`inputs` 與 `start_state`／`end_state`；前製表本身不是可提交的 `plan.json`。
 
+小說改編、續集、混用計畫與現有參考素材，或多人反應有交接時，讀 [改編與鏡頭決策](../../video-production/references/adaptation-shot-and-edit.md) 的相關段落，將資訊揭露邊界、實際前集末態、已核對的素材用途及注意交接帶入既有計畫。
+
 ## 把內容交接變成鏡頭
 
 每鏡指定用途、可見動作／資訊、景別、聲音與下一鏡承接點。需要時標出視線、運動方向、道具初末態、影響劇情的數量及空間位置；明確省略的過程須由其他畫面提供足夠資訊。連續／同框要求按使用者指定保留。
