@@ -2,7 +2,7 @@
 
 `h3-omni-context-windows` 使用原四個 Omni 權重、8-step Euler/simple、native dense attention、shift 12/3，再接 Core 的 `MiniMaxH3ContextWindows` MODEL patch。固定 ComfyUI **0.43.0／6651247a8b50cefd1436c834f704bdf7767722e9**，來源為已合併 [PR #17425](https://github.com/Comfy-Org/ComfyUI/pull/17425)。不加 Turbo LoRA／VSA gate；既有 Omni、Continuum、Ref2VA starter graph 的內容保持相同，Pika 使用其獨立路徑。
 
-此 preset 仍是實驗功能。2026-10-31 已完成 A100 STANDARD 的 720p 直式實測：相同提示／seed 的 6.58 秒 OFF／ON 對照中，共用完整提示的 CW 版本在機器語音核對出現重複；12.25 秒、三個規則間距視窗各一句的版本，轉錄依序各一次，但第三句辨識不穩、局部疊影與實際聽驗仍有限制。詳見[第二輪實測與原始證據](../projects/forum-story-ch2-cw-retry-20261031/test-report.md)。這不是單一因素證明或正式品質通過；下述 20／30 秒與 Continuum 比較仍未執行。Context Windows 限制每次去噪看到的時間範圍，再融合多窗；多窗也增加計算次數，不能先推定它一定更快或更連續。
+此 preset 仍是實驗功能。2026-10-31 已完成 A100 STANDARD 的 720p 直式實測：相同提示／seed 的 6.58 秒 OFF／ON 對照中，共用完整提示的 CW 版本在機器語音核對出現重複；12.25 秒、三個規則間距視窗各一句的版本，轉錄依序各一次，但第三句辨識不穩、局部疊影與實際聽驗仍有限制。詳見[歷史驗證摘要](../research/h3-context-windows-validation-20261031.md)。這不是單一因素證明或正式品質通過；下述 20／30 秒與 Continuum 比較仍未執行。Context Windows 限制每次去噪看到的時間範圍，再融合多窗；多窗也增加計算次數，不能先推定它一定更快或更連續。
 
 ## 使用入口
 
@@ -49,11 +49,11 @@ region_index = clamp(int(center_ratio * prompt_count), 0, prompt_count - 1)
 
 三份 prompt 的預設對應：20 秒為 `[0,0,1,1,2,2]`，30 秒為 `[0,0,0,1,1,1,2,2,2]`。這不是「每份提示一窗」或精準逐秒排程，窗重疊處也會融合。單一 prompt 或沒有多窗時，計畫的 `split_active=False`、`region_index=None`。[官方 region 計算](https://github.com/Comfy-Org/ComfyUI/blob/6651247a8b50cefd1436c834f704bdf7767722e9/comfy/context_windows.py#L92-L94)、[選 condition 的條件](https://github.com/Comfy-Org/ComfyUI/blob/6651247a8b50cefd1436c834f704bdf7767722e9/comfy/context_windows.py#L479-L488)
 
-## 20／30 秒與 Continuum 的實測計畫
+## 可重用的 20／30 秒比較規劃
 
-只在既有 GPU／CU 授權內執行；本次整合沒有配置或重啟 VM。長段實驗使用 workspace 的獨立 API graph。快速部署首鏡包維持原 project adapter 與 8 秒片段，兩種測試分開記錄。
+這是尚未執行的比較方式，不是既有影片或專案的操作依賴。先以 `context_window_plan()` 離線核對實際窗數、尾窗及 prompt region，再準備本次素材、提示與獨立 API graph；GPU 執行另依本次授權與預算。
 
-第一輪依序做四個有界案例，不先增加暖機或品質重抽：
+可依序規劃以下四種設定：
 
 | 案例 | 路徑 | 設定 |
 | --- | --- | --- |
@@ -64,7 +64,20 @@ region_index = clamp(int(center_ratio * prompt_count), 0, prompt_count - 1)
 
 共用 A100 STANDARD／`high_mem=false`、640×384、24fps、相同 seed 與內容／聲音要求；同一主體完成清楚的三段連續動作，固定外觀、場景與物件狀態，並保留一段跨接點可聽的聲音。付費配置前先選好單幀參考／起始畫面、最終提示與輸出位置。Omni 使用 reference conditioning；Continuum 若接相同圖片，使用其已支援的 first-frame 或原生 reference 輸入並記明實際接線，不能聲稱兩種條件等價。
 
-Continuum 需先依既有 sequence 輸入契約編譯每個 chunk 的動作與初末態，避免把完整三段事件重複送給每塊，造成不公平的重複／倒序。可讀的案例與實際 window/region 快照見 [comparison-plan.json](../projects/h3-context-windows-20261031/comparison-plan.json)；它是實測計畫，尚未產生影片。
+Continuum 需先依 sequence 輸入契約編譯每個 chunk 的動作與初末態，避免把完整三段事件重複送給每塊，造成不公平的重複／倒序。從 repo 根目錄可直接重算 CW 規劃：
+
+```bash
+PYTHONPATH=scripts python3 - <<'PYTHON'
+import json
+from comfyui_workflows import context_window_plan
+
+for seconds in (20, 30):
+    plan = context_window_plan(seconds, prompt_count=3, split_conds_to_windows=True)
+    print(json.dumps(plan, ensure_ascii=False, indent=2))
+PYTHON
+```
+
+這裡的三份 prompt 用來核對 region 分配；表中的單一完整 prompt 比較需改成 `prompt_count=1`、`split_conds_to_windows=False`。規劃只計算時間格與接線，不含成片品質結論。
 
 兩路的母模、text encoder、步數及延續機制不同，這是製作路線比較；不能將結果解讀為只改 Context Windows 的因果實驗。權重取得與模型切換另外計量；在同一 VM 重用已驗檔案，模型載入成本也分開報告。不得為準備比較而中止其他 live job；需要切換工作台／權重時先確認原作業完成、保存與既有 queue。
 
@@ -77,4 +90,4 @@ Continuum 需先依既有 sequence 輸入契約編譯每個 chunk 的動作與�
 - **影音：** 跨接點的聲線、音量、環境聲與動作音效連續性；有台詞時查聽感、口型及句尾完整性。完整 ffprobe／影音解碼及實際速度播放分開記錄。
 - **時間／資源：** 下載／載入／生成／解碼／本機保存的完整耗時、provider CU 與採樣間隔下的 VRAM 峰值。冷首次與後續片分列，原生總時長與交付裁切時長分列。
 
-本輪未執行上述 GPU 比較。離線 window／schema／graph／notebook 測試通過，只能支持接線與計算契約。
+上述 GPU 比較尚未執行。離線 window／schema／graph／notebook 測試通過，只能支持接線與計算契約。

@@ -2,7 +2,7 @@
 
 用於付費長批次的恢復準備，以及 `exec`／上傳／下載逾時、401／404、`Session … lost`、路徑或 session 消失。先分清控制通道、原作業和伺服器分配，讓已完成結果及時保存，避免 GPU 在反覆排查中閒置。
 
-適用證據包含 Colab CLI 0.7.2、原生 ComfyUI／h3-omni；其他版本先核實相應介面。兩次約一小時後的失敗與一次 3600 秒代理租約是線索，**不是 Colab 固定每小時踢線的證明**。時間線及證據限制見 [事故整理](../../../research/colab-disconnect-recovery-20261031.md)。
+以下已整理為不依賴歷史專案檔案的操作指引。適用證據包含 Colab CLI 0.7.2、原生 ComfyUI／h3-omni；其他版本先核實相應介面。兩次約一小時後的失敗與一次 3600 秒代理租約是線索，**不是 Colab 固定每小時踢線的證明**。
 
 ## 付費批次啟動前
 
@@ -55,7 +55,7 @@
 | 刷新後仍讀不到資料 | 新 token 不代表 notebook websocket 健康，也不證明 worker 失敗；轉官方 SSH 查同一原作業，不重裝模型。 |
 | 重建 `SessionState` 報 variant 型別錯誤 | 此版 assignment 的 `variant.value` 是整數，cache schema 要字串；用核實過的 enum 名稱，避免在付費期間重踩序列化錯誤。 |
 | `colab ssh -s NAME` 找不到本機 session | 此版可自動建立 VM。恢復必須先驗精確 endpoint，使用已驗證的 existing-session bridge，不能靠名字直接呼叫並假定是原 VM。 |
-| 保留 HF cache 後，重開下載仍接近全量傳輸 | Hub 1.33.0／Xet 1.7.0 每次建立新 partial，不能跨程序接續舊檔。只承諾校驗成功的完整檔重用；控制斷線保留背景下載程序。實機證據與版本來源見 [無生成演練](../../../research/colab-preflight-rehearsal-20261031.md)。 |
+| 保留 HF cache 後，重開下載仍接近全量傳輸 | Hub 1.33.0／Xet 1.7.0 每次建立新 partial，不能跨程序接續舊檔。只承諾校驗成功的完整檔重用；控制斷線保留背景下載程序。版本或 SDK 不同時重新核實下載行為。 |
 
 同一 endpoint 的 cache 更新在此版可使用官方回傳資料，保留私有 kernel 身分；下列片段本身不配置 VM、不提交推論。`saved_private` 是配置時保存的身分備份；需 notebook globals 的 route 若已失去 kernel ID，先找回原 kernel，再執行生成。獨立 ComfyUI worker 的 SSH／檔案恢復則不依賴 notebook globals。
 
@@ -85,3 +85,7 @@ state.store.add(restored)  # 私有 cache；不要列印 restored/token/url。
 此版官方 SSH 的既有連線入口是 `colab_cli.commands.ssh._run_proxy_bridge(restored, key_path, False)`，繞開 CLI 的 auto-create 選擇器；它是私有介面，升版先核實。作為 OpenSSH ProxyCommand 時，stdout 只承載 SSH bytes，避免 CLI 更新橫幅混入。key、known_hosts 和 ControlPath 按 allocation 隔離，保留主機金鑰核對；只使用有限的工作連線，不加自動重連／保活迴圈。
 
 FastH3 獨立 CLI 的既有 `refresh/status/fetch`，以及 Studio 的 `status/fetch`，仍用各自 job 身分與資料契約；不要把 FastH3 runtime 目錄檢查套給原生 Omni，或在缺目錄時判定 VM 已消失。
+
+## 歷史依據（可選查證）
+
+[事故整理](../../../research/colab-disconnect-recovery-20261031.md) 與 [無生成演練](../../../research/colab-preflight-rehearsal-20261031.md) 保存時間線、版本及當次證據限制。這些研究頁可供追溯，執行上列恢復流程不需要匯入其中的專案程式或取得舊影片。

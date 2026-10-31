@@ -180,13 +180,8 @@ to 256×144. The video retained **120 frames, 24 fps, exactly 5 seconds and
 Image inference took 5.30 seconds and the small-video inference took 28.17 seconds
 on the tested CPU; these are not T4 speed estimates.
 
-Evidence: [verification record](../artifacts/media-upscale/validation-20261011/verification.json),
-[2× image](../artifacts/media-upscale/validation-20261011/train-2x.png),
-[2× video fixture](../artifacts/media-upscale/validation-20261011/train-small-2x.mp4),
-[image receipt](../artifacts/media-upscale/validation-20261011/train-2x.png.upscale.json),
-[video receipt](../artifacts/media-upscale/validation-20261011/train-small-2x.mp4.upscale.json),
-[audio comparison](../artifacts/media-upscale/validation-20261011/audio-copy-verification.json),
-and [sampled video frames](../artifacts/media-upscale/validation-20261011/video-contact-sheet.png).
+These are historical validation results; the original per-run media and receipts
+are not prerequisites for this workflow.
 
 The enlarged image and five video frames were visually inspected. There was no
 real-time playback or audio listening review. New graph schemas, links and widget
@@ -194,8 +189,7 @@ serialization were checked offline. The initial implementation used **0 addition
 Colab CU** and allocated no GPU session; the native ComfyUI upscale graphs remain
 untested live.
 
-A subsequent [video-model campaign](VIDEO_MODEL_CP_BENCHMARK.md) tested the streaming
-CLI on Colab A100 80GB with CUDA FP16, RealESRGAN x2plus and a complete H3 I2V clip:
+A subsequent historical validation tested the streaming CLI on Colab A100 80GB with CUDA FP16, RealESRGAN x2plus and a complete H3 I2V clip:
 832×480 → 1664×960, 124 frames at 24 fps. The local copies passed full decoding and
 hash checks; decoded audio PCM was identical to the source. Tile 192 took 84.27 s
 including CLI load/encode/verification (79.23 s inference); tile 1024 took 15.77 s

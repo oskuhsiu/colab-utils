@@ -12,7 +12,7 @@ B 區：本片 prompt / 首尾圖 -> 產片、驗證、預覽 <------+
                 +------ 下一片 ------+
 ```
 
-模型與量化建議、社群評價和來源見 [MODEL_OPTIONS.md](MODEL_OPTIONS.md)。目前只有之前的原版 BF16／50-step／15s／480p 在 A100 80GB 完整實測；新增 Turbo、量化及續片模式尚未 GPU 實測。
+模型模式、量化配套與推論參數見 [H3 模型契約](skills/minimax-h3-colab/references/models.md)。目前只有之前的原版 BF16／50-step／15s／480p 在 A100 80GB 完整實測；新增 Turbo、量化及續片模式尚未 GPU 實測。
 
 ## 1. 啟動與模型選單
 
@@ -43,7 +43,7 @@ B 區：本片 prompt / 首尾圖 -> 產片、驗證、預覽 <------+
 本機 CLI 已安裝及認證。先檢查現有 session：
 
 ```bash
-cd /Users/apple/Projects/comfyUI/colab-utils
+cd /path/to/colab-utils
 colab --auth oauth2 usage
 colab --auth oauth2 sessions
 ```
@@ -109,7 +109,7 @@ Audio: heavy footsteps, engine rumble, a roar, metal creaking, and a
 powerful rushing sound during the throw. No dialogue or on-screen text.
 ```
 
-既有成功影片的完整 prompt 在 [prompt.txt](artifacts/minimax-h3/prompt.txt)。大幅快速動作要留意 4-step 的拖影與細節；可以選 8-step 或原版比較。
+大幅快速動作要留意 4-step 的拖影與細節；可以選 8-step 或原版比較。
 
 有首圖時，描述**從這張圖接下來發生什麼**，避免 prompt 重新建立與圖片矛盾的場景。可用 `Use <Picture 1> as the opening frame at 0.00 seconds.` 指定開頭，並描述保留的角色、光線、位置、鏡頭方向。[MiniMax prompt guide](https://huggingface.co/MiniMaxAI/MiniMax-H3/blob/42ed227ee7df40d41602854ae760620d6eb651fe/docs/VIDEO_PROMPT_WRITING_GUIDE_base_en.md)。
 
@@ -134,7 +134,7 @@ colab --auth oauth2 upload -s minimax-h3-a100 refs/end.png /content/end.png
 
 首尾圖會被 resize 到輸出畫布，建議先準備相同比例。不要同時勾續接並填首圖，否則會提示兩個來源衝突。
 
-首尾圖是 **FL2VA 端點條件**。若多張人物／風格照片只作為參考，請在 A 區選 `TASK_MODE = "Ref2VA | 多張圖片／多段影片參考"`，並把素材路徑依語意順序填入 B 區 `REFERENCE_PATHS` JSON 陣列。Ref2VA 支援最多 9 張圖片、3 段影片、合計 12 個參考檔；專用 `Ref2VA Turbo 8-step v1.0 768p` adapter 和 `Original 50-step` 都可選，FL2VA 的 Turbo adapter 不可用於 Ref2VA。切換模式後請重新執行 A 區 1–5。 Ref2VA 可選原生 `BF16 original`、`NF4 pruned` 或 `NF4 original`；INT8 尚未接入。BF16 會載入 `Ref2VA/` 下的 transformer、text encoder、video/audio VAE 與 processor。原生 BF16 Ref2VA Turbo8 已在 A100 80GB 完成 7 秒、1312×736 的音畫技術驗證；這不代表分鏡或視覺品質已驗收。離線測試另外驗證下載／載入路徑及 adapter 選擇。需要明確首尾畫面與連續動線時，可參考[四步 FL2VA 預覽流程](projects/midautumn-h3/revision-02/README.md)。
+首尾圖是 **FL2VA 端點條件**。若多張人物／風格照片只作為參考，請在 A 區選 `TASK_MODE = "Ref2VA | 多張圖片／多段影片參考"`，並把素材路徑依語意順序填入 B 區 `REFERENCE_PATHS` JSON 陣列。Ref2VA 支援最多 9 張圖片、3 段影片、合計 12 個參考檔；專用 `Ref2VA Turbo 8-step v1.0 768p` adapter 和 `Original 50-step` 都可選，FL2VA 的 Turbo adapter 不可用於 Ref2VA。切換模式後請重新執行 A 區 1–5。 Ref2VA 可選原生 `BF16 original`、`NF4 pruned` 或 `NF4 original`；INT8 尚未接入。BF16 會載入 `Ref2VA/` 下的 transformer、text encoder、video/audio VAE 與 processor。原生 BF16 Ref2VA Turbo8 已在 A100 80GB 完成 7 秒、1312×736 的音畫技術驗證；這不代表分鏡或視覺品質已驗收。離線測試另外驗證下載／載入路徑及 adapter 選擇。需要明確首尾畫面與連續動線時，使用本節的 FL2VA 首尾圖設定，並檢查實際輸出端點。
 
 例如：
 
@@ -179,24 +179,24 @@ for filename in ("video.mp4", "metrics.json", "prompt.txt", "preview_last.png", 
     ], check=True)
 ```
 
-每片改用自己的本機資料夾。若本次失敗，`latest.json` 仍指向**前次成功結果**；先確認本次 `PASS`，不要把舊片誤認為新片。原本大猩猩影片的舊路徑保持不變。
+每片改用自己的本機資料夾。若本次失敗，`latest.json` 仍指向**前次成功結果**；先確認本次 `PASS`，不要把舊片誤認為新片。
 
 ## 6. 一片接一片
 
 同一 kernel 剛完成 clip A：在 **6** 改片名和 prompt、清空首圖、勾 `CONTINUE_PREVIOUS`，再執行 **6–7**。模型不重載，產生的 clip B 使用 A 的實際最後一格。
 
-如果從之前已下載的影片開始，本機取最後一格：
+如果從本次已下載的影片開始，將下列 `path/to/clip-a.mp4` 換成實際素材路徑，再於本機取最後一格：
 
 ```bash
 mkdir -p refs
 ffmpeg -hide_banner -loglevel error -y \
-  -i artifacts/minimax-h3/gorilla_rocket_bf16_15s_480p.mp4 \
+  -i path/to/clip-a.mp4 \
   -an -fps_mode passthrough -update 1 refs/rocket_end.png
 colab --auth oauth2 upload -s minimax-h3-a100 \
   refs/rocket_end.png /content/rocket_end.png
 ```
 
-[refs/rocket_end.png](refs/rocket_end.png) 已經準備好，可以直接上傳。設定 `FIRST_IMAGE_PATH = "/content/rocket_end.png"`、`CONTINUE_PREVIOUS = False`，使用以下 prompt：
+上面的命令會從本次素材建立並上傳 `refs/rocket_end.png`；此例假設前片結尾為火箭已在地球上空。設定 `FIRST_IMAGE_PATH = "/content/rocket_end.png"`、`CONTINUE_PREVIOUS = False`，使用以下 prompt：
 
 ```text
 Use <Picture 1> as the opening frame at 0.00 seconds.
@@ -213,18 +213,18 @@ No dialogue, text, logos, or return to the launchpad.
 
 這份續片 prompt 是操作範例，尚未生成第二片。首圖延續外觀與構圖，但不傳遞前片的運動速度、模型內部狀態或聲軌；仍需檢查接縫。
 
-兩片都下載後，本機合併兩支 15 秒影片：
+兩片都下載後，將下列輸入換成本次兩支 15 秒影片的實際路徑，在本機合併：
 
 ```bash
 ffmpeg -hide_banner -y \
-  -i artifacts/minimax-h3/gorilla_rocket_bf16_15s_480p.mp4 \
-  -i artifacts/rocket_moon/video.mp4 \
+  -i path/to/clip-a.mp4 \
+  -i path/to/clip-b.mp4 \
   -filter_complex \
   "[0:v]setpts=PTS-STARTPTS[v0];[0:a]asetpts=PTS-STARTPTS[a0];[1:v]setpts=PTS-STARTPTS[v1];[1:a]asetpts=PTS-STARTPTS[a1];[v0][a0][v1][a1]concat=n=2:v=1:a=1[v][a]" \
   -map "[v]" -map "[a]" \
   -c:v libx264 -crf 18 -preset medium -r 24 \
   -c:a aac -ar 32000 -ac 2 -movflags +faststart -t 30 \
-  artifacts/gorilla_rocket_story.mp4
+  artifacts/combined-story.mp4
 ```
 
 兩片需同尺寸、FPS、音訊格式；`-t 30` 是兩支 15 秒的總長，片長不同時改成總秒數。這是直接拼接，不會生成額外過場。聲音接縫需要時再做淡化。clip C 使用 B 的末格，以此類推。

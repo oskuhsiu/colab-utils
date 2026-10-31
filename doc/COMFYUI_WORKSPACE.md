@@ -6,9 +6,7 @@
 
 2026-10-28 新增 `h3-omni-int8`：[FastVideo/FastH3-Omni-Comfy](https://huggingface.co/FastVideo/FastH3-Omni-Comfy) 的八步 Ref2VA INT8 ConvRot 模型，以及可選的參考圖尺寸 `REF_IMAGE_SIZE="max" / "match"`。Omni 的 bundle 與 preset 都選 `h3-omni-int8`；使用原生節點、不加 Turbo LoRA 或 VSA transplant。新 Omni 接線及 `max` 設定目前只做離線驗證，未做 GPU 生成／人物相似度實測。[版本、量化選擇與 hybrid 研究](../research/h3_omni_20261028.md) 記錄來源與限制。
 
-初始交付只有來源／離線契約檢查；後續新增 [A100 40GB STANDARD 三組 one-shot 實測](../projects/ninja-continuum-a10040-20261019/RESULTS.md)：同一 server 跑完 Ref Turbo4、Ref Turbo8、Ref Turbo4＋VSA，各36秒、6段，三張人物照片每段均接入 Continuum。三組均通過864幀與完整影音解碼檢查；內容限制、實際接點、費用及原片見結果頁。這不代表其他 preset 或 notebook UI 已驗證，也不把單支片當成一般品質／速度保證。模型磁碟大小仍不等於 VRAM。[來源報告](../research/comfy_h3_extensions_20261019.md) 記錄固定版證據與限制；Veda 本次暫不實作。
-
-[L4 STANDARD 真人版後續實測](../projects/ninja-continuum-live-l4-20261019/RESULTS.md) 已完成兩支各20秒、4×5秒的 Continuum＋Ref Turbo4＋VSA one-shot，三張照片每段均接入。此專案保留同款 INT8 母模，改用動態分層／磁碟卸載、6GiB 額外顯存 headroom 與 INT8 video VAE；整卡每5秒取樣的觀測峰值為15.39／15.77GiB。兩支480幀與完整影音解碼通過；斜前方鏡位、分路跳躍及枝條回彈未穩定達成，原片與內容限制均保留。這項證據只涵蓋該配置，不能套用至所有 bundle；通用 notebook UI 仍未實測。
+歷史 GPU 驗證範圍：A100 40GB STANDARD 曾完成 Continuum＋Ref Turbo4、Turbo8、Turbo4＋VSA 各一支 36 秒／6 段影音；L4 STANDARD 曾完成同款 Ref2VA INT8 母模、Turbo4＋VSA、動態分層／磁碟卸載與 INT8 video VAE 的兩支 20 秒／4×5 秒影音。三張人物參考照片每段均接入，對應 864／480 幀與完整影音解碼通過；動作、鏡位與接點仍有未穩定達成項目。原始個案產物不作為操作依賴；保留摘要未記錄輸出寬高，不能據此宣稱任意解析度可用。這些結果只涵蓋上述模型與硬體配置，不代表所有 bundle、其他 preset、人物相似度或通用 notebook UI 已驗收，也不構成一般品質／速度保證。模型磁碟大小不等於 VRAM。[來源報告](../research/comfy_h3_extensions_20261019.md) 記錄固定版來源與限制；Veda 本次暫不實作。
 
 [Spark-H3 評估](../research/spark_h3_20261019.md) 另行保存：它有加速與記憶體調整選項，但正式套件排除本工作台的 ComfyUI 0.42，且沒有 Spark／Veda 同條件峰值 VRAM 數據，因此本次只研究、不安裝。
 
