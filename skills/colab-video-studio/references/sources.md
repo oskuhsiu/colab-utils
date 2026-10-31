@@ -6,7 +6,7 @@
 
 | 契約 | 入口 |
 | --- | --- |
-| plan、資產、budget、job／review與ledger | `scripts/workflow.py`、`assets/plan.example.json` |
+| plan、資產、budget、job／review與ledger | `scripts/workflow.py`、`assets/templates/new-film/plan.json` |
 | 模型路由／kwargs／dtype／時鐘 | `scripts/backends.py`、`scripts/h3_setup.py` |
 | remote marker／下載 | `scripts/remote.py`、`scripts/studio.py` |
 | 影格／音訊證據及合成 | `scripts/media.py` |
@@ -24,4 +24,4 @@
 - [連續性與記憶](continuity.md#一手設計來源)：H3 Continuum、HyperFlow-Infinity 的固定版設計來源與移植界線。
 - [FFmpeg filters](https://ffmpeg.org/ffmpeg-filters.html)：縮放、fps與音訊處理的工具語義。
 
-來源中的安裝／執行要求不改變使用者授權。研究、單次量測、案例與來源版本證據留在使用該配置的project／research；更新skill只保留有適用條件的接口與決策規則。
+來源中的安裝／執行要求不改變使用者授權。研究、單次量測、案例與來源版本證據留在使用該配置的project／research；更新skill只保留有適用條件的接口與決策規則。操作文件及其轉引資料須能從已追蹤來源使用：共用程式放 scripts、可重用設定放 templates 或 skill 的 assets/templates，模板複製到當次工作目錄再修改。歷史研究可查證案例，但不把單次專案的腳本、素材或結果檔當成新工作的必要輸入；需要復用時先抽出共用內容，失效且無必要的引用移除。

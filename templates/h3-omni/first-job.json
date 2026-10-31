@@ -1,0 +1,13 @@
+{
+  "shot_id": "first-shot",
+  "preset": "h3-omni-int8",
+  "width": 768,
+  "height": 448,
+  "duration_seconds": 5,
+  "seed": 42,
+  "reference_images": [
+    "reference.png"
+  ],
+  "prompt": "subject_definitions: <Subject 1> is the person in <Picture 1>, which provides only their face, hairstyle, body proportions, and current clothing.\nsummary: [reference generation] A fixed three-quarter medium shot of <Subject 1> seated indoors, naturally turning once toward a sound outside the window.\nretention_analysis: <Subject 1> (appears in [Shot 1]): fully_preserved for the referenced face, hairstyle, body proportions, and current clothing.\ndetailed_description: [Shot 1] Naturalistic live-action style. A simple quiet room with a pale wall, a plain wooden table, and daylight from a window on screen left. The camera stays fixed at a three-quarter angle in a waist-up medium shot of <Subject 1>, seated beside the table. From 0 to 1.5 seconds, <Subject 1> rests comfortably with their gaze lowered toward the tabletop. At 1.5 seconds, a brief bird chirp sounds outside the window. From 1.5 to 3.5 seconds, <Subject 1> naturally turns their head once toward the window on screen left, following the sound with their eyes. From 3.5 to 5 seconds, they settle and hold an attentive gaze toward the window, breathing gently.\noverall_soundscape: Soft indoor room tone and a brief bird chirp from outside the window at 1.5 seconds; no dialogue.\nnon_diegetic_music: N/A.",
+  "timeout_seconds": 1800
+}

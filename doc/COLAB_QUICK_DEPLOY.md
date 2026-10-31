@@ -4,20 +4,27 @@
 
 ## 開 GPU 前完成
 
-`scripts/colab_video_bootstrap.py prepare` 使用專案既有 `common.py`、`run_shot.py`、`status.py` adapter，將固定 toolkit、第一鏡 JSON、實際圖檔及最終 API graph 封成一包。它在獨立本機 interpreter 呼叫原 `graph_for_job`，檢查參考圖名稱完整對應，再記錄全部檔案 SHA-256。此步不安裝套件、不下載模型、不提交推論。
+`scripts/colab_video_bootstrap.py prepare` 使用共用 `scripts/colab_omni_runtime/` 的 `common.py`、`run_shot.py`、`status.py` adapter，將固定 toolkit、第一鏡 JSON、實際圖檔及最終 API graph 封成一包。它在獨立本機 interpreter 呼叫共用 `graph_for_job`，檢查參考圖名稱完整對應，再記錄全部檔案 SHA-256。此步不安裝套件、不下載模型、不提交推論。
+
+先複製樣板到本次工作目錄，編輯副本並代入本次實際圖檔路徑；以下使用暫存目錄示範。封包與執行產物另存本次目錄，不寫入 `templates/`。
 
 ```bash
+mkdir -p /tmp/omni-job
+cp templates/h3-omni/first-job.json /tmp/omni-job/first-job.json
+# 按本次需求編輯 /tmp/omni-job/first-job.json 後再 prepare。
 python3 scripts/colab_video_bootstrap.py prepare \
-  --runtime projects/forum-story-ch2-20261030/runtime \
-  --job projects/colab-startup-pilot-20261031/first-job.json \
-  --input forum-story-yang-school.png=projects/forum-story-ch2-20261030/assets/yang-school.png \
-  --input forum-story-zhang.png=projects/forum-story-ch2-20261030/assets/zhang.png \
-  --input forum-story-classroom.png=projects/forum-story-ch2-20261030/assets/classroom.png \
-  --output /tmp/omni-prepared --id startup-pilot-20261031
+  --runtime scripts/colab_omni_runtime \
+  --job /tmp/omni-job/first-job.json \
+  --input "reference.png=/absolute/path/to/current-user-reference.png" \
+  --output /tmp/omni-prepared --id omni-first-shot
 python3 scripts/colab_video_bootstrap.py inspect --package /tmp/omni-prepared/deployment.zip
 ```
 
-輸出 `deployment.zip`、獨立的 `bootstrap.py` 與 `plan.json`。輸出目錄、部署 ID 及首鏡 ID 按本次任務選定；既有封包不覆寫。專案 adapter 是受信任的本機程式；此工具不是任意第三方 adapter 的 sandbox。
+輸出 `deployment.zip`、獨立的 `bootstrap.py` 與 `plan.json`。輸出目錄、部署 ID 及首鏡 ID 按本次任務選定；既有封包不覆寫。adapter 是受信任的本機程式；此工具不是任意第三方 adapter 的 sandbox。
+
+副本中的 prompt、shot ID、尺寸、時長及 seed 按本次需求修改，`--job` 指向該副本。`--input` 等號右側換成本次使用者提供的實際圖檔路徑；左側是封包內／ComfyUI input 的名稱。樣板不攜帶任何人物或素材。原生 Omni 接受 5–15 秒，寬高須為至少 32 的 32 倍數，總像素不超過 1344×768，可橫式或直式；這是 graph 輸入範圍，不代表任意組合均已實測 GPU 時間／記憶體。
+
+`reference_images` 是 1–9 張不重複圖片的有序清單，對應 `<Picture 1>` 至 `<Picture N>`，每個名稱都需提供同名 `--input`。prompt 使用 canonical 順序的六個非空欄位：`subject_definitions`、`summary`、`retention_analysis`、`detailed_description`、`overall_soundscape`、`non_diegetic_music`；summary 以 `[reference generation]` 開頭。`<Subject N>` 是主體身份，與圖片索引分開；同一主體引用多張圖時維持同一 Subject，依清單順序引用各 Picture，adapter 不改寫這些身份或原 prompt。`ref_image_size` 可省略（canonical 缺省 `max`）或設為 `match`／`max`。此 adapter 僅處理一般 `h3-omni-int8`，不接受 Context Windows 設定。
 
 ### 可選的離線環境包
 
@@ -56,7 +63,7 @@ python3 scripts/comfyui_environment.py inspect /tmp/omni-environment
 ```bash
 python3 /content/bootstrap.py launch \
   --package /content/deployment.zip \
-  --root /content/video-startup-pilot-20261031 \
+  --root /content/video-omni-first-shot \
   --admission /content/admission.json
 ```
 
@@ -80,8 +87,8 @@ python3 /content/bootstrap.py launch \
 ## 狀態、恢復與保存
 
 ```bash
-python3 /content/bootstrap.py status --root /content/video-startup-pilot-20261031
-python3 /content/bootstrap.py fetch --root /content/video-startup-pilot-20261031
+python3 /content/bootstrap.py status --root /content/video-omni-first-shot
+python3 /content/bootstrap.py fetch --root /content/video-omni-first-shot
 ```
 
 - `status` 只讀小型本機檔案：phase、worker identity／heartbeat、下載進度與原首鏡收據，不提交工作。控制通道斷線時用既有的官方 SSH bridge 在同 VM 執行；代理刷新與最長恢復窗口見 [連線故障分流](../skills/colab-video-studio/references/connection-recovery.md)。此工具本身不是帳戶 watcher 或自動 SSH failover 服務。
@@ -96,7 +103,7 @@ python3 /content/bootstrap.py fetch --root /content/video-startup-pilot-20261031
 
 2026-10-31 完成三輪各 45 項離線故障測試，以及兩台 T4 STANDARD 的無生成實測：線上安裝約 39 秒，Linux wheelhouse 實建約 30–39 秒，四次全新目錄離線還原約 24–25 秒；兩個固定 VAE 共 3,416,319,992 bytes 下載與校驗、完整檔／cache hardlink 重用通過。強制中斷 SSH／notebook、失效 token 和本機 handle 遺失後，仍可找回同一 endpoint／worker。詳細證據、限制及資源紀錄見 [無生成演練](../research/colab-preflight-rehearsal-20261031.md)。未執行模型載入或影片推論，未驗證 A100 的生成速度／RAM 峰值。
 
-環境包約 764 MB，包含官方 requirements 的大量範本媒體；VM 內還原比線上安裝少約 15 秒，但本機與 Colab 的包傳輸另需數分鐘。**目前保留 `online` 作為缺省，離線包僅供相容基底與已備妥傳輸的明確使用情境。** 不把還原秒數單獨當成端到端節省。原 0.42.0 首鏡基準包仍標為 `online`，不因本次 0.43.0 無生成測試改寫。
+環境包約 764 MB，包含官方 requirements 的大量範本媒體；VM 內還原比線上安裝少約 15 秒，但本機與 Colab 的包傳輸另需數分鐘。**目前保留 `online` 作為缺省，離線包僅供相容基底與已備妥傳輸的明確使用情境。** 不把還原秒數單獨當成端到端節省。既有封包的模式與來源紀錄維持原樣；新部署使用本次 `prepare` 封存的來源。
 
 ## 無生成前置演練
 
@@ -111,5 +118,3 @@ python3 /content/toolkit/colab_preflight_probe.py snapshot --root /content/colab
 工具不配置／釋放 VM、不載入權重、不 POST prompt。它以無 custom node 的當前 Core 安裝、重用 server 並檢查空 queue／history，測試兩個 VAE 的中斷重開、完整檔重用及 cache hardlink；`--environment-rounds` 額外建包並還原到兩個全新 workspace。下載每次最多 180 秒，worker 最多 900 秒；外部控制器另負責傳輸、恢復期限、累計成本與釋放。`completed_files_reuse=verified` 與 `cross_process_partial_reuse=not_established` 分開記錄；RX 含控制流量，不能當精確 HF 位元組數。
 
 帳戶另有 allocation 時，先記配置前後精確清單；只有其餘 endpoint 保持一致時才用費率差隔離本次成本。帳戶總費率／總扣費不能直接歸給這個測試，也不能因此停止其他任務的 VM。
-
-待測 `projects/colab-startup-pilot-20261031/ready/` 已封存原 Core 0.42.0／`8f04fd6ecf4a548937971e840af2a985529fab76`，只比較啟動／下載／首鏡銜接。後續 [Context Windows 整合](H3_CONTEXT_WINDOWS.md) 已把 canonical catalog 升為 0.43.0；重新 `prepare` 會使用當前來源，應另存新包，不覆寫或混用這份部署基準。

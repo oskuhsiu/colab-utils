@@ -1,0 +1,11 @@
+{
+  "prompt": "integrated_multimodal_description: [Shot 1] A small red toy train rolls slowly from left to right along a wooden track on a clean tabletop. The train stays fully visible in a steady wide shot; its wheels turn as it moves. No dialogue.\noverall_soundscape: Quiet room ambience and gentle wheel clicks on the wooden track.\nnon_diegetic_music: N/A",
+  "width": 864,
+  "height": 480,
+  "duration_seconds": 5,
+  "seed": 42,
+  "loras": [],
+  "run_name": "fast_h3_clip",
+  "generation_mode": "t2va",
+  "reference_paths": []
+}

@@ -206,7 +206,7 @@ def main():
     try:
         if args.command == "init":
             args.project.mkdir(parents=True,exist_ok=False)
-            value = read_json(SCRIPT_DIR.parent / "assets" / "plan.example.json")
+            value = read_json(SCRIPT_DIR.parent / "assets" / "templates" / "new-film" / "plan.json")
             value["project_id"] = identifier(args.project.name)
             value["request"].update(text=args.request,kind=args.kind)
             write_json(args.project / "plan.json",value)

@@ -1,24 +1,25 @@
 # 執行與資料契約
 
-Python3.10+、FFmpeg／ffprobe、已認證的 Google Colab CLI。指令碼的本機部分只用標準函式庫；GPU runtime 才安裝模型依賴。`VIDEO_SKILL` 是本 SKILL.md 所在目錄；指令從持有 project 的工作區執行。
+Python3.10+、FFmpeg／ffprobe、已認證的 Google Colab CLI。指令碼的本機部分只用標準函式庫；GPU runtime 才安裝模型依賴。`VIDEO_SKILL` 是本 SKILL.md 所在目錄；指令從持有 project 的工作區執行。[new-film 計畫樣板](../assets/templates/new-film/plan.json) 是唯讀來源，`init` 會複製到本次指定的 `PROJECT_DIR`；在工作副本編輯，不將製作結果寫回模板目錄。
 
 ```bash
 VIDEO_SKILL=/path/to/colab-video-studio
+PROJECT_DIR=/path/to/current-film
 python3 "$VIDEO_SKILL/scripts/studio.py" init \
-  --project projects/new-film --kind provided-person --request '使用者原文'
+  --project "$PROJECT_DIR" --kind provided-person --request '使用者原文'
 ```
 
 完成 `assets/` 與 `plan.json` 後：
 
 ```bash
-python3 "$VIDEO_SKILL/scripts/studio.py" prepare --project projects/new-film
-python3 "$VIDEO_SKILL/scripts/studio.py" reserve --project projects/new-film --shot s01
+python3 "$VIDEO_SKILL/scripts/studio.py" prepare --project "$PROJECT_DIR"
+python3 "$VIDEO_SKILL/scripts/studio.py" reserve --project "$PROJECT_DIR" --shot s01
 colab --auth oauth2 usage
 colab --auth oauth2 sessions
 # 只有沒有適用 runtime 時才建立，session 名稱要獨立。
 colab --auth oauth2 new -s new-film --gpu "$SELECTED_GPU"
 # SELECTED_GPU 依當次允許硬體和已準備配置設定；RAM 選項只在需要時使用。
-python3 "$VIDEO_SKILL/scripts/studio.py" submit --project projects/new-film \
+python3 "$VIDEO_SKILL/scripts/studio.py" submit --project "$PROJECT_DIR" \
   --attempt s01_RETURNED_ID --session new-film --timeout 3600
 ```
 
@@ -29,8 +30,8 @@ python3 "$VIDEO_SKILL/scripts/studio.py" submit --project projects/new-film \
 失去連線／逾時：
 
 ```bash
-python3 "$VIDEO_SKILL/scripts/studio.py" status --project projects/new-film --attempt s01_RETURNED_ID
-python3 "$VIDEO_SKILL/scripts/studio.py" fetch --project projects/new-film --attempt s01_RETURNED_ID
+python3 "$VIDEO_SKILL/scripts/studio.py" status --project "$PROJECT_DIR" --attempt s01_RETURNED_ID
+python3 "$VIDEO_SKILL/scripts/studio.py" fetch --project "$PROJECT_DIR" --attempt s01_RETURNED_ID
 ```
 
 這是查詢已提交的工作，不重送 inference。VM 消失也不能重新提交原 attempt；本機 ledger 是持久依據。上傳失敗、遠端 Python 失敗、transport 中斷要查具體狀態；本機 CLI 零 exit code 不替代遠端 marker／receipt。
@@ -88,22 +89,22 @@ request + characters + source assets
 ## 檢查與合成
 
 ```bash
-python3 "$VIDEO_SKILL/scripts/studio.py" inspect --project projects/new-film --attempt s01_RETURNED_ID
+python3 "$VIDEO_SKILL/scripts/studio.py" inspect --project "$PROJECT_DIR" --attempt s01_RETURNED_ID
 ```
 
 開啟 `attempts/<id>/evidence/`，填寫 review-template.json 的副本：所有 criterion、實際 reviewer、理由和存在的 evidence IDs；未看清或未聽到寫 unknown。需要 Opus 時見 video-review.md。
 
 ```bash
-python3 "$VIDEO_SKILL/scripts/studio.py" review --project projects/new-film \
-  --attempt s01_RETURNED_ID --file projects/new-film/attempts/s01_RETURNED_ID/review-draft.json
+python3 "$VIDEO_SKILL/scripts/studio.py" review --project "$PROJECT_DIR" \
+  --attempt s01_RETURNED_ID --file "$PROJECT_DIR/attempts/s01_RETURNED_ID/review-draft.json"
 ```
 
 `selection.json` 是 shot ID→attempt ID 的 JSON object，必須包含全部 required shots。多段用 `joins`，看其 manifest 指向的左尾／右首、原照及音軌，填寫 join review。
 
 ```bash
-python3 "$VIDEO_SKILL/scripts/studio.py" joins --project projects/new-film --selection projects/new-film/selection.json
-python3 "$VIDEO_SKILL/scripts/studio.py" assemble --project projects/new-film \
-  --selection projects/new-film/selection.json --join-review projects/new-film/joins/review.json
+python3 "$VIDEO_SKILL/scripts/studio.py" joins --project "$PROJECT_DIR" --selection "$PROJECT_DIR/selection.json"
+python3 "$VIDEO_SKILL/scripts/studio.py" assemble --project "$PROJECT_DIR" \
+  --selection "$PROJECT_DIR/selection.json" --join-review "$PROJECT_DIR/joins/review.json"
 colab --auth oauth2 stop -s new-film
 colab --auth oauth2 usage
 colab --auth oauth2 sessions
@@ -118,17 +119,17 @@ colab --auth oauth2 sessions
 複雜交互先留足模型原始序列，再用有來源的剪輯決策製作短片。`delivery.duration_seconds` 可指定整片秒數，`shots[].duration_seconds` 是原始生成長度，兩者不必相同。原始片的內容review通過後，`edits.json` 以shot ID指定 `start`、`end`（原片秒數）和 `duration_seconds`（成片該段秒數）。每個區間都需保留完整要求動作；必要的速度變化不能掩蓋缺失步驟。
 
 ```bash
-python3 "$VIDEO_SKILL/scripts/studio.py" edit-prepare --project projects/new-film \
-  --selection projects/new-film/selection.json --edits projects/new-film/edits.json --run edit01
-python3 "$VIDEO_SKILL/scripts/studio.py" edit-inspect --project projects/new-film --run edit01
+python3 "$VIDEO_SKILL/scripts/studio.py" edit-prepare --project "$PROJECT_DIR" \
+  --selection "$PROJECT_DIR/selection.json" --edits "$PROJECT_DIR/edits.json" --run edit01
+python3 "$VIDEO_SKILL/scripts/studio.py" edit-inspect --project "$PROJECT_DIR" --run edit01
 ```
 
 實際編碼後的片段位於 `edits/edit01/segments/<shot>/`，保留原始job／review／影片SHA、剪入出時間、速度、source native fps與delivery fps。這是FFmpeg後製，沒有新model inference。每個剪過的片段都要重新填寫并驗證review，不能沿用原始片通過代替剪輯後通過。可用 `studio.py review --file ...` 或 `workflow.accept_review(directory,file)` 儲存剪後review；前者原本定位attempts，只適合原始片，剪後使用後者的明確directory。
 
 ```bash
-python3 "$VIDEO_SKILL/scripts/studio.py" edit-joins --project projects/new-film --run edit01
-python3 "$VIDEO_SKILL/scripts/studio.py" edit-assemble --project projects/new-film \
-  --run edit01 --join-review projects/new-film/joins/review.json
+python3 "$VIDEO_SKILL/scripts/studio.py" edit-joins --project "$PROJECT_DIR" --run edit01
+python3 "$VIDEO_SKILL/scripts/studio.py" edit-assemble --project "$PROJECT_DIR" \
+  --run edit01 --join-review "$PROJECT_DIR/joins/review.json"
 ```
 
 接點review必須指向這一次剪輯的實際檔案與SHA。相同原始selection、不同剪輯run不能共用另一個run的join通過。所有剪後段與接點通過、秒數合計符合delivery，才輸出；最後仍看實際成片。當前這個後製介面不處理含pose/depth等時間控制影片的重取樣，以免用原控制時間0錯比剪後時間；需要這類素材時另做完整控制conform。

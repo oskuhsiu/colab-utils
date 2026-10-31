@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "project_id": "wave-demo",
+  "project_id": "new-film",
   "request": {"text": "A realistic adult in a navy shirt waves once in a bright studio, preserving their appearance.", "kind": "photoreal", "style": "live-action, natural skin texture, soft daylight"},
   "budget": {"max_total_attempts": 3, "max_attempts_per_shot": 2},
   "delivery": {"width": 1280, "height": 704, "fps": 24},

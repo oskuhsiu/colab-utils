@@ -77,11 +77,13 @@ noise + trained sigmas + Euler -> SamplerCustomAdvanced
 
 ## CLI／agent 操作
 
-在已認證的 Colab CLI 環境，從 repo 根目錄執行：
+先複製 tracked [每片設定模板](../templates/fast-h3/clip.json)，修改本次 prompt、seed 與 run name。模板為 864×480、5 秒 T2VA，無參考圖與 LoRA；兩條入口共用相同設定契約。以下從 repo 根目錄執行，只有 `prepare` 是純離線，其餘命令需要已認證的 Colab CLI 與本次執行授權：
 
 ```bash
-# 不配置 GPU 的準備
-python3 scripts/fast_h3_colab.py prepare --backend comfy
+# 複製成自己的每片設定；不配置 GPU 的離線準備
+cp templates/fast-h3/clip.json /tmp/fast-h3-clip.json
+python3 scripts/fast_h3_colab.py prepare --backend comfy \
+  --config /tmp/fast-h3-clip.json
 
 # 建立或沿用指定 L4；沒有 A100 / high-mem 參數
 python3 scripts/fast_h3_colab.py start --session fast-h3-l4
@@ -89,12 +91,12 @@ python3 scripts/fast_h3_colab.py start --session fast-h3-l4
 # 目標一：實際執行修改後的原 H3 notebook cells
 python3 scripts/fast_h3_colab.py setup --backend notebook --session fast-h3-l4
 python3 scripts/fast_h3_colab.py generate --backend notebook --session fast-h3-l4 \
-  --config projects/fast-h3-l4/notebook-smoke.json
+  --config /tmp/fast-h3-clip.json
 
 # 目標二：由 agent 設定 graph 並提交
 python3 scripts/fast_h3_colab.py setup --backend comfy --session fast-h3-l4
 python3 scripts/fast_h3_colab.py generate --backend comfy --session fast-h3-l4 \
-  --config projects/fast-h3-l4/comfy-smoke.json
+  --config /tmp/fast-h3-clip.json
 
 python3 scripts/fast_h3_colab.py status --session fast-h3-l4
 python3 scripts/fast_h3_colab.py fetch --session fast-h3-l4
@@ -103,7 +105,7 @@ python3 scripts/fast_h3_colab.py refresh --session fast-h3-l4
 python3 scripts/fast_h3_colab.py stop --session fast-h3-l4
 ```
 
-同一台 L4 可依序測兩條入口。Config 的 prompt、seed、尺寸與 LoRA 清單會更新對應 node inputs。提交前由 `/object_info` 檢查 node／input／link，再只提交一次。要直接編輯 API graph，可用 [fast_h3_client.py](../scripts/fast_h3_client.py) 的 `validate_graph`、`queue_prompt`、`wait_prompt`，保存自己的 prompt ID 與 receipt。
+同一台 L4 可依序使用兩條入口。Config 只接受模板中的九個欄位；`width`／`height` 必須是正的 32 倍數，總面積不超過 1344×768；`duration_seconds` 為 5–15 的整數，`run_name` 不含路徑分隔符。正式生成前替換範例 prompt；T2VA 保持 `generation_mode="t2va"` 與 `reference_paths=[]`。`prepare` 會驗證設定並將 config、toolkit 與 API graph 寫至 `--output`（預設 `artifacts/fast-h3-l4/`），不建立 Colab session。Config 的 prompt、seed、尺寸與 LoRA 清單會更新對應 node inputs。提交前由 `/object_info` 檢查 node／input／link，再只提交一次。要直接編輯 API graph，可用 [fast_h3_client.py](../scripts/fast_h3_client.py) 的 `validate_graph`、`queue_prompt`、`wait_prompt`，保存自己的 prompt ID 與 receipt。
 
 每輪有獨立 action ID，進度／資源持續抓回 `artifacts/fast-h3-l4/state/`。CLI exit code 0 不算成功，須讀到对应 action PASS 和 FastH3 receipt；斷線先查 status/fetch 原工作，不自動重送。
 
@@ -115,7 +117,7 @@ python3 scripts/fast_h3_colab.py stop --session fast-h3-l4
 
 FastH3 本機 client／workflow／notebook 合約測試通過；原 H3 的 16 個既有合約測試通過。完整套件在改動前已存在一個無關 Qwen notebook cell 數量測試失敗（期待 2，實際 3），沒有修改該部分。
 
-目標一已實測：L4、864×480、5.000 秒／120 frames、32 kHz stereo，4-step Euler／200 次原生 VSA／零 fallback；首次完整工作含權重初始化與解碼為 176.80 秒，取樣的整張 GPU 用量峰值 20.18 GiB。原尺寸首／中／尾影格可見紅色玩具火車從左向右移動。聲音已完整解碼且非靜音，未另做內容聽審。目標二也通過：agent graph 產出相同規格影音，161.43 秒，200 次 VSA、零 fallback，取樣 GPU 峰值 19.97 GiB。以合成低幅度 rank-2 LoRA、strength 0.7 掛上 1 個實際模型 target 並完成推論；這證明載入／接線，不代表真實訓練的風格或人物 LoRA 品質。首／中／尾影格可見藍色玩具帆船由左向右移動。產物保存於 `artifacts/fast-h3-l4/`。
+目標一已實測：L4、864×480、5.000 秒／120 frames、32 kHz stereo，4-step Euler／200 次原生 VSA／零 fallback；首次完整工作含權重初始化與解碼為 176.80 秒，取樣的整張 GPU 用量峰值 20.18 GiB。原尺寸首／中／尾影格可見紅色玩具火車從左向右移動。聲音已完整解碼且非靜音，未另做內容聽審。目標二也通過：agent graph 產出相同規格影音，161.43 秒，200 次 VSA、零 fallback，取樣 GPU 峰值 19.97 GiB。以合成低幅度 rank-2 LoRA、strength 0.7 掛上 1 個實際模型 target 並完成推論；這證明載入／接線，不代表真實訓練的風格或人物 LoRA 品質。首／中／尾影格可見藍色玩具帆船由左向右移動。這些是歷史測試範圍，原始產物不作為此操作流程的輸入依賴。
 
 本輪已釋放 L4：server sessions 空、active assignments 0、計費 0.00 CU/hr。餘額 24.35 → 23.02，本輪共 1.33 CU，包含安裝／下载／診斷與兩條入口的成功生成。
 
