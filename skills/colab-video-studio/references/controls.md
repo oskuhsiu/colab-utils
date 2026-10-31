@@ -11,7 +11,7 @@
 | wan21-vace | control_video、可選mask_video和references | 16fps、4n+1；本地1.3B路徑，品質另驗 |
 | wan22-animate | first_frame、pose_video、face_video；replace加background／mask | 30fps、分段driver；不接通用自訂LoRA |
 
-上表之外，舊 FastH3 的原生 T2VA／實驗圖片參照走 repo 根目錄 `scripts/fast_h3_colab.py`；原生 H3／Continuum／FastH3 Omni 走 [ComfyUI workspace](../../../doc/COMFYUI_WORKSPACE.md)。模式、模型與參數由 [H3 skill](../../minimax-h3-colab/SKILL.md) 及所選路徑管理，不能把某個 student 或 Studio adapter 的輸入契約套給其他路徑。
+上表之外，舊 FastH3 的原生 T2VA／實驗圖片參照走 repo 根目錄 `scripts/fast_h3_colab.py`；原生 H3／Continuum／FastH3 Omni 走 [ComfyUI workspace](../../../doc/COMFYUI_WORKSPACE.md)；Pika H3 Flex 走 [Pika 獨立工具](../../minimax-h3-colab/references/pika-h3-flex.md)，支援文字、首尾圖及有序圖／影片／音訊 references。這些獨立路徑沿用各自的工作與收據，不使用 Studio 的 `settings.backend`。模式、模型與參數由 [H3 skill](../../minimax-h3-colab/SKILL.md) 及所選路徑管理，不能把某個 student 或 Studio adapter 的輸入契約套給其他路徑。
 
 ## 條件與前處理
 

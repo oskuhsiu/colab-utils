@@ -1,3 +1,5 @@
+Pika H3 Flex 新增：[獨立 Colab notebook](notebooks/Pika_H3_Flex_Colab.ipynb)、[CLI](scripts/pika_h3.py) 與[操作說明](skills/minimax-h3-colab/references/pika-h3-flex.md)。指定 `pika` 使用固定版官方六步推論，支援文字、首尾圖與多模態 references；指定 `omni` 沿用下方 FastH3 Omni。預設不安裝、不下載權重、不生成；已做離線檢查，GPU／畫質驗證尚未執行。
+
 FastH3 Omni 新增：[ComfyUI notebook](notebooks/ComfyUI_Colab.ipynb) 的 `h3-omni-int8` 選項（原生 Ref2VA、8步、INT8模型與含視覺塔的INT8 encoder），並可切換 `REF_IMAGE_SIZE=max/match`，表單預設 `max`。[使用方式](doc/COMFYUI_WORKSPACE.md)、[模型與 hybrid 研究](research/h3_omni_20261028.md)。此新增路徑完成離線檢查，未做 GPU 生成／人物相似度對照。
 
 參考方案查核：[YZ 金魚 workflow 與 HyperFlow-Infinity](research/h3_workflow_hyperflow_20261028.md)。前者是 hybrid／12步／SelfLift 配方；後者已使用本地H3，包含固定身份圖、原始latent交接與場景記憶，目前沒有勝過Continuum的同條件比較，也尚未移植至單卡notebook。
@@ -32,7 +34,7 @@ Colab 影片製作的新入口：[`colab-video-studio`](skills/colab-video-studi
 | --- | --- |
 | [video-production](skills/video-production/SKILL.md) | 內容、分鏡、素材、剪輯與成片交付；含[短劇前製模板](skills/video-production/references/drama-preproduction.md) |
 | [colab-video-studio](skills/colab-video-studio/SKILL.md) | Colab 製作計畫、逐段執行與驗收 |
-| [minimax-h3-colab](skills/minimax-h3-colab/SKILL.md) | H3／FastH3 提示、模型契約與工具 |
+| [minimax-h3-colab](skills/minimax-h3-colab/SKILL.md) | H3／FastH3／Pika H3 Flex 提示、模型契約與工具 |
 | [ffmpeg-skill](skills/ffmpeg-skill/SKILL.md) | 本機音畫剪輯、字幕與轉檔 |
 | [strata-colab-start](skills/strata-colab-start/SKILL.md) | Strata Colab runtime 啟動、恢復與釋放 |
 | [strata-colab-client](skills/strata-colab-client/SKILL.md) | 呼叫已運作的 Strata API |

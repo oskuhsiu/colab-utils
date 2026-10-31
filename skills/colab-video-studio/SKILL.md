@@ -11,6 +11,8 @@ description: 規劃並在 Colab 製作影片，從素材與控制輸入、逐段
 
 讀使用者要求與現有 plan／ledger，確定這次要規劃、試片、正式製作、剪輯或審查，以及交付規格、重要內容、限制與已接受的取捨。沿用已有授權；停止製作後的審查或文件工作不恢復生成。例行創作與實作選擇依現有資訊完成，缺項會改變要求或可行性時才詢問。
 
+先沿用使用者指定的模型：`omni` 指 FastH3 Omni 的 `h3-omni-int8` ComfyUI 路徑；`pika` 指 Pika H3 Flex 的[獨立工具](../minimax-h3-colab/references/pika-h3-flex.md)；其他模型依[模型介面](references/controls.md)選路。指定路徑缺能力或資源時先說明缺口，取得變更方向後再換模型。
+
 只讀當次需要的分支：
 
 | 當次工作 | 參考 |
@@ -26,7 +28,7 @@ description: 規劃並在 Colab 製作影片，從素材與控制輸入、逐段
 | 訂判準、委派審查、看影片或放行 | [驗收與放行](references/video-review.md) |
 | 調整原生尺寸、放大或比較速度 | [解析度與後製](references/resolution-upscaling.md) |
 
-H3／FastH3 的提示與模型契約使用相鄰的 [minimax-h3-colab](../minimax-h3-colab/SKILL.md)。兩個 skill 在此 repo 成對提供。執行前由 [模型介面](references/controls.md) 區分 Studio adapter、FastH3 獨立 CLI 與原生 ComfyUI workspace，沿用所選工具的 job／receipt 介面。
+H3／FastH3／Pika H3 Flex 的提示與模型契約使用相鄰的 [minimax-h3-colab](../minimax-h3-colab/SKILL.md)。兩個 skill 在此 repo 成對提供。執行前由 [模型介面](references/controls.md) 區分 Studio adapter 與獨立工具，沿用所選工具的 job／receipt 介面。
 
 ## 製作流程
 
