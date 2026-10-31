@@ -10,7 +10,9 @@ import re
 import uuid
 
 
-PRESETS = ("h3-continuum", "h3-ref2va-vsa", "h3-omni-int8")
+CONTEXT_PRESET = "h3-omni-context-windows"
+PRESETS = ("h3-continuum", "h3-ref2va-vsa", "h3-omni-int8", CONTEXT_PRESET)
+FUSE_METHODS = ("pyramid", "relative", "flat", "overlap-linear")
 DEFAULT_PROMPT = (
     "integrated_multimodal_description: [Shot 1] A small red toy train rolls "
     "steadily across a wooden table. Static wide camera, soft daylight.\n"
@@ -30,6 +32,78 @@ REFERENCE_PROMPT = (
 
 def node(class_type, **inputs):
     return {"class_type": class_type, "inputs": inputs}
+
+
+def _video_frames(duration_seconds):
+    return (max(5, round(duration_seconds * 24)) - 5 + 16) // 17 * 17 + 5
+
+
+def _video_latents(frames):
+    return 2 if frames <= 5 else ((frames - 5) // 17) * 5 + 2
+
+
+def _frame_boundary(latent_boundary):
+    chunks, remainder = divmod(latent_boundary, 5)
+    return chunks * 17 + (0, 1, 5, 9, 13)[remainder]
+
+
+def context_window_plan(duration_seconds, context_length=124, context_overlap=39,
+                        prompt_count=1, split_conds_to_windows=False):
+    """Preview pinned Core's static windows, without importing ComfyUI.
+
+    All start/end bounds are half-open. Frame bounds describe the latent grid,
+    not exact per-prompt timing; Core selects a region from each window center.
+    The last window shifts back to end at the final latent, increasing overlap.
+    """
+    if (type(duration_seconds) not in (int, float) or not math.isfinite(duration_seconds)
+            or not 5 <= duration_seconds <= 30):
+        raise ValueError("Context-window duration must be 5–30 seconds")
+    for name, value, minimum in (("context_length", context_length, 22),
+                                  ("context_overlap", context_overlap, 5)):
+        if type(value) is not int or value < minimum or (value - 5) % 17:
+            raise ValueError(f"{name} must be 17*n+5 real frames, minimum {minimum}")
+    if context_length > 16384:
+        raise ValueError("context_length must not exceed Core MAX_RESOLUTION (16384)")
+    if type(prompt_count) is not int or prompt_count < 1:
+        raise ValueError("prompt_count must be a positive integer")
+    if type(split_conds_to_windows) is not bool:
+        raise ValueError("split_conds_to_windows must be boolean")
+    frames = _video_frames(duration_seconds)
+    total = _video_latents(frames)
+    length = _video_latents(context_length)
+    overlap = min(_video_latents(context_overlap), length - 5)
+    active = total > length
+    split_active = active and split_conds_to_windows and prompt_count > 1
+    bounds = []
+    if active:
+        for start in range(0, total, length - overlap):
+            if start + length >= total:
+                bounds.append((total - length, total))
+                break
+            bounds.append((start, start + length))
+    else:
+        bounds.append((0, total))
+    windows = []
+    previous_end = 0
+    for index, (start, end) in enumerate(bounds):
+        frame_start, frame_end = _frame_boundary(start), _frame_boundary(end)
+        windows.append({
+            "latent_start": start, "latent_end": end,
+            "frame_start": frame_start, "frame_end": frame_end,
+            "overlap_latents": max(0, previous_end - start) if index else 0,
+            "overlap_frames": max(0, _frame_boundary(previous_end) - frame_start) if index else 0,
+            "region_index": (min(prompt_count - 1, int(((start + end - 1) / (2 * total)) * prompt_count))
+                             if split_active else None),
+        })
+        previous_end = end
+    return {"requested_duration_seconds": duration_seconds, "fps": 24,
+            "frames": frames, "duration_seconds": frames / 24, "latents": total,
+            "context_length_frames": context_length, "context_overlap_frames": context_overlap,
+            "context_length_latents": length, "effective_overlap_latents": overlap,
+            "active": active, "prompt_count": prompt_count,
+            "split_active": split_active,
+            "timing_note": "Half-open latent-grid frame bounds; region selection is not exact per-prompt timing.",
+            "windows": windows}
 
 
 def validate_attention(graph):
@@ -61,7 +135,9 @@ def validate_attention(graph):
 
 def build_graph(preset, prompt=None, width=864, height=480, duration_seconds=5,
                 seed=42, reference_image="reference.png", chunks=2, run_name="comfy_h3",
-                ref_image_size=None):
+                ref_image_size=None, context_length=124, context_overlap=39,
+                fuse_method="pyramid", freenoise=True, split_conds_to_windows=False,
+                window_prompts=None):
     if preset not in PRESETS:
         raise ValueError(f"Unknown preset: {preset}")
     if any(type(value) is not int or value < 32 or value % 32 for value in (width, height)):
@@ -76,18 +152,34 @@ def build_graph(preset, prompt=None, width=864, height=480, duration_seconds=5,
         raise ValueError("Chunks must be from 1 to 16")
     if not isinstance(run_name, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", run_name):
         raise ValueError("Run name must be filename-safe")
-    omni = preset == "h3-omni-int8"
-    reference = preset in ("h3-ref2va-vsa", "h3-omni-int8")
+    context = preset == CONTEXT_PRESET
+    omni = preset in ("h3-omni-int8", CONTEXT_PRESET)
+    reference = preset == "h3-ref2va-vsa" or omni
+    if not context and (context_length != 124 or context_overlap != 39 or fuse_method != "pyramid"
+                        or freenoise is not True or split_conds_to_windows is not False
+                        or window_prompts is not None):
+        raise ValueError("Context settings and window_prompts require h3-omni-context-windows")
+    if context:
+        if window_prompts is not None and not isinstance(window_prompts, list):
+            raise ValueError("window_prompts must be an ordered list of complete prompts")
+        if fuse_method not in FUSE_METHODS:
+            raise ValueError(f"fuse_method must be one of {FUSE_METHODS}")
+        if type(freenoise) is not bool:
+            raise ValueError("freenoise must be boolean")
+        context_window_plan(duration_seconds, context_length, context_overlap,
+                            len(window_prompts) if window_prompts else 1, split_conds_to_windows)
     # Preserve the existing Ref2VA starter's sizing; Omni favors reference detail.
     if ref_image_size is None:
         ref_image_size = "max" if omni else "match"
     if ref_image_size not in ("match", "max"):
         raise ValueError("Reference image size must be match or max")
+    if context and window_prompts:
+        prompt = window_prompts[0]
     if prompt is None or prompt == "":
         prompt = REFERENCE_PROMPT if reference else DEFAULT_PROMPT
     if not isinstance(prompt, str) or not prompt.strip():
         raise ValueError("Prompt must be nonempty text")
-    if not (5 <= duration_seconds <= 15 if reference else 4 <= duration_seconds <= 30):
+    if not (5 <= duration_seconds <= (30 if context else 15) if reference else 4 <= duration_seconds <= 30):
         raise ValueError("Duration must be 5–15 seconds for Ref2VA, or 4–30 seconds per Continuum chunk")
     if reference:
         if (not isinstance(reference_image, str) or not reference_image or "\\" in reference_image
@@ -97,14 +189,17 @@ def build_graph(preset, prompt=None, width=864, height=480, duration_seconds=5,
         fields = ("subject_definitions", "summary", "retention_analysis", "detailed_description",
                   "overall_soundscape", "non_diegetic_music")
         pattern = r"\A\s*" + r"\s*".join(field + r":\s*(.+?)" for field in fields) + r"\s*\Z"
-        match = re.fullmatch(pattern, prompt, flags=re.DOTALL)
-        if not match or not all(value.strip() for value in match.groups()):
-            raise ValueError("Ref2VA prompt requires all six nonempty fields in canonical order")
-        if not match.group(2).lstrip().startswith("[reference generation]"):
-            raise ValueError("Ref2VA summary must start with [reference generation]")
-        tags = re.findall(r"<(Picture|Video|Audio)\s+(\d+)>", prompt, flags=re.IGNORECASE)
-        if {(kind.lower(), int(number)) for kind, number in tags} != {("picture", 1)}:
-            raise ValueError("This starter requires exactly the <Picture 1> reference")
+        for text in window_prompts if context and window_prompts else [prompt]:
+            if not isinstance(text, str) or not text.strip():
+                raise ValueError("Each reference prompt must be nonempty text")
+            match = re.fullmatch(pattern, text, flags=re.DOTALL)
+            if not match or not all(value.strip() for value in match.groups()):
+                raise ValueError("Ref2VA prompt requires all six nonempty fields in canonical order")
+            if not match.group(2).lstrip().startswith("[reference generation]"):
+                raise ValueError("Ref2VA summary must start with [reference generation]")
+            tags = re.findall(r"<(Picture|Video|Audio)\s+(\d+)>", text, flags=re.IGNORECASE)
+            if {(kind.lower(), int(number)) for kind, number in tags} != {("picture", 1)}:
+                raise ValueError("This starter requires exactly the <Picture 1> reference")
 
     graph = {
         "1": node("UNETLoader", unet_name=("fasth3_omniref_8step_pruned_int8_convrot.safetensors" if omni
@@ -132,7 +227,7 @@ def build_graph(preset, prompt=None, width=864, height=480, duration_seconds=5,
             "10": node("LoadImage", image=reference_image),
             "11": node("MiniMaxH3ReferenceToVideo", clip=["2", 0], vae=["3", 0], audio_vae=["4", 0],
                        prompt=prompt, width=width, height=height,
-                       length=(max(5, round(duration_seconds * 24)) - 5 + 16) // 17 * 17 + 5,
+                       length=_video_frames(duration_seconds),
                        ref_image_size=ref_image_size, **{"ref_images.ref_image_0": ["10", 0]}),
             "12": node("RandomNoise", noise_seed=seed),
             "13": node("BasicGuider", model=["8", 0], conditioning=["11", 0]),
@@ -141,6 +236,21 @@ def build_graph(preset, prompt=None, width=864, height=480, duration_seconds=5,
             "15": node("VAEDecode", samples=["14", 0], vae=["3", 0]),
             "16": node("VAEDecodeAudio", samples=["14", 0], vae=["4", 0]),
         })
+        if context:
+            graph["17"] = node("MiniMaxH3ContextWindows", model=["8", 0],
+                               context_length=context_length, context_overlap=context_overlap,
+                               fuse_method=fuse_method, freenoise=freenoise,
+                               split_conds_to_windows=split_conds_to_windows)
+            graph["9"]["inputs"]["model"] = ["17", 0]
+            graph["13"]["inputs"]["model"] = ["17", 0]
+            conditioning = ["11", 0]
+            for index, text in enumerate((window_prompts or [prompt])[1:]):
+                identity, combine = str(30 + index * 2), str(31 + index * 2)
+                graph[identity] = node("MiniMaxH3ReferenceToVideo", **dict(graph["11"]["inputs"], prompt=text))
+                graph[combine] = node("ConditioningCombine", conditioning_1=conditioning,
+                                      conditioning_2=[identity, 0])
+                conditioning = [combine, 0]
+            graph["13"]["inputs"]["conditioning"] = conditioning
         images, audio = ["15", 0], ["16", 0]
     else:
         # Explicit shift agrees with Core's native 12/3 defaults; strict upstream

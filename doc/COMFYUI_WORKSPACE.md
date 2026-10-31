@@ -2,6 +2,8 @@
 
 [獨立 Colab notebook](../notebooks/ComfyUI_Colab.ipynb) 提供安裝、UI、API 工作流與程序管理。工具內嵌於 notebook，不需要先 clone 本專案。這是新增入口；原 FastH3 L4 與 DiffSynth notebook 保留原流程。
 
+2026-10-31 新增實驗性 [Omni Context Windows](H3_CONTEXT_WINDOWS.md)，Core pin 升為 0.43.0／`6651247a8b50cefd1436c834f704bdf7767722e9`。新 preset 可規劃 20／30 秒多窗與有序 conditioning；短段直式實測已觀察到共用完整台詞重複，20／30 秒品質與速度比較尚未執行。既有三個 starter graph 保持相同；部署速度基準包另封存舊 0.42.0，以免混入核心升版的影響。
+
 2026-10-28 新增 `h3-omni-int8`：[FastVideo/FastH3-Omni-Comfy](https://huggingface.co/FastVideo/FastH3-Omni-Comfy) 的八步 Ref2VA INT8 ConvRot 模型，以及可選的參考圖尺寸 `REF_IMAGE_SIZE="max" / "match"`。Omni 的 bundle 與 preset 都選 `h3-omni-int8`；使用原生節點、不加 Turbo LoRA 或 VSA transplant。新 Omni 接線及 `max` 設定目前只做離線驗證，未做 GPU 生成／人物相似度實測。[版本、量化選擇與 hybrid 研究](../research/h3_omni_20261028.md) 記錄來源與限制。
 
 初始交付只有來源／離線契約檢查；後續新增 [A100 40GB STANDARD 三組 one-shot 實測](../projects/ninja-continuum-a10040-20261019/RESULTS.md)：同一 server 跑完 Ref Turbo4、Ref Turbo8、Ref Turbo4＋VSA，各36秒、6段，三張人物照片每段均接入 Continuum。三組均通過864幀與完整影音解碼檢查；內容限制、實際接點、費用及原片見結果頁。這不代表其他 preset 或 notebook UI 已驗證，也不把單支片當成一般品質／速度保證。模型磁碟大小仍不等於 VRAM。[來源報告](../research/comfy_h3_extensions_20261019.md) 記錄固定版證據與限制；Veda 本次暫不實作。
@@ -13,7 +15,7 @@
 ## 在 Colab 開啟 UI
 
 1. 自行選擇合適 GPU，開啟 notebook，執行設定與離線計畫格。預設啟用 `continuum`、`ref2va-vsa`，`MODEL_BUNDLE="none"`。先檢視計畫中的版本、模型清單與下載 GiB。
-2. 執行安裝格：使用獨立 venv，沿用既有 Torch/CUDA。執行模型格前，明確選 `h3-continuum`、`h3-ref2va-vsa` 或 `h3-omni-int8`，重跑設定與計畫。`none` 不下載任何模型。
+2. 執行安裝格：使用獨立 venv，沿用既有 Torch/CUDA。執行模型格前，明確選 `h3-continuum`、`h3-ref2va-vsa`、`h3-omni-int8` 或實驗 `h3-omni-context-windows`，重跑設定與計畫。`none` 不下載任何模型。
 3. 執行啟動格，以 Colab 原生 `output.serve_kernel_port_as_iframe` 顯示 UI。`SHOW_COMFYUI=False` 可只啟動 API。要略過安裝／啟動，可關閉 `INSTALL_COMFYUI`／`START_COMFYUI`。
 4. UI 可建立自己的 workflow；要交給工具執行，從 ComfyUI 匯出 **API 格式 JSON**，填入 B 區 `API_WORKFLOW_PATH`。若留空，B 區會依 `PRESET` 建立 starter。`PROMPT` 留空會使用該 preset 對應範例；自填 Ref2VA 提示會檢查六欄與 `<Picture 1>`。`RUN_API=False` 預設不生成；明確開啟後只重跑工作執行格。
 
@@ -28,6 +30,7 @@
 | `h3-continuum` | 37.32 GiB | 分塊延續；Core attention、原生 20-step res_multistep starter，不加 Turbo，不需要上游完整範本的 KJ、Spectrum、rgthree。它不是完整上游 UI 範本。 |
 | `h3-ref2va-vsa` | 44.96 GiB | 實驗性原生 Ref2VA，使用專用 Ref2VA INT8 ConvRot checkpoint、Ref2VA Turbo4、獨立 gate、FP16 video VAE；Euler。不是原 FastH3 T2VA student 的參考圖模式。 |
 | `h3-omni-int8` | 49.15 GiB | FastH3 Omni 原生 Ref2VA，INT8 DiT／含 vision tower 的 INT8 Qwen3-VL／INT8 video VAE／FP32 audio VAE；8-step Euler/simple、guidance 1、shift 12/3。無額外 LoRA、VSA patch 或 custom node；下載量不代表 VRAM 或 L4 容量保證。 |
+| `h3-omni-context-windows` | 49.15 GiB | 實驗：相同 Omni 權重與八步設定，加 Core `MiniMaxH3ContextWindows`。5–30 秒；預設窗長124、重疊39，實際窗數／尾窗／prompt region 由 [Context Windows 計畫](H3_CONTEXT_WINDOWS.md) 核對。 |
 
 以上為固定 catalog 的下載量，還要預留安裝、輸入、輸出及暫存磁碟空間；實際清單以計畫格為準。非空模型下載前，工具會檢查硬體／kernel 條件。
 
@@ -44,7 +47,7 @@ overall_soundscape: Wheels rattle softly.
 non_diegetic_music: N/A.
 ```
 
-`REF_IMAGE_SIZE` 適用 `h3-ref2va-vsa` 及 `h3-omni-int8`，會直接傳入 `MiniMaxH3ReferenceToVideo.ref_image_size`。Notebook 表單預設 `max`；Python `build_graph()` 未指定時，Omni 預設 `max`，既有 Ref2VA-VSA 保留 `match`。
+`REF_IMAGE_SIZE` 適用 `h3-ref2va-vsa`、`h3-omni-int8` 及其 Context Windows 實驗，會直接傳入 `MiniMaxH3ReferenceToVideo.ref_image_size`。Notebook 表單預設 `max`；Python `build_graph()` 未指定時，Omni 預設 `max`，既有 Ref2VA-VSA 保留 `match`。
 
 | 值 | 原生節點實際處理 | 使用取捨 |
 | --- | --- | --- |
@@ -53,7 +56,7 @@ non_diegetic_music: N/A.
 
 這是[原生 Ref2VA 的細節設定](https://docs.comfy.org/tutorials/video/minimax/minimax-h3#setting-the-output-resolution)，不是混合 FL2VA／Ref2VA 權重，也不是人物相似度保證。比較時固定原照、prompt、seed、輸出尺寸、步數，只切換 `match`／`max`，再看臉、髮型與服裝；本次沒有執行這項 GPU 對照。
 
-Omni starter 接一張圖片，使用原生 dense attention；影片／音訊或多圖 references 需自訂 API graph。Omni 已蒸餾成八步，不要再接 Ref Turbo4／Turbo8，也不要套舊 FastH3 V2 的 video shift 10。發布者指出原生 ComfyUI 的 PDD 時間格與 VSA 幾何不同於 FastVideo runtime，所以不能沿用另一 runtime 的速度或品質數字。這份 script 沿用現有 ComfyUI pin；其 H3 模型與 detector 原始碼與 Omni 轉檔使用的版本一致。
+Omni starter 接一張圖片，使用原生 dense attention；影片／音訊或多圖 references 需自訂 API graph。Omni 已蒸餾成八步，不要再接 Ref Turbo4／Turbo8，也不要套舊 FastH3 V2 的 video shift 10。發布者指出原生 ComfyUI 的 PDD 時間格與 VSA 幾何不同於 FastVideo runtime，所以不能沿用另一 runtime 的速度或品質數字。新 Core pin 為 0.43.0，長段 Context Windows 的適用條件與待驗證項目見專頁。
 
 社群 [FL2VA + Ref2VA hybrid](https://huggingface.co/smhfacct/Minimax-H3-fl2va-ref2va-hybrid-models) 是 FL2VA 母模加上後段 Ref2VA AdaLN 權重的實驗性 merge。作者描述的是畫質與 reference 能力的主觀取捨，沒有證明普遍比純 Ref2VA 更像本人；本次保留研究，不把它當作 Omni 或 `max` 的同義設定。
 

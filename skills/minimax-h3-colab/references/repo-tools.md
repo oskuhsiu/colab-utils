@@ -8,6 +8,7 @@
 | FastH3 獨立 notebook | `notebooks/FastH3_ComfyUI_L4.ipynb` | FastH3 notebook 操作 |
 | Notebook 匯出 | `scripts/export_cells.py` | `setup`／`clip` tags 匯出到指定 `--output`；不執行匯出源碼 |
 | 原生 Omni 快速部署 | `scripts/colab_video_bootstrap.py`、`scripts/comfyui_environment.py` | [預備包／離線環境／首鏡銜接](../../../doc/COLAB_QUICK_DEPLOY.md)；沿用原 project adapter，不配置 VM、不另建 job 身分 |
+| Omni Context Windows（實驗） | `scripts/comfyui_workflows.py`、`notebooks/ComfyUI_Colab.ipynb` | 指定 Context Windows 時讀 [實際視窗／prompt region 與20／30秒比較計畫](../../../doc/H3_CONTEXT_WINDOWS.md)；使用新 Core pin；短段有重複台詞等已知限制，20／30秒比較未執行 |
 | FastH3 CLI | `scripts/fast_h3_colab.py --help` | `prepare/start/setup/generate/status/fetch/refresh/stop` 與參數 |
 | Comfy graph | `scripts/fast_h3_workflow.py --help`、`workflows/fast_h3_l4.json`／`.api.json` | graph export 指定 `--output-dir`；不帶此值會重建 canonical workflows |
 | 模型／版本 pin | `scripts/fast_h3_lock.json` | revision、bytes／SHA、時序／VSA 契約 |

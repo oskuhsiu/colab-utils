@@ -1,10 +1,10 @@
 {
   "schema_version": 1,
-  "checked_date": "2026-10-28",
+  "checked_date": "2026-10-31",
   "comfyui": {
     "repo": "https://github.com/Comfy-Org/ComfyUI.git",
-    "revision": "8f04fd6ecf4a548937971e840af2a985529fab76",
-    "version": "0.42.0"
+    "revision": "6651247a8b50cefd1436c834f704bdf7767722e9",
+    "version": "0.43.0"
   },
   "extensions": {
     "continuum": {
@@ -157,6 +157,17 @@
         "h3-ref-vsa-gate"
       ],
       "description": "EXPERIMENTAL native Ref2VA + gate transplant, task-matched Turbo4, Euler/simple and 75% sparsity. NVIDIA 24 GB class with native CUDA Sol kernel required."
+    },
+    "h3-omni-context-windows": {
+      "extensions": [],
+      "assets": [
+        "h3-omni-int8",
+        "h3-text-int8",
+        "h3-video-int8",
+        "h3-audio-fp32"
+      ],
+      "experimental": true,
+      "description": "EXPERIMENTAL FastH3 Omni with native MiniMaxH3ContextWindows after sigma shift. Same four weights, dense attention and 8-step Euler/simple; 5–30 seconds on the 17n+5 frame grid. Defaults: length 124, overlap 39, pyramid, FreeNoise on, split conditioning off. No extra LoRA or gate. Short portrait GPU trials observed repeated dialogue with shared full conditioning; 20/30-second comparison remains unrun."
     }
   },
   "deferred": [

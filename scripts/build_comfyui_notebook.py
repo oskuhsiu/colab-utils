@@ -42,7 +42,7 @@ COMFYUI_PORT = 8190 # @param {type:"integer"}
 TOOLKIT_ROOT = "/content/comfyui-workspace-toolkit" # @param {type:"string"}
 ENABLE_CONTINUUM = True # @param {type:"boolean"}
 ENABLE_REF2VA_VSA = True # @param {type:"boolean"}
-MODEL_BUNDLE = "none" # @param ["none", "h3-continuum", "h3-ref2va-vsa", "h3-omni-int8"]
+MODEL_BUNDLE = "none" # @param ["none", "h3-continuum", "h3-ref2va-vsa", "h3-omni-int8", "h3-omni-context-windows"]
 INSTALL_COMFYUI = True # @param {type:"boolean"}
 START_COMFYUI = True # @param {type:"boolean"}
 SHOW_COMFYUI = True # @param {type:"boolean"}
@@ -73,6 +73,8 @@ print("Workspace:", workspace.root, "Port:", COMFYUI_PORT, "Extensions:", extens
 這裡沒有 GPU 實測或效能保證。請自行選擇合適 Colab GPU；模型下載量不等於 VRAM。Ref2VA-VSA 是實驗性原生 Ref2VA，需專用 Ref2VA 模型、Turbo 與 gate，不沿用 FastH3 T2VA student。兩者是分開的 starter，沒有宣稱可組合。Veda 本次暫不實作，僅保留[研究](../research/comfy_h3_extensions_20261019.md)。
 
 新增 `h3-omni-int8`：[FastVideo FastH3 Omni](https://huggingface.co/FastVideo/FastH3-Omni-Comfy) 的原生 Ref2VA INT8 模型，使用 8 步、guidance 1、shift 12/3，不疊 Turbo LoRA 或 VSA gate transplant。搭配含 vision tower 的 INT8 Qwen3-VL encoder、INT8 video VAE 與 FP32 audio VAE；不需要額外 custom node。模型 bundle 約 49.15 GiB，並非 VRAM 需求或容量保證。
+
+`h3-omni-context-windows` 是 experimental 分支，沿用 Omni 相同四個權重與 8 步 dense attention，使用 Core 0.43.0 的 `MiniMaxH3ContextWindows`，允許 5–30 秒。已有短段直式實測，共用完整台詞曾出現重複；仍屬實驗，20／30 秒比較尚未執行。原 `h3-omni-int8` 仍限 5–15 秒。
 
 使用獨立 root `/content/comfyui-workspace`、port `8190`，與 FastH3 的 root/8188 分開。安裝使用隔離 venv 並保留 Colab 現有 Torch/CUDA。模型受各自授權條款限制。詳細步驟見[操作說明](../doc/COMFYUI_WORKSPACE.md)。
 
@@ -118,11 +120,13 @@ else:
 圖片先上傳至 `<root>/ComfyUI/input/`，`REFERENCE_IMAGE` 填相對檔名。Ref2VA 需使用原生 Ref2VA 的六欄提示與對應 reference 編號。Continuum starter 使用 Core attention，沒有上游範本額外 KJ、Spectrum、rgthree 依賴。Continuum starter 使用原生 20-step res_multistep，未加 Turbo；Ref2VA-VSA 使用對應 Ref2VA Turbo4 / Euler。非 Continuum 的原生 H3 影格需對齊 17n+5，因此輸入 5 秒可產生 124 幀（約 5.167 秒），不保證恰為 5 秒。PROMPT 留空會使用所選 preset 對應的提示範例；自填 Ref2VA 提示必須有六欄及 `<Picture 1>`。先下載所選 preset 的模型，再開啟 RUN_API。server 啟動後更換模型 bundle，需先停止 ComfyUI、下載，再啟動以更新 loader 清單。工作流或擴充改動後需重新確認相容性。
 
 Omni starter 使用原生 Ref2VA、8-step Euler/simple 與 dense attention。`REF_IMAGE_SIZE` 適用 Ref2VA-VSA 與 Omni：`max` 保留最高 2048px 短邊的參考圖細節（不放大小圖）；`match` 按輸出像素面積縮小，較快省記憶體。表單預設 `max`，可能慢數倍、增加記憶體，不能保證身份一致；這不是 FL2VA + Ref2VA hybrid 權重。此 starter 接一張圖片；多圖／影片／音訊 references 可使用自訂 API graph。
+
+只有 `h3-omni-context-windows` 會使用下方 context 設定：length 預設 124、overlap 39 real frames（都需 17n+5；length 最小 22、overlap 最小 5），pyramid、FreeNoise 開、split 關。尾窗會向前移，實際 overlap 可大於設定值。`WINDOW_PROMPTS_JSON` 是完整六欄提示的有序 JSON list；非空 list 會取代 PROMPT，每份都需 `<Picture 1>`，以獨立原生 reference conditioning 加上 `ConditioningCombine` 傳入。split 關時保留全部 conditioning；split 開且實際有多窗時按窗中心選 region，不能視為逐提示精準時間軸。離線可呼叫 `comfyui_workflows.context_window_plan(...)` 查看實際窗與 region；例如預設 20 秒為 481 幀、6 窗，30 秒為 736 幀、9 窗，兩者尾窗實際 overlap 皆為 107 幀。
 """),
             code("workspace-job-settings", '''# @title 6. 可選 API 工作設定
 RUN_API = False # @param {type:"boolean"}
 API_WORKFLOW_PATH = "" # @param {type:"string"}
-PRESET = "h3-continuum" # @param ["h3-continuum", "h3-ref2va-vsa", "h3-omni-int8"]
+PRESET = "h3-continuum" # @param ["h3-continuum", "h3-ref2va-vsa", "h3-omni-int8", "h3-omni-context-windows"]
 PROMPT = "" # @param {type:"string"}
 # Empty uses the selected preset task-matched example; Ref2VA custom text needs all six fields and <Picture 1>.
 WIDTH = 864 # @param {type:"integer"}
@@ -134,16 +138,35 @@ REF_IMAGE_SIZE = "max" # @param ["max", "match"]
 CHUNKS = 2 # @param {type:"integer"}
 RUN_NAME = "comfy_h3" # @param {type:"string"}
 API_TIMEOUT = 1800 # @param {type:"integer"}
+# Only h3-omni-context-windows uses these settings; WINDOW_PROMPTS_JSON replaces PROMPT when nonempty.
+CONTEXT_LENGTH = 124 # @param {type:"integer"}
+CONTEXT_OVERLAP = 39 # @param {type:"integer"}
+FUSE_METHOD = "pyramid" # @param ["pyramid", "relative", "flat", "overlap-linear"]
+FREENOISE = True # @param {type:"boolean"}
+SPLIT_CONDS_TO_WINDOWS = False # @param {type:"boolean"}
+WINDOW_PROMPTS_JSON = "[]" # @param {type:"string"}
 ''', "clip"),
             code("workspace-run", '''# @title 7. 明確開啟 RUN_API 後送出 API 工作流
+API_RESULT = None
+graph = None
+workflow_path = None
 if RUN_API:
     workflow_path = Path(API_WORKFLOW_PATH) if API_WORKFLOW_PATH else workspace.root / "workflows" / "notebook_job.json"
     if not API_WORKFLOW_PATH:
         from comfyui_workflows import build_graph
+        context_settings = {}
+        if PRESET == "h3-omni-context-windows":
+            window_prompts = json.loads(WINDOW_PROMPTS_JSON)
+            if not isinstance(window_prompts, list):
+                raise ValueError("WINDOW_PROMPTS_JSON must be an ordered JSON list of complete prompts")
+            context_settings = dict(context_length=CONTEXT_LENGTH, context_overlap=CONTEXT_OVERLAP,
+                                    fuse_method=FUSE_METHOD, freenoise=FREENOISE,
+                                    split_conds_to_windows=SPLIT_CONDS_TO_WINDOWS,
+                                    window_prompts=window_prompts)
         graph = build_graph(PRESET, prompt=PROMPT, width=WIDTH, height=HEIGHT,
                             duration_seconds=DURATION_SECONDS, seed=SEED,
                             reference_image=REFERENCE_IMAGE, chunks=CHUNKS, run_name=RUN_NAME,
-                            ref_image_size=REF_IMAGE_SIZE)
+                            ref_image_size=REF_IMAGE_SIZE, **context_settings)
         workflow_path.parent.mkdir(parents=True, exist_ok=True)
         workflow_path.write_text(json.dumps(graph, indent=2, ensure_ascii=False) + "\\n")
     API_RESULT = workspace.run_api(workflow_path, timeout=API_TIMEOUT)
