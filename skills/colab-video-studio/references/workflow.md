@@ -22,7 +22,7 @@ python3 "$VIDEO_SKILL/scripts/studio.py" submit --project projects/new-film \
   --attempt s01_RETURNED_ID --session new-film --timeout 3600
 ```
 
-`reserve` 回傳真實 attempt ID，勿照抄示例。`submit` 上傳封存包、執行一段、下載 ZIP，檢查 receipt 與原尺寸完整解碼。成功只到 `technically_valid`。同設定下一段沿用 model；不同 route 切換會釋放舊 adapter。H3 不與 Wan 依賴設定並行執行。
+`reserve` 回傳真實 attempt ID，勿照抄示例。Studio 的 `submit` 是單鏡同步入口：上傳封存包、執行一段、下載 ZIP，檢查 receipt 與原尺寸完整解碼，成功只到 `technically_valid`。批次依 [並行排程](runtime-monitoring.md#批次排程生成保存與驗收並行) 拆開執行、保存與審查；原生 ComfyUI 入口見下節，不把同步 `submit → fetch → review` 迴圈當批次控制器。同設定下一段沿用 model；不同 route 切換會釋放舊 adapter。H3 不與 Wan 依賴設定並行執行。
 
 `submit` 的控制器在等遠端執行時，另開本機監看程序，按 [runtime-monitoring.md](runtime-monitoring.md) 持續抓 `progress`、receipt、資源資料與新增日誌。不要讓等待主程序取代監看。當前共用 `studio.py` 沒有完整資源輪詢服務，需明確配置外部 watcher；只呼叫一次 `status` 不符合此規則。
 
@@ -46,16 +46,32 @@ request + characters + source assets
                  |                 |
                  |          needs_reconcile
                  v
-       generated -> full decode -> technically_valid
-                                     |
-                             inspect time evidence
-                                     |
-                       pass / fail / unknown review
-                                     |
-                          selection + join review
-                                     |
-                         export + final playback QA
+       backend complete ---------> next ready job on GPU
+                 |
+       fetch + identity/hash save
+                 |
+       full decode -> technically_valid -> content review
+                                             |
+                         authorized new retake -> ready priority queue
+                                             |
+                              selection + join review
+                                             |
+                             export + final playback QA
 ```
+
+## 原生 ComfyUI 批次接續
+
+`ComfyWorkspace.submit_api(workflow_path, prompt_id=...)` 保存原 prompt ID／收據後單次提交並返回；`wait_api(prompt_id, timeout=...)` 只等待／對帳原作業，不下載、不重送。`run_api` 保留為兩者的同步 wrapper。批次以獨立 producer 呼叫這兩個方法，原作業 `execution_complete` 後立刻選下一個 ready job；保存 worker 另用原 history／output 身分取回資料。
+
+共用 `scripts/colab_video_pipeline.py` 提供 `Pipeline` 的持久隊列及單一生成、取回、審查工作線。`enqueue` 放入準備完成的 immutable attempt；`priority="retake"` 讓新修正排在尚未提交的一般 attempts 前。真正有輸入依賴的 attempt 先設 `ready=False`，由負責準備該輸入的控制器在條件成立後 `set_ready`；它不會卡住其他 ready attempts。
+
+隊列封存 payload JSON 與 UUID。若 payload 引用外部 workflow／素材路徑，adapter 在 enqueue 前先放入本次固定快照並記 hash，提交前核對；不讓待跑 job 指向仍會被其他 agent 改動的共用圖檔。修正提示或輸入就建立新的 attempt，既有 attempt 的 payload 保留。
+
+`Pipeline.run` 的 `submit`／`wait` callbacks 接既有 backend，`fetch` callback 負責**實際要求的保存目的地**、來源身分及 hash，`review` callback 在獨立工作線做完整解碼與內容審查。Colab 控制器若在 VM 內，只把 ComfyUI 輸出搬到 VM staging，不等於已取回 Mac；此時外部取回工作也要持續並行，資源擁有者須等真正必要產物已保存後才能釋放。把 `fetch` 接成本機 Colab 下載器時，`on_saved_drain` 才可直接作為保存完成後停止所屬 runtime 的通知。
+
+必要取回尚在進行時，控制器繼續接收新 ready jobs，包括審查後加入的重跑；不先進入只下載、不生成的關閉流程。當沒有 ready jobs 且必要取回已結束，才關閉本輪生成窗口並通知資源擁有者。其後才到達的新工作保留待下一輪准入；已因預算或未知提交停止的批次也不會自行重開。
+
+配置 GPU 前就備好這些 callbacks、待跑 jobs、保存目的地、預算准入及獨立 guard。排程核心不配置／釋放 Colab、不推定授權、不自動重抽；停止仍由既有資源擁有者作用於精確 endpoint。提交狀態不確定時對帳原 ID；傳輸失敗可恢復原產物，不新建一次推論。預算的並行完成時間與單一停止餘量以 [runtime-monitoring.md](runtime-monitoring.md#提交前的預算判斷) 為準。
 
 ## plan.json 的關鍵欄位
 

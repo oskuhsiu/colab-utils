@@ -63,7 +63,7 @@ Omni starter 接一張圖片，使用原生 dense attention；影片／音訊或
 
 UI 可使用 ComfyUI 內建節點及本次勾選的擴充，處理自選模型與工作流。工具只載入 catalog 選定的 custom-node 目錄；新增其他擴充需先在 `scripts/comfyui_catalog.json` 加入 repo、固定 commit、目錄與預期 node IDs，再重新封裝 notebook。它不會自動安裝未知工作流缺少的套件。
 
-Ref2VA-VSA 的工具預檢要求 Ampere 以上、24 GB 等級 NVIDIA GPU，並實際跑小型 BF16 Sol CUDA kernel；通過只代表該小型 kernel 可執行，不代表完整模型、參考圖及目標尺寸放得下。下載時逐檔核對固定 revision、bytes 與 SHA-256；已完成且相符的權重可重用，失敗的未完成傳輸不保留。環境無法滿足固定依賴時會停止，錯誤詳見 `state/install.log`、`state/model-preflight.log` 或 `state/server.log`。
+Ref2VA-VSA 的工具預檢要求 Ampere 以上、24 GB 等級 NVIDIA GPU，並實際跑小型 BF16 Sol CUDA kernel；通過只代表該小型 kernel 可執行，不代表完整模型、參考圖及目標尺寸放得下。下載核對固定 revision、bytes 與 SHA-256；預設官方 HF／Xet 路徑最多兩檔並行、重用校驗成功的完整檔，驗證後 hardlink 至本機模型目錄。工具不清 cache，但 partial 由 SDK 管理；Hub 1.33.0／Xet 1.7.0 程序終止後不能接續舊 partial。控制斷線應保留原背景下載，詳見 [快速部署](COLAB_QUICK_DEPLOY.md)。舊 HTTP 串流路徑可明確選 `--download-backend http`，其未完成傳輸不保留；沒有自動 fallback。環境無法滿足固定依賴時會停止，錯誤詳見 `state/install.log`、`state/download-progress.json`、`state/model-preflight.log` 或 `state/server.log`。
 
 ## 路徑與保存
 
@@ -116,7 +116,35 @@ python3 scripts/export_cells.py setup --notebook notebooks/ComfyUI_Colab.ipynb -
 python3 scripts/export_cells.py clip --notebook notebooks/ComfyUI_Colab.ipynb --output /tmp/comfyui-clip.py
 ```
 
-更改 toolkit 後以 `python3 scripts/build_comfyui_notebook.py` 重新封裝；來源為 `comfyui_workspace.py`、`comfyui_workflows.py`、`fast_h3_client.py`、`comfyui_catalog.json`。builder 只重建新 notebook，不修改原 notebook 的程式格。
+更改 toolkit 後以 `python3 scripts/build_comfyui_notebook.py` 重新封裝；內嵌來源由 builder 的 `BUNDLE_FILES` 管理，包含下述批次排程器。builder 只重建此 workspace notebook，不修改舊 FastH3 notebook。
+
+### 批次：生成、取回與審查並行
+
+單鏡 `workspace.run_api(...)` 保留同步行為。批次可拆成 `workspace.submit_api(workflow_path, prompt_id=...)` 與 `workspace.wait_api(prompt_id, timeout=...)`，交由 `colab_video_pipeline.Pipeline` 的單一 GPU producer 自動接續；取回與 QA 各一條工作線，前一鏡未下載／未審完不會卡住下一個 ready job。使用者已授權的重跑以新 ID、`priority="retake"` 加到所有待跑一般鏡頭之前，當前 GPU 工作正常完成。
+
+接線介面如下；在配置 GPU 前把既有 Colab adapter、保存、QA 與准入 callbacks 準備好：
+
+```python
+from colab_video_pipeline import Pipeline
+
+pipeline = Pipeline("/path/to/project/pipeline")
+pipeline.enqueue("s01-take01", {"workflow": "/path/to/s01.api.json"})
+pipeline.enqueue("s02-take01", {"workflow": "/path/to/s02.api.json"})
+
+# submit(attempt): ws.submit_api(attempt["payload"]["workflow"],
+#                               prompt_id=attempt["prompt_id"])
+# wait(attempt, submission): ws.wait_api(attempt["prompt_id"], timeout=...)
+# fetch(attempt, execution): actual transfer + identity/hash verification
+# review(attempt, artifact): local full decode + requested content checks
+pipeline.run(submit=submit, wait=wait, fetch=fetch, review=review,
+             admit=admit_current_budget, on_saved_drain=notify_resource_owner)
+```
+
+這是 adapter 接線範例，callbacks 使用本次既有的執行與傳輸工具。若 controller 與 ComfyUI 同在 VM，`fetch` 只搬到 VM staging 就只代表 VM 保存；Mac 取回另行並行，精確 endpoint 釋放仍須等必要產物實際存回。若 controller 在本機，`fetch` 可直接接 Colab 下載器。排程器不自行配置／停止 Colab、不推定新生成授權、不自動重抽。
+
+`on_saved_drain` 在必要取回完成後、完整內容 QA 結束前通知資源擁有者；當前沒有 ready jobs 時不為未定重跑持續租 GPU。尚未滿足實際輸入依賴的鏡頭用 `ready=False`，輸入準備好再 `set_ready`，其他 ready 鏡頭照常跑。提交狀態不確定就對帳原 UUID，不重送。完整排程、保存積壓及預算關鍵路徑規則見 [共用 runtime 流程](../skills/colab-video-studio/references/runtime-monitoring.md#批次排程生成保存與驗收並行)。本次僅離線驗證控制行為，沒有新增 GPU 效能或畫質結論。
+
+原生 Omni 可先使用 [快速部署](COLAB_QUICK_DEPLOY.md) 封好素材、原 project adapter 與第一鏡，再以單一背景 worker 自動接續 setup → 首鏡。共用 workspace 的 `install --environment PATH` 可還原已驗證且基底相容的離線環境；沒有指定環境包時沿用線上安裝。
 
 2026-10-28 執行 `python3 -m unittest discover -s tests -p 'test_comfyui_*.py' -v`，28 項離線檢查通過，包含來源 schema 的必要欄位／型別接線、三組模型清單完整性、下載損壞與既存檔案保護、server 身分與停止等待、失敗／逾時收據，以及 notebook 內嵌來源、預設行為、匯出編譯與可重現建置。新增檢查確認 Omni 八步、無額外 Turbo／gate、`max`／`match` 傳至原生 conditioning，以及無 custom node 的離線計畫。來源 schema 是固定版本的靜態快照，沒有代替真實 ComfyUI import 或 GPU 生成。
 

@@ -29,6 +29,9 @@ from fast_h3_client import ComfyClient, PromptExecutionError, PromptTimeoutError
 
 CATALOG_PATH = Path(__file__).with_name("comfyui_catalog.json")
 DEFAULT_EXTENSIONS = ("continuum", "ref2va-vsa")
+# Versions already present in the successful 2026-10-30 Omni production base.
+# In particular Transformers 5 uses Hub 1.x; a Hub <1 constraint downgrades it.
+DOWNLOAD_REQUIREMENTS = ("huggingface_hub==1.33.0", "hf_xet==1.7.0")
 
 
 def load_catalog():
@@ -123,7 +126,8 @@ class ComfyWorkspace:
     def _signature(self):
         selected = {key: self.catalog["extensions"][key] for key in self.extensions}
         return hashlib.sha256(json.dumps({"comfyui": self.catalog["comfyui"],
-                                         "extensions": selected}, sort_keys=True).encode()).hexdigest()
+                                         "extensions": selected, "installer_contract": 2,
+                                         "download_requirements": DOWNLOAD_REQUIREMENTS}, sort_keys=True).encode()).hexdigest()
 
     def _bundle(self, name):
         if name not in self.catalog["bundles"]:
@@ -178,7 +182,7 @@ print(json.dumps({'packages':versions,'cuda':torch.version.cuda,'cuda_available'
 """
         return json.loads(subprocess.check_output([str(self.python), "-c", code], text=True).strip().splitlines()[-1])
 
-    def install(self):
+    def install(self, environment=None):
         if self._port_open():
             self._require_owned_server()
             marker = self._server_marker()
@@ -189,6 +193,9 @@ print(json.dumps({'packages':versions,'cuda':torch.version.cuda,'cuda_available'
         identity = self._process_identity(old.get("pid")) if old else None
         if identity and identity == old.get("identity"):
             raise RuntimeError("Stop the existing workspace server before installing, including a server on another port")
+        if environment is not None:
+            from comfyui_environment import restore_environment
+            return restore_environment(self, environment)
         self.state.mkdir(parents=True, exist_ok=True)
         self._checkout(self.catalog["comfyui"], self.comfy)
         for name in self.extensions:
@@ -211,7 +218,7 @@ print(json.dumps({'packages':versions,'cuda':torch.version.cuda,'cuda_available'
         constraint_file.write_text("\n".join(constraints) + "\n")
         requirements = [item for name in self.extensions for item in self.catalog["extensions"][name]["requirements"]]
         self._run([self.python, "-m", "pip", "install", "--disable-pip-version-check", "-c", constraint_file,
-                   "-r", self.comfy / "requirements.txt", *requirements])
+                   "-r", self.comfy / "requirements.txt", *requirements, *DOWNLOAD_REQUIREMENTS])
         versions = self._versions()
         if any(versions["packages"].get(name) != version for name, version in preserved.items()
                if name in versions["packages"]):
@@ -253,7 +260,11 @@ result['sol_kernel']='pass'
         write_json(self.state / "model-preflight.json", {"bundle": bundle, **result})
         return result
 
-    def download_models(self, bundle="none"):
+    def download_models(self, bundle="none", backend="hf", max_workers=2):
+        if backend not in ("hf", "http"):
+            raise ValueError("download backend must be hf or http")
+        if type(max_workers) is not int or max_workers not in (1, 2):
+            raise ValueError("download max_workers must be 1 or 2")
         selected = self._bundle(bundle)
         if not selected["assets"]:
             return {"bundle": bundle, "downloaded": [], "status": "no_models_requested"}
@@ -269,13 +280,27 @@ result['sol_kernel']='pass'
         if shutil.disk_usage(self.root).free < missing_bytes + 2 * 2**30:
             raise RuntimeError("Insufficient disk for the selected weights plus 2 GiB headroom")
         paths = []
-        for item in assets:
-            print("Model:", item["destination"], flush=True)
-            path = download_asset(item, model_path(self.comfy / "models", item["destination"]))
-            paths.append(str(path))
-            write_json(self.state / "download-progress.json", {"bundle": bundle, "verified_paths": paths})
+        if backend == "hf":
+            spec = self.state / "download-spec.json"
+            write_json(spec, {"assets": assets, "model_root": str(self.comfy / "models"),
+                              "cache_dir": str(self.root / "hf-cache"),
+                              "progress_path": str(self.state / "download-progress.json"),
+                              "max_workers": max_workers})
+            # Run in the workspace venv, where the SDK was installed. The control
+            # interpreter and offline plan still require only the standard library.
+            self._run([self.python, Path(__file__).with_name("comfyui_assets.py"), "--spec", spec])
+            progress = json.loads((self.state / "download-progress.json").read_text())
+            if progress["status"] != "completed":
+                raise RuntimeError("HF download did not complete; inspect download-progress.json")
+            paths = progress["paths"]
+        else:
+            for item in assets:
+                print("Model:", item["destination"], flush=True)
+                path = download_asset(item, model_path(self.comfy / "models", item["destination"]))
+                paths.append(str(path))
+                write_json(self.state / "download-progress.json", {"bundle": bundle, "verified_paths": paths})
         result = {"bundle": bundle, "status": "verified", "paths": paths,
-                  "assets": assets, "gpu_generation": "not_run"}
+                  "assets": assets, "download_backend": backend, "gpu_generation": "not_run"}
         write_json(self.state / (bundle + "-models.json"), result)
         return result
 
@@ -396,9 +421,19 @@ result['sol_kernel']='pass'
             time.sleep(0.25)
         return {"server": "stopped", "colab_runtime": "unchanged"}
 
-    def run_api(self, workflow_path, timeout=1800):
-        if timeout <= 0:
-            raise ValueError("Execution timeout must be positive")
+    def _api_run(self, prompt_id):
+        try:
+            identity = str(uuid.UUID(str(prompt_id)))
+        except (ValueError, AttributeError) as error:
+            raise ValueError("API prompt ID must be a UUID") from error
+        return identity, self.root / "runs" / identity
+
+    def submit_api(self, workflow_path, prompt_id=None):
+        """Persist one submission identity and POST once; do not wait or fetch.
+
+        A caller-supplied UUID lets a controller record its job before posting.
+        An existing run is never resubmitted, including after a lost response.
+        """
         graph = json.loads(Path(workflow_path).read_text())
         if not isinstance(graph, dict) or "nodes" in graph or not graph:
             raise ValueError("Use a ComfyUI API graph, not a UI workflow export")
@@ -408,9 +443,8 @@ result['sol_kernel']='pass'
         if marker["signature"] != self._signature():
             raise RuntimeError("Server extension selection differs; stop, install the selection and restart")
         self.client.validate_graph(graph)
-        identity = str(uuid.uuid4())
-        run_dir = self.root / "runs" / identity
-        run_dir.mkdir(parents=True)
+        identity, run_dir = self._api_run(uuid.uuid4() if prompt_id is None else prompt_id)
+        run_dir.mkdir(parents=True, exist_ok=False)
         write_json(run_dir / "workflow.api.json", graph)
         receipt = {"prompt_id": identity, "status": "submitting", "run_dir": str(run_dir),
                    "catalog": self.catalog, "media_validation": "not_run", "content_review": "not_run"}
@@ -420,7 +454,28 @@ result['sol_kernel']='pass'
             if response["prompt_id"] != identity:
                 raise RuntimeError("ComfyUI returned a different prompt identity; inspect queue/history")
             receipt["status"] = "queued"
+        except Exception as error:
+            receipt.update(status="submission_or_connection_unknown", error_type=type(error).__name__)
+            raise
+        finally:
             write_json(run_dir / "receipt.json", receipt)
+            print("Receipt:", run_dir / "receipt.json", "Prompt:", identity, flush=True)
+        return receipt
+
+    def wait_api(self, prompt_id, timeout=1800):
+        """Reconcile an existing run by its original ID; never submit a prompt."""
+        if timeout <= 0:
+            raise ValueError("Execution timeout must be positive")
+        identity, run_dir = self._api_run(prompt_id)
+        receipt = json.loads((run_dir / "receipt.json").read_text())
+        if receipt.get("prompt_id") != identity:
+            raise ValueError("Stored receipt differs from the requested prompt identity")
+        if receipt["status"] == "execution_complete":
+            return receipt
+        try:
+            marker = self._require_owned_server()
+            if marker["signature"] != self._signature():
+                raise RuntimeError("Server extension selection differs; reconcile the original server")
             history = self.client.wait_prompt(identity, timeout=timeout)
             write_json(run_dir / "history.json", history)
             receipt.update(status="execution_complete", outputs=history.get("outputs", {}))
@@ -439,6 +494,13 @@ result['sol_kernel']='pass'
             print("Receipt:", run_dir / "receipt.json", "Prompt:", identity, flush=True)
         return receipt
 
+    def run_api(self, workflow_path, timeout=1800):
+        """Compatible single-job wrapper; batch controllers can split these calls."""
+        if timeout <= 0:
+            raise ValueError("Execution timeout must be positive")
+        receipt = self.submit_api(workflow_path)
+        return self.wait_api(receipt["prompt_id"], timeout=timeout)
+
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
@@ -448,13 +510,16 @@ def main():
     parser.add_argument("--extensions", default=",".join(DEFAULT_EXTENSIONS))
     parser.add_argument("--bundle", default="none", choices=tuple(load_catalog()["bundles"]))
     parser.add_argument("--workflow", type=Path)
+    parser.add_argument("--environment", type=Path, help="Verified offline environment directory; no online fallback")
+    parser.add_argument("--download-backend", choices=("hf", "http"), default="hf")
+    parser.add_argument("--download-workers", type=int, choices=(1, 2), default=2)
     parser.add_argument("--timeout", type=int, default=1800)
     args = parser.parse_args()
     workspace = ComfyWorkspace(args.root, args.port, args.extensions)
     if args.command == "run" and args.workflow is None:
         parser.error("run requires --workflow")
-    actions = {"plan": lambda: workspace.plan(args.bundle), "install": workspace.install,
-               "download": lambda: workspace.download_models(args.bundle), "start": workspace.start,
+    actions = {"plan": lambda: workspace.plan(args.bundle), "install": lambda: workspace.install(args.environment),
+               "download": lambda: workspace.download_models(args.bundle, args.download_backend, args.download_workers), "start": workspace.start,
                "status": workspace.status, "stop": workspace.stop,
                "run": lambda: workspace.run_api(args.workflow, args.timeout), "workflows": workspace.stage_workflows}
     print(json.dumps(actions[args.command](), indent=2, ensure_ascii=False))

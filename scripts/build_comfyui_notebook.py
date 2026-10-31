@@ -5,7 +5,8 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-BUNDLE_FILES = ("comfyui_workspace.py", "comfyui_workflows.py", "fast_h3_client.py", "comfyui_catalog.json")
+BUNDLE_FILES = ("comfyui_workspace.py", "colab_video_pipeline.py", "comfyui_assets.py", "comfyui_environment.py",
+                "comfyui_workflows.py", "fast_h3_client.py", "comfyui_catalog.json")
 BUNDLE_START = "# BEGIN EMBEDDED COMFYUI WORKSPACE TOOLKIT\n"
 BUNDLE_END = "# END EMBEDDED COMFYUI WORKSPACE TOOLKIT\n"
 
@@ -74,6 +75,8 @@ print("Workspace:", workspace.root, "Port:", COMFYUI_PORT, "Extensions:", extens
 新增 `h3-omni-int8`：[FastVideo FastH3 Omni](https://huggingface.co/FastVideo/FastH3-Omni-Comfy) 的原生 Ref2VA INT8 模型，使用 8 步、guidance 1、shift 12/3，不疊 Turbo LoRA 或 VSA gate transplant。搭配含 vision tower 的 INT8 Qwen3-VL encoder、INT8 video VAE 與 FP32 audio VAE；不需要額外 custom node。模型 bundle 約 49.15 GiB，並非 VRAM 需求或容量保證。
 
 使用獨立 root `/content/comfyui-workspace`、port `8190`，與 FastH3 的 root/8188 分開。安裝使用隔離 venv 並保留 Colab 現有 Torch/CUDA。模型受各自授權條款限制。詳細步驟見[操作說明](../doc/COMFYUI_WORKSPACE.md)。
+
+多鏡批次使用內嵌 `colab_video_pipeline.Pipeline`：GPU 自動接續 ready jobs，取回與 CPU 驗證／審查獨立並行；修正 take 排在尚未提交的一般 jobs 前。原生 `submit_api`／`wait_api` 可分開接線，下面的 `run_api` 仍是單鏡同步入口。配置 GPU 前先接好實際保存目的地、預算准入及精確 endpoint 停止通知，參見操作說明的批次章節。
 
 ## A. 預覽、安裝與開啟 UI
 """),

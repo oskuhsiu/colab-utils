@@ -37,14 +37,17 @@ class PromptTimeoutError(TimeoutError):
 
 
 class ComfyClient:
-    def __init__(self, base_url="http://127.0.0.1:8188", timeout=30):
+    def __init__(self, base_url="http://127.0.0.1:8188", timeout=30, before_submit=None):
         parsed = urlsplit(base_url)
         if (parsed.scheme not in ("http", "https") or not parsed.hostname
                 or parsed.username or parsed.password or parsed.query or parsed.fragment):
             raise ValueError("base_url must be an HTTP(S) server URL without credentials or query")
         if timeout <= 0:
             raise ValueError("timeout must be positive")
+        if before_submit is not None and not callable(before_submit):
+            raise ValueError("before_submit must be callable")
         self.base_url, self.timeout = base_url.rstrip("/"), timeout
+        self.before_submit = before_submit
 
     def _open(self, path, data=None, timeout=None):
         if not path.startswith("/") or path.startswith("//"):
@@ -163,6 +166,9 @@ class ComfyClient:
         payload = {"prompt": graph, "prompt_id": identity}
         if extra_data is not None:
             payload["extra_data"] = extra_data
+        # Admission runs after schema checks, immediately before the one POST.
+        if self.before_submit is not None:
+            self.before_submit(identity)
         result = self.post_json("/prompt", payload)
         if result.get("error") or result.get("node_errors") or not result.get("prompt_id"):
             raise ComfyHTTPError(200, result)

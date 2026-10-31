@@ -17,7 +17,7 @@ Repo lock 固定 ComfyUI `a4b5a045e56fc334903db8457b728b64e006119c`、VSA pack `
 ## Proxy 與原作業恢復
 
 1. 固定邏輯 session 與既有 assignment endpoint，讀 action-result／progress、Comfy queue／history 和 receipt，區分未上傳、未開始、已入隊、執行中、完成、失敗。CLI stdout、IDLE 或 connection lost 各自只是一項訊號。
-2. Proxy／檔案存取失效時，用 `scripts/fast_h3_colab.py refresh --session <目標> --output <run-dir>` 更新**該 endpoint**；helper 比對 assignment 並要求既有 FastH3 runtime 目錄，refresh 不建立 VM。尚未進入 setup 的情況先用基礎檔案／kernel 檢查定位，不把缺少 runtime 目錄當成失去 assignment。以小型讀取／ping 驗連線，避免輸出含 token URL。Endpoint 已變或無 assignment 時先釐清資源狀態。
+2. Proxy／檔案存取失效時，先按 [Studio 連線故障快速分流](../../colab-video-studio/references/connection-recovery.md) 查原 endpoint、租約及可用通道。**FastH3 獨立 CLI** 可用 `scripts/fast_h3_colab.py refresh --session <目標> --output <run-dir>`；helper 比對 assignment 並要求既有 FastH3 runtime 目錄，refresh 不建立 VM。原生 ComfyUI／Omni 不套用此目錄檢查；尚未進入 setup 時也不把缺少 runtime 目錄當成失去 assignment。以小型讀取確認連線，避免輸出含 token URL。
 3. 已入隊的 prompt 用 queue／history 追蹤並 fetch 原結果；不能用重新 generate 來恢復通訊。未開始的工作只有在確認狀態及原授權允許時才送出。`fetch` 取 latest 技術完成產物，仍須比對目標 prompt ID，不能把上一工作的 latest 當本次結果。
 
 FastH3 CLI 每個 action 有獨立 ID，PASS 必須匹配該 ID。輸出目錄的 `state` 保留拉回的 progress／telemetry／action-result；遠端 runtime 的 `runs` 保存 prompt ID、graph、history、receipt、媒體，`latest.json` 是最近技術完成結果定位。恢復前先找本次身分，不猜預設 session 或路徑。
