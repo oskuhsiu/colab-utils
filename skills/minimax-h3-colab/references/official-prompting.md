@@ -50,6 +50,8 @@ non_diegetic_music:
 
 `detailed_description` 建立風格後以 `[Shot 1]` 起頭，首鏡不帶 cut timestamp；後鏡如 `[Shot 2] At 00:03.500, ...`，時間遞增且在片長內。首次清楚出現人物時用 Subject 及具體可見特徵，後鏡沿用。Ref 指南通常建議 350–500 英文詞，依內容分配，不用重複限制湊詞。攝影 `pull out` 指退後，`zoom out` 指焦距變化；描述可見過程，區分人物移動與鏡頭移動。
 
+本地分鏡依 [段內時間線與具體表演](../../video-production/references/intrashot-staging.md) 細化動作、注意力與對話輪替，並寫入 `detailed_description`（Base 則為 `integrated_multimodal_description`）。同一連續鏡頭的時間窗保留在同一 `[Shot N]` 內；只有實際切鏡才新增 Shot。把人物在對誰說、看向誰／物件及聽者如何反應寫進描述，不以參考圖的正面姿勢替代當場互動。這是本地提示寫法，不新增 backend 欄位或時間硬控制。
+
 說話在主時間軸用 `<Subject N> (S1) ... <d>[語言] 原台詞</d>`。S 編號依本段實際發聲順序並跨鏡沿用，不等於 Subject 編號；未發聲者不加 S。跨片段需要聲線一致時另保存角色→聲音描述。旁白可用 `says in an off-screen voiceover` 描述；畫面人物的發音動作須另依下述本地發聲方式指定。跨鏡台詞用 `<scenetrans>`，片尾截斷用 `<cutoff>`。
 
 `overall_soundscape` 描述環境、物理動作與非語言聲音；`<d>` 台詞留在主時間軸。`non_diegetic_music` 描述觀眾聽到的配樂，無配樂寫 `N/A`。

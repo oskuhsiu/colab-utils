@@ -28,12 +28,14 @@
 
 故事段落可以包含多個鏡頭；一個生成工作能否完成這些切鏡，取決於實際模型與已驗證能力。需要可靠切鏡時，拆成可生成的鏡頭後剪接。把每鏡的敘事目的、場景／角色／道具 ID、聲音、可見動作、初末態及接點寫清楚，讓生成與剪輯使用同一份內容依據。
 
+按 [段內時間線與具體表演](intrashot-staging.md) 決定鏡頭長度，並細化同一鏡頭內的動作、注意力與說話輪替；將片內時間窗與實際切鏡分開標記。
+
 台詞以自然試讀或已有音軌估時，再留動作、停頓及反應時間。容納不下時調整剪輯或拆鏡；旁白和對白保留原文及說話者，避免提示詞轉寫時新增情節。
 
 ## 從分鏡轉成模型提示
 
 - **靜態起幀**：描述起始構圖、人物位置、外觀、場景和光線，選能支持後續動作的狀態。
-- **動態內容**：按本鏡時間順序描述觸發、表情／行為反應及結果；需標時間窗時，涵蓋預定片長且前後相接。每段集中在可辨認的動作，留足情緒轉折與反應時間。
+- **動態內容**：將段內時間線轉成按順序發生的觸發、具體動作、注意力／表情反應及結果，保留當段的機位與空間關係。
 - **聲音**：分清逐句發聲方式、表演、嘴型、可聽對象、環境音與配樂，標出說話者及對應時點。聲線身份跨鏡保留，語氣依當場情緒變化。依模型是否支援原生語音與所需控制，決定送入生成或留給後製。
 - **參考綁定**：從資產 ID 追到實際檔案、用途和輸入順序，再轉成所選 backend 的語法。H3 使用 [H3 提示契約](../../minimax-h3-colab/references/official-prompting.md)；Studio 使用 [資料與執行契約](../../colab-video-studio/references/workflow.md)。
 
@@ -67,9 +69,11 @@
 鏡頭 ID／所屬節拍與場次／敘事目的：
 場景 ID／人物 IDs／關鍵道具 IDs：
 景別與運鏡／預計剪輯長度／生成長度：
+片內時間線（各窗的起訖、具體動作與結果、注意力／表情、聲音與嘴型；實際切鏡另標）：
 初態 → 可見動作與結果 → 末態／下一鏡接點：
 初始情緒 → 觸發與可見反應 → 結束情緒／觀眾感受：
 逐句台詞原文與說話者／voice_mode／delivery（重音、語速、氣息、停頓）：
+說話對象／說者與聽者的視線、姿態及反應時機：
 逐句嘴型／聲音聽感與位置／可聽對象／語音時點：
 聲線身份／環境音、動作音效與配樂時點：
 起幀提示／動態提示／實際參考檔案與輸入順序：
@@ -87,5 +91,7 @@
 - [人物](https://github.com/chatfire-AI/huobao-drama/blob/3c6fdd68a6c21d4fbfae2689344d88063217abef/backend/workspace/skills/prompt-generator/character-prompt/SKILL.md)、[場景](https://github.com/chatfire-AI/huobao-drama/blob/3c6fdd68a6c21d4fbfae2689344d88063217abef/backend/workspace/skills/prompt-generator/scene-prompt/SKILL.md)、[道具](https://github.com/chatfire-AI/huobao-drama/blob/3c6fdd68a6c21d4fbfae2689344d88063217abef/backend/workspace/skills/prompt-generator/prop-prompt/SKILL.md)與[影片提示](https://github.com/chatfire-AI/huobao-drama/blob/3c6fdd68a6c21d4fbfae2689344d88063217abef/backend/workspace/skills/prompt-generator/video-prompt/SKILL.md)。
 
 2026-10-30 修改：以繁體中文整併前製流程與模板；將上游固定段長、三秒分段、字數估時、道具數量及多視圖版式改為依作品和模型決定；改用本 repo 的資產／job 交接，保留既有生成與驗收流程。
+
+2026-10-31 修改：接入共用段內時間線與具體表演指引，補上片內過程、對話對象、視線及聽者反應的交接欄位。
 
 本文件（含上方模板）的整理改寫內容採 [CC BY-NC-SA 4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/)，沿用[上游授權](https://github.com/chatfire-AI/huobao-drama/blob/3c6fdd68a6c21d4fbfae2689344d88063217abef/LICENSE)的姓名標示、非商業性與相同方式分享條件及免責條款。此標示適用於本文件；repo 其他既有檔案依各自授權處理。
