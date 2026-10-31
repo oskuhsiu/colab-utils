@@ -46,6 +46,8 @@ non_diegetic_music:
 
 本人外貌、扮演角色與新服裝分開定義。同人原照與定裝照一起輸入時，綁定同一身份並區分各來源用途。`retention_analysis` 對已定義內容列出 shots、理由及 `fully_preserved`／`partially_preserved`／`attribute_transfer`／`weak_reference`；關係相對於定義用途判斷。只定義臉髮時，新服裝不改變臉髮的保留範圍；定義整人含原衣服時，換裝須列部分保留。這些標記是輸入意圖。
 
+規劃或補製人物圖時讀本地 [人物參照](../../video-production/references/character-references.md)。同人全身、臉部及角度圖只引用實際送入的 Picture，合併到同一 Subject 並說明各自用途；身分圖的背景或正面姿勢不自動成為當鏡場景與演出朝向。
+
 `summary` 以實際任務標籤開始，如 `[reference generation]`。`video editing`／`video continuation` 只用於實際來源影片；另有 `keyframe completion`、`audio reuse`、`audio reference`，按資料用途選。
 
 `detailed_description` 建立風格後以 `[Shot 1]` 起頭，首鏡不帶 cut timestamp；後鏡如 `[Shot 2] At 00:03.500, ...`，時間遞增且在片長內。首次清楚出現人物時用 Subject 及具體可見特徵，後鏡沿用。Ref 指南通常建議 350–500 英文詞，依內容分配，不用重複限制湊詞。攝影 `pull out` 指退後，`zoom out` 指焦距變化；描述可見過程，區分人物移動與鏡頭移動。
