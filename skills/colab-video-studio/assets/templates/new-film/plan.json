@@ -13,7 +13,7 @@
   "shots": [{
     "id": "s01", "duration_seconds": 5, "width": 1280, "height": 704, "seed": 20260930,
     "characters": ["actor"], "inputs": {"first_frame": "opening"}, "audio": "none", "motion_precision": "natural",
-    "prompt": "Live-action medium shot of the adult in the opening frame, wearing the same plain navy shirt in the same bright studio. Preserve the face, hair, clothing, background and soft window lighting. The person raises their right hand, waves once with an open palm, lowers the hand and settles into the opening pose. A fixed eye-level camera keeps their face and raised hand fully in frame. Natural skin texture and restrained expression.",
+    "prompt": "Live-action medium shot of the adult in the opening frame, wearing the same plain navy shirt in the same bright studio. Preserve the face, hair, clothing, background and soft window lighting. The person raises their right hand, waves once with an open palm, lowers the hand and settles into the opening pose. A fixed eye-level camera keeps their face and raised hand fully in frame. Natural skin texture.",
     "negative_prompt": "duplicate people, plastic skin, malformed hands, flicker, subtitles",
     "start_state": {"scene": "bright-studio", "wardrobe": "navy-shirt", "hand": "lowered"},
     "end_state": {"scene": "bright-studio", "wardrobe": "navy-shirt", "hand": "lowered"},

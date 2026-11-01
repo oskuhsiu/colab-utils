@@ -15,7 +15,7 @@
 
 文字改編先把環境與動作描寫轉成可見的空間、道具、光線、行為及聲音；角色內心可由表演或必要心聲承載，旁白依所選敘述觀點提供資訊，避免按原文字數填滿片長。
 
-含角色表演、對白或內心話的敘事片，生成前必讀 [情緒與表演](../../video-production/references/emotion-and-performance.md)：在劇本與分鏡建立情緒進程、逐句表演，以及口說／心聲／無聲說話等模式的聲音和嘴型關係，再編譯最終提示。
+含角色表演、對白或內心話的敘事片，生成前必讀 [情緒與表演](../../video-production/references/emotion-and-performance.md)：依劇本證據為各角色的重要節拍選 E0–E4，記 felt／shown 的起始、峰值、結束及壓抑理由；建立具體反應、逐句表演，以及口說／心聲／無聲說話等模式的聲音和嘴型關係，再編譯最終提示。避免把日常、蓄勢與高潮都寫成同一套微表情。
 
 小說／短劇改編或跨集製作時，可用相鄰 skill 的 [短劇前製與交接模板](../../video-production/references/drama-preproduction.md) 整理劇本、共用角色／場景／關鍵道具及逐鏡聲畫。轉成 Studio job 時，再依 [執行契約](workflow.md) 填入實際 asset IDs、`inputs` 與 `start_state`／`end_state`；前製表本身不是可提交的 `plan.json`。
 
@@ -29,10 +29,35 @@
 
 喜劇才檢查鋪陳、期待、揭露與反應；懸疑、產品展示或教學按其目的審查。複雜互動需辨認哪些結果必須看見，避免只安排起態和末態卻沒有因果。
 
+## 將情緒強度交給生成與驗收
+
+把強度標註轉成符合當鏡時序的表情、動作、呼吸與逐句語氣；級別本身不是控制參數。新語音 job 依 [對白估時與語速](../../video-production/references/dialogue-pacing.md) 編譯：視覺／動作放進 base prompt，逐句表演放 `dialogue_timing.utterances[].delivery`，台詞只放 `text`，再核對 `dialogue_timing_result` 與 job 最終 `shot.prompt`。若前製工具使用 `visual_prompt_en`／`delivery`，也追到真正合成後的內容；不要在 base 預放 `<d>` 或重複對白時窗。
+
+Studio 會保留 shot 內的附加標註並交給 reviewer，但 backend 不會自動解讀情緒級別；只放在 plan 頂層的全片情緒表也不會自動進入各 job。felt／shown 留在 shot 標註或 criteria，不加到只接受既定欄位的 timing 物件／utterance。強度不自動改 `rate_multiplier` 或片長；語氣改動若影響發聲時間，按試讀／估計更新預算。情緒轉折可以在同一完整互動內發生，沿用連續鏡頭規劃。
+
+為重要表演在既有 `criteria` 補上強度目標、事件區間與可觀察錨點，讓「有一點情緒」不會直接等於達標。視覺與必須聽驗的表演分開列；下列是恐懼 shown E3 的局部示例，合併到當鏡 criteria，保留原有必要判準並依實際發聲模式改寫：
+
+```json
+[
+  {
+    "id": "performance-visual",
+    "kind": "performance",
+    "requirement": "After recognizing the threat at the doorway, the character's ongoing action abruptly stops, the hand tightens around the phone and the body recoils. These cues sustain the planned strong fear (shown E3) through the end instead of a passing worried glance. Judge visible acting, not an inferred inner state."
+  },
+  {
+    "id": "performance-delivery",
+    "kind": "audio",
+    "requirement": "During the spoken warning, the first phrase catches, a brief pause separates the phrases, and the remaining words rush out in a frightened whisper. Quiet volume must retain urgency; verify by listening, or mark unknown."
+  }
+]
+```
+
+在既有 `qa.event_windows` 為重要反應安排涵蓋觸發前後的取樣；現有 action 等必要事件窗仍需保留。單張臉部畫面或字幕不能證明完整強度變化。完全無聲的鏡頭只加適用的視覺判準，不為套用示例新增台詞或聲軌。
+
 ## 規劃完成條件
 
 對照要求，確認每項重要內容有畫面／聲音承載，相鄰鏡頭的資訊與狀態能接上，且選定模型或控制素材能接收所需條件。指出有待試片的能力，不將文字描述當成已實現。
 
-抽查實際序列化提示中的段內動作、互動對象／視線、情緒轉折、逐句 `delivery`、發聲方式、嘴型與聲音處理，確認上游標註沒有在編譯時遺漏或被共用設定覆蓋。這些標註須轉成 backend 支援的提示／後製設定，不預設現有 adapter 自動接收新欄位。
+抽查實際序列化提示中的段內動作、互動對象／視線、情緒強度與轉折、逐句 `delivery`、發聲方式、嘴型與聲音處理，確認上游標註沒有在編譯時遺漏或被共用設定覆蓋。對照預定級別所需的可讀證據，移除不合劇情的固定克制／平穩語氣；有來源依據的壓抑仍保留。這些標註須轉成 backend 支援的提示／後製設定，不預設現有 adapter 自動接收新欄位。
 
 節奏有風險時，以紙上剪接、已有素材或經授權的簡單 animatic 檢視實際長度；敘事或理解有爭議時可做獨立審稿。按任務複雜度選擇驗證，規劃通過不等於藝術品質或生成結果通過。

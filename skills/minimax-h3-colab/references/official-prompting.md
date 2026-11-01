@@ -60,13 +60,41 @@ non_diegetic_music:
 
 ## 本地表演與發聲方式交接
 
-含角色表演或內心話時，生成前依 [情緒與表演](../../video-production/references/emotion-and-performance.md) 決定情緒進程、逐句 `delivery`、`voice_mode`、嘴型及聲音聽感／可聽對象。這是本地製作標註，不是新增 H3 欄位或特殊 tag；在既有畫面與語音描述中表達，實際能力另驗。
+含角色表演或內心話時，生成前依 [情緒與表演](../../video-production/references/emotion-and-performance.md) 判定劇本所需的 E0–E4 強度，分開 felt／shown 的進程，決定具體表演錨點、逐句 `delivery`、`voice_mode`、嘴型及聲音聽感／可聽對象。這是本地製作標註，不是新增 H3 欄位、特殊 tag 或 guidance 對照表；在既有畫面與語音描述中表達，實際能力另驗。
 
 把逐句的語速、重音、停頓、氣息與情緒變化寫進當句發聲描述，與動作、表情和時點接上；Ref2VA 放在 `detailed_description`，Base 放在 `integrated_multimodal_description`，維持各自原有欄位。共用角色文字保留聲線身份，當句表演照分鏡轉入；核最終序列化文字，而非只檢查 metadata 有 `delivery`。表演、模式、音效及聲音處理寫在台詞 tag 外，`<d>[語言] ...</d>` 只放實際要聽到的文本。
 
+新語音 job 走 [對白估時與語速](../../video-production/references/dialogue-pacing.md) 的 compiler：base 保留視覺／動作與既有欄位，逐句語氣放 `utterances[].delivery`，台詞只放 `text`，由 compiler 插入 `<d>` 與發聲目標。不要將包含 `<d>` 的完成稿再當 base 編譯，也不要把 felt／shown 塞進 timing schema。檢查的是編譯後 prompt；情緒強度不自動改變語速或要求台詞填滿片長。
+
+例如劇本要求認出門外威脅後，恐懼由 E1 升至 E3，但為免被發現而壓低聲音。下列為 base 的視覺／動作局部內容；完整 Ref2VA base 仍使用既有六欄與實際來源綁定，這段放在 `detailed_description` 的同一 `[Shot 1]` 內：
+
+```text
+On recognizing the figure at the doorway, <Subject 1> abruptly stops typing, fixes her gaze on the door and tightens her grip on the phone already in her hand. She recoils one step. She keeps watching the doorway with her hand clenched around the phone through the end of the shot.
+```
+
+對應的 timing 輸入如下；Studio 放入 `shot.dialogue_timing`，原生 ComfyUI 放入 `timing.json`。示例的最早起點與末段反應是當鏡工作假設，依實際表演調整，不作通用定值：
+
+```json
+{
+  "utterances": [
+    {
+      "speaker": "<Subject 1> (S1)",
+      "text": "是他！他就在我家門口！",
+      "language": "Chinese",
+      "voice_mode": "spoken",
+      "delivery": "The first phrase catches in her throat; after a brief break, the second is urgent and breathless, kept to a whisper so she is not heard outside. Preserve strong fear without a calm or uniformly slow delivery.",
+      "not_before_seconds": 1.5
+    }
+  ],
+  "reaction_seconds": 1.0
+}
+```
+
+`delivery` 不會自動調整估算秒數；句內中斷若明顯影響時間，依試讀提供含停頓的實測或修正估計，不因情緒級別任意填數字。低音量仍須保留強烈表演的語流與動作，不翻譯回 `slightly worried` 或套固定 `calm delivery`。若劇本改為心聲，另改 compiler 支援的模式、嘴型及當句聲音描述。對只提供身分的 reference，保留臉髮等身分特徵，不將中性表情列入必須保留的內容；首尾幀的實際表情須與該時點相容。
+
 口說描述對應角色的同步發音動作。心聲／旁白可用畫外 voiceover 形式承載，但須另外說明其敘事層、聲音與嘴型；實際人在畫外出聲則描述其位置與遮擋，不將它混作在鏡角色心聲。非發音限制僅作用於相關角色與時窗，同鏡其他口說角色仍正常發音。
 
-以下為當句局部寫法示例，完整 prompt 仍需原有六欄及正確來源綁定；同一句台詞只寫一次，避免重複朗讀：
+以下為最終 prompt 的當句局部寫法示例，完整 prompt 仍需原有六欄及正確來源綁定；同一句台詞只寫一次。採 timing compiler 時，不直接把這些含 `<d>` 的片段貼入 base，先核對其支援模式：一般心聲用 `inner`，畫外口說的本地 `offscreen_spoken` 對應 `offscreen`；目前 `silent_mouthed_inner` 不在其模式清單內，不能靜默降成嘴型相反的 `inner`。無聲說話示例只說明目標表演，不代表現有 compiler 已能編譯該模式：
 
 心聲（觀眾有聲，角色無該句發音嘴型）：
 

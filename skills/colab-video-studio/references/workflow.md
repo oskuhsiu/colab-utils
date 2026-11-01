@@ -82,6 +82,8 @@ request + characters + source assets
 
 每個 shot 儲存 `characters`、最終 `prompt`、`inputs` 中實際 asset IDs、寬高／秒數／seed、`start_state`／`end_state`、`transition` 和 `criteria`。`continuous` 的規劃邊界必須吻合，實際效果另由 join QA 判斷。`request.text` 始終儲存使用者原文。
 
+情緒種類、felt／shown 強度及劇本依據可作為 shot 的附加內容標註，隨 immutable job 保存並交給審查；任意 plan 頂層標註不會自動進入 job。生成 adapter 讀取的是編譯後 `shot.prompt` 與既定輸入，不會自動將情緒級別轉成表演或推論參數。使用 `dialogue_timing` 時，將逐句語氣放入 `utterances[].delivery`，強度標註不放入 timing 物件／utterance。依 [內容與分鏡](story-planning.md#將情緒強度交給生成與驗收) 核對編譯後 prompt、可觀察的 `criteria` 與必要事件窗，維持既有 schema。
+
 `settings.backend` 與可選 shot.settings 合併。immutable revision、native fps、輸出／模型 frames 由編譯器固定。`budget.max_total_attempts`、`max_attempts_per_shot` 是當次明確試驗範圍，不是這個 skill 的所有任務共用額度。預算變化不自動再生成；每次重試仍以新 reserve 執行。
 
 `qa.event_windows` 每個 action criterion 都需指定 start/end，預設8fps，快速事件可提高至 native fps。`qa.regions` 用原影片像素 `[x,y,width,height]`；可用多個區間檢查臉／手／道具，裁切不會創造原片沒有的細節。
