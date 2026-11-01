@@ -91,6 +91,8 @@ request + characters + source assets
 
 ## plan.json 的關鍵欄位
 
+跨鏡的角色／場景／道具／聲線名稱綁定，或已有配音音軌的共用量測／字幕／剪輯時鐘，可按需使用 [共用引用與音訊](reference-audio.md)。它編譯到下列既有 asset IDs／inputs，不增加生成路徑；沒有這些需求時保留原格式。
+
 `assets` 用穩定 ID：`path` 必須在 project 內，`role` 區分 identity/keyframe/pose/control/mask/face/audio 等，`source` 原始基準或 derived，`status=ready` 表示準備檢查已通過，`derived_from` 儲存源頭。每個 character 的 `identity_assets` 是凍結原始身份基準；對虛構人物也是最初選定的角色圖，不是第N代影片臉。
 
 每個 shot 儲存 `characters`、最終 `prompt`、`inputs` 中實際 asset IDs、寬高／秒數／seed、`start_state`／`end_state`、`transition` 和 `criteria`。`continuous` 的規劃邊界必須吻合，實際效果另由 join QA 判斷。`request.text` 始終儲存使用者原文。

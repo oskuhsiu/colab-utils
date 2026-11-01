@@ -8,7 +8,7 @@ import shutil
 
 import media
 from workflow import (current_review_job, digest, identifier, local_path, read_json, selected_attempts,
-                      sha256, validate_review, write_json)
+                      sha256, validate_review, verify_job_snapshot, write_json)
 
 
 def _run_path(project, run):
@@ -42,6 +42,9 @@ def _derived(source, edit, delivery, provenance):
     width, height, fps = delivery["width"], delivery["height"], delivery.get("fps", 24)
     duration, start, end = edit["duration_seconds"], edit["start"], edit["end"]
     ratio = duration / (end - start)
+    if "audio_timeline" in shot:
+        from audio_artifacts import map_timeline
+        shot["audio_timeline"] = map_timeline(shot["audio_timeline"], start, end, duration)
     windows = shot.get("qa", {}).get("event_windows", [])
     for window in windows:
         left, right = max(start, window["start"]), min(end, window["end"])
@@ -139,7 +142,7 @@ def prepare_edits(project: Path, selection: dict, edits: dict, run_id: str):
     return root
 
 
-def _verify(project, run):
+def _verify(project, run, *, audio_timelines=False):
     project = Path(project).resolve()
     root = _run_path(project, run)
     recipe = read_json(root / "recipe.json")
@@ -165,7 +168,13 @@ def _verify(project, run):
         expected = _derived(original, recipe["edits"][shot_id], recipe["delivery"], provenance)
         directory = root / "segments" / identifier(shot_id)
         job = read_json(directory / "job.json")
-        if job != expected or job["job_digest"] != recorded["job_digest"]:
+        verify_job_snapshot(job)
+        def without_timeline(value):
+            value = copy.deepcopy(value)
+            value.pop("job_digest", None)
+            value["shot"].pop("audio_timeline", None)
+            return value
+        if without_timeline(job) != without_timeline(expected) or job["job_digest"] != recorded["job_digest"]:
             raise ValueError("Derived job or edit recipe changed")
         if sha256(directory / "result/video.mp4") != recorded["video_sha"]:
             raise ValueError("Edited video changed")
@@ -176,8 +185,22 @@ def _verify(project, run):
             path = directory / "input/assets" / (name + Path(asset["path"]).suffix.lower())
             if sha256(path) != asset["sha256"]:
                 raise ValueError("Edited segment's staged source asset changed")
-        directories.append(directory)
+        directories.append((directory, expected["shot"].get("audio_timeline")) if audio_timelines else directory)
     return directories
+
+
+def current_audio_timeline(project, run, shot_id):
+    """Reproject current supplied alignment through a frozen, verified edit.
+
+    Never rewrite the edited job/receipt/video or re-encode for a subtitle
+    correction. Source verification still decodes raw clips with FFmpeg;
+    all source/media/recipe and frozen job hashes still validate.
+    """
+    matches = [timeline for directory, timeline in _verify(project, run, audio_timelines=True)
+               if directory.name == shot_id]
+    if len(matches) != 1 or matches[0] is None:
+        raise ValueError("Shot has no imported audio timeline in this validated edit run")
+    return matches[0]
 
 
 def inspect_edits(project, run):
