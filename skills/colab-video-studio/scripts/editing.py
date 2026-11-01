@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 
 import media
-from workflow import (digest, identifier, local_path, read_json, selected_attempts,
+from workflow import (current_review_job, digest, identifier, local_path, read_json, selected_attempts,
                       sha256, validate_review, write_json)
 
 
@@ -69,9 +69,9 @@ def _derived(source, edit, delivery, provenance):
 
 
 def prepare_edits(project: Path, selection: dict, edits: dict, run_id: str):
-    """Create new conformed segments from currently passed raw attempts."""
+    """Conform technically valid raw media; quality is reviewed after editing."""
     project = Path(project).resolve()
-    directories = selected_attempts(project, selection)
+    directories = selected_attempts(project, selection, require_pass=False)
     if set(edits) != set(selection):
         raise ValueError("Edits must name exactly every selected shot")
     delivery = read_json(project / "plan.json")["delivery"]
@@ -80,7 +80,7 @@ def prepare_edits(project: Path, selection: dict, edits: dict, run_id: str):
         raise ValueError("Delivery needs positive integer fps and even width/height")
     prepared = []
     for directory in directories:
-        source = read_json(directory / "job.json")
+        source = current_review_job(directory)
         shot_id = source["shot"]["id"]
         edit = edits[shot_id]
         if set(edit) != {"start", "end", "duration_seconds"} or not all(_number(v) for v in edit.values()):
@@ -96,7 +96,7 @@ def prepare_edits(project: Path, selection: dict, edits: dict, run_id: str):
         provenance = dict(method="ffmpeg_conform", source_attempt=directory.name, model_inference=False,
             source_native_fps=source["shot"]["fps"], delivery_fps=fps, settings_role="source_generation_metadata",
             source_job_digest=source["job_digest"], source_video_sha=sha256(directory / "result/video.mp4"),
-            source_review_sha=sha256(directory / "review.json"), start=edit["start"], end=edit["end"],
+            source_review_sha=sha256(directory / "review.json") if (directory / "review.json").is_file() else None, start=edit["start"], end=edit["end"],
             target_duration=edit["duration_seconds"])
         prepared.append((directory, _derived(source, edit, delivery, provenance)))
     total = sum(edit["duration_seconds"] for edit in edits.values())
@@ -111,7 +111,8 @@ def prepare_edits(project: Path, selection: dict, edits: dict, run_id: str):
         (directory / "result").mkdir(parents=True)
         shutil.copytree(source_dir / "input", directory / "input")
         for filename in ("job.json", "receipt.json", "review.json"):
-            shutil.copy2(source_dir / filename, directory / ("source_" + filename))
+            if (source_dir / filename).is_file():
+                shutil.copy2(source_dir / filename, directory / ("source_" + filename))
         write_json(directory / "job.json", job)
         start, end, target = provenance["start"], provenance["end"], provenance["target_duration"]
         vf = (f"trim=start={start}:end={end},setpts=(PTS-STARTPTS)*{target/(end-start):.12g},fps={fps},"
@@ -130,9 +131,9 @@ def prepare_edits(project: Path, selection: dict, edits: dict, run_id: str):
         media.run(command + ["-movflags", "+faststart", str(video)])
         media.verify_video(video, shot)
         write_json(directory / "receipt.json", dict(state="technically_valid", method="ffmpeg_conform",
-                   shot_id=shot["id"], job_digest=job["job_digest"], provenance=provenance, model_inference=False))
+                   shot_id=shot["id"], job_digest=job["job_digest"], video_sha256=sha256(video), provenance=provenance, model_inference=False))
         recipe["segments"][shot["id"]] = dict(provenance=provenance, job_digest=job["job_digest"], video_sha=sha256(video),
-            lineage_sha={name: sha256(directory / name) for name in ("source_job.json", "source_receipt.json", "source_review.json")})
+            lineage_sha={name: sha256(directory / name) for name in ("source_job.json", "source_receipt.json", "source_review.json") if (directory / name).is_file()})
     recipe["recipe_digest"] = digest(recipe)
     write_json(root / "recipe.json", recipe)
     return root
@@ -147,10 +148,10 @@ def _verify(project, run):
         raise ValueError("Edit recipe changed")
     if recipe["delivery"] != read_json(project / "plan.json")["delivery"]:
         raise ValueError("Delivery settings changed")
-    sources = selected_attempts(project, recipe["selection"])
+    sources = selected_attempts(project, recipe["selection"], require_pass=False)
     directories = []
     for source in sources:
-        original = read_json(source / "job.json")
+        original = current_review_job(source)
         shot_id = original["shot"]["id"]
         recorded = recipe["segments"][shot_id]
         provenance = recorded["provenance"]
@@ -159,7 +160,6 @@ def _verify(project, run):
                 or any(provenance[key] != edit[field] for key, field in
                        (("start", "start"), ("end", "end"), ("target_duration", "duration_seconds")))
                 or sha256(source / "result/video.mp4") != provenance["source_video_sha"]
-                or sha256(source / "review.json") != provenance["source_review_sha"]
                 or original["job_digest"] != provenance["source_job_digest"]):
             raise ValueError("Edit source or source review changed")
         expected = _derived(original, recipe["edits"][shot_id], recipe["delivery"], provenance)
@@ -193,8 +193,8 @@ def validate_edits(project, run):
     return directories
 
 
-def assemble_edits(project, run, join_review=None):
+def assemble_edits(project, run, join_review=None, preview=False, preview_reason=None):
     """Apply edited-segment gates and the existing assembly/join gates."""
-    directories = validate_edits(project, run)
+    directories = _verify(project, run) if preview else validate_edits(project, run)
     recipe = read_json(_run_path(project, run) / "recipe.json")
-    return media.assemble_directories(project, directories, recipe["selection"], join_review)
+    return media.assemble_directories(project, directories, recipe["selection"], join_review, preview, preview_reason)

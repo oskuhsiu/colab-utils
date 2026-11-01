@@ -3,13 +3,15 @@ from __future__ import annotations
 
 import math
 import re
+import shutil
+import uuid
 import subprocess
 import tempfile
 from fractions import Fraction
 from pathlib import Path
 
-from workflow import (local_path, read_json, review_template, selected_attempts,
-                      sha256, verify_evidence, write_json)
+from workflow import (current_review_job, digest, reservation_lock, review_spec, local_path, read_json, review_template, selected_attempts,
+                      sha256, verify_evidence, verify_media_provenance, write_json)
 
 
 def run(command):
@@ -83,12 +85,45 @@ def sample_indices(shot, times, cuts):
 
 
 def evidence(directory):
+    """Build a new evidence version, then atomically publish its manifest.
+
+    A failed extraction leaves the previous version and review intact. Re-running
+    against a changed QA specification reuses the video, never model inference.
+    """
     directory = Path(directory).resolve()
-    job = read_json(directory / "job.json")
+    root = directory / "evidence"
+    root.mkdir(exist_ok=True)
+    versions = root / "versions"
+    versions.mkdir(exist_ok=True)
+    with reservation_lock(root / ".publish.lock"):
+        verify_media_provenance(directory)
+        job = current_review_job(directory)
+        version = uuid.uuid4().hex
+        temporary = versions / ("." + version + ".tmp")
+        temporary.mkdir()
+        try:
+            manifest = _extract_evidence(directory, temporary, job)
+            for item in manifest["items"]:
+                item["path"] = str(Path("versions") / version / item["path"])
+            manifest["review_spec"] = review_spec(job)
+            manifest["review_spec_digest"] = digest(manifest["review_spec"])
+            manifest["evidence_version"] = version
+            write_json(temporary / "manifest.json", manifest)
+            temporary.rename(versions / version)
+            write_json(root / "manifest.json", manifest)
+        finally:
+            if temporary.exists():
+                shutil.rmtree(temporary)
+        write_json(root / "review-template.json", review_template(directory))
+        receipt = read_json(directory / "receipt.json")
+        receipt["state"] = "needs_review"
+        write_json(directory / "receipt.json", receipt)
+        return manifest
+
+
+def _extract_evidence(directory, root, job):
     video = directory / "result" / "video.mp4"
     info = verify_video(video, job["shot"])
-    root = directory / "evidence"
-    root.mkdir(exist_ok=False)
     (root / "frames").mkdir()
     times = frame_times(video)
     cuts = scene_times(video)
@@ -167,11 +202,6 @@ def evidence(directory):
         decoded_frames=len(times), sampled_frames=len(indices), scene_changes=cuts,
         event_windows=job["shot"].get("qa", {}).get("event_windows", []), items=items,
         coverage="Sampled visual evidence; audio file is extracted, not automatically listened to or transcribed.")
-    write_json(root / "manifest.json", manifest)
-    write_json(root / "review-template.json", review_template(directory))
-    receipt = read_json(directory / "receipt.json")
-    receipt["state"] = "needs_review"
-    write_json(directory / "receipt.json", receipt)
     return manifest
 
 
@@ -247,22 +277,27 @@ def validate_joins(project, selection, review):
                 raise ValueError("Unpassed/unresolved join criterion blocks final assembly")
 
 
-def assemble(project, selection, join_review=None):
+def assemble(project, selection, join_review=None, preview=False, preview_reason=None):
     project = Path(project).resolve()
-    directories = selected_attempts(project, selection)
-    return assemble_directories(project,directories,selection,join_review)
+    directories = selected_attempts(project, selection, require_pass=not preview)
+    return assemble_directories(project,directories,selection,join_review,preview,preview_reason)
 
 
-def assemble_directories(project,directories,selection,join_review=None):
+def assemble_directories(project,directories,selection,join_review=None,preview=False,preview_reason=None):
     """Export explicit reviewed directories; raw provenance is checked by caller."""
     project = Path(project).resolve()
     directories = [Path(p).resolve() for p in directories]
     if not directories or any(not p.is_relative_to(project) for p in directories):
         raise ValueError("Assembly sources must be contained within the edit/project root")
     from workflow import validate_review
+    if preview and (not isinstance(preview_reason, str) or not preview_reason.strip()):
+        raise ValueError("Preview export requires a nonempty reason and is not a quality-approved delivery")
     for directory in directories:
-        validate_review(directory,read_json(directory / "review.json"),require_pass=True)
-    if len(directories) > 1:
+        if not preview:
+            validate_review(directory,read_json(directory / "review.json"),require_pass=True)
+        verify_media_provenance(directory)
+        verify_video(directory / "result/video.mp4", read_json(directory / "job.json")["shot"])
+    if len(directories) > 1 and not preview:
         if not join_review:
             raise ValueError("Multiple shots require an evidence-bound join review")
         join_manifest = read_json(project / "joins" / "manifest.json")
@@ -283,7 +318,7 @@ def assemble_directories(project,directories,selection,join_review=None):
         raise ValueError("Edited durations do not match required final duration")
     root = project / "deliverables"
     root.mkdir(exist_ok=True)
-    target = root / "final.mp4"
+    target = root / ("preview.mp4" if preview else "final.mp4")
     if target.exists():
         raise ValueError("Final already exists; choose a new project revision to preserve it")
     with tempfile.TemporaryDirectory(prefix="assemble-", dir=root) as temporary:
@@ -315,10 +350,14 @@ def assemble_directories(project,directories,selection,join_review=None):
                            output_frames=round(total*fps),audio="separate")
         technical = verify_video(staged, output_shot)
         staged.replace(target)
-    report = dict(status="assembled_from_reviewed_shots", file="final.mp4", sha256=sha256(target),
+    report = dict(status="preview_not_quality_approved" if preview else "assembled_from_reviewed_shots", file=target.name, sha256=sha256(target),
         duration_seconds=total, selection=selection, media=technical,
-        reviews={p.name:sha256(p / "review.json") for p in directories},
-        join_review_sha256=sha256(join_review) if join_review else None,
+        reviews={p.name:sha256(p / "review.json") if (p / "review.json").is_file() else None for p in directories},
+        join_review_sha256=sha256(join_review) if join_review and not preview else None,
         final_content_review="pending; inspect export/join playback before claiming delivery acceptance")
-    write_json(root / "delivery.json", report)
+    if preview:
+        report.update(preview_reason=preview_reason, quality_approved=False,
+            limitations=["Preview only: shot and join quality gates have not been required.",
+                         "Existing reviews, if any, may be stale; their hashes are provenance, not approval."])
+    write_json(root / ("preview.json" if preview else "delivery.json"), report)
     return report

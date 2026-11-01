@@ -13,7 +13,8 @@ import tempfile
 import zipfile
 from pathlib import Path
 
-from workflow import (SCRIPT_DIR, accept_review, compile_job, identifier, local_path,
+from workflow import (SCRIPT_DIR, accept_review, admit_submission, confirm_submission,
+    mark_submission_uncertain, compile_job, identifier, local_path,
     prepare, read_json, reserve, sha256, verify_current, write_json)
 from media import assemble, evidence, joins, join_directories, verify_video
 
@@ -76,14 +77,8 @@ def reserve_and_pack(project, shot):
 def submit(project, attempt, session, timeout=3600):
     project = Path(project).resolve()
     directory = project / "attempts" / identifier(attempt)
-    job = verify_current(project, directory)
-    receipt = read_json(directory / "receipt.json")
-    if receipt["state"] != "reserved":
-        raise ValueError("Only an unsubmitted reserved attempt may be submitted. Fetch/reconcile existing work.")
-    identifier(session)
-    remote = f"/content/video-studio/{job['project_id']}/{attempt}"
-    receipt.update(state="uploading", session=session, remote_directory=remote)
-    write_json(directory / "receipt.json", receipt)
+    job, receipt = admit_submission(project, attempt, session)
+    remote = receipt["remote_directory"]
     archive_path = f"/content/{job['project_id']}_{attempt}.zip"
     source = (
         "from pathlib import Path\nimport zipfile,stat\n"
@@ -98,16 +93,14 @@ def submit(project, attempt, session, timeout=3600):
         "exec(compile((_studio_target/'scripts'/'remote.py').read_text(), 'remote.py', 'exec'), globals())\n"
         "run_job(_studio_target/'job.json')\n")
     command_file = directory / "execute.py"
-    command_file.write_text(source)
     try:
+        command_file.write_text(source)
         colab(["upload", "-s",session,str(directory / "input.zip"),archive_path], directory / "transport.log")
-        receipt["state"] = "submitted"
-        write_json(directory / "receipt.json", receipt)
+        receipt = confirm_submission(project, attempt, receipt["submission_id"])
         colab(["exec", "-s", session,"-f",str(command_file),"--timeout",str(timeout)], directory / "transport.log")
         return fetch(project, attempt)
     except Exception:
-        receipt["state"] = "needs_reconcile"
-        write_json(directory / "receipt.json", receipt)
+        mark_submission_uncertain(project, attempt, receipt["submission_id"])
         raise
 
 
@@ -194,6 +187,9 @@ def main():
             command.add_argument("--selection",required=True,type=Path)
         if name == "assemble":
             command.add_argument("--join-review",type=Path)
+        if name in ("assemble", "edit-assemble"):
+            command.add_argument("--preview", action="store_true", help="Export a non-release preview with disclosed unresolved QA")
+            command.add_argument("--preview-reason", help="Required nonblank reason for preview export")
         if name == "edit-prepare":
             command.add_argument("--selection",required=True,type=Path)
             command.add_argument("--edits",required=True,type=Path)
@@ -225,7 +221,7 @@ def main():
                 recipe = read_json(args.project.resolve()/"edits"/identifier(args.run)/"recipe.json")
                 result = {"pairs":len(join_directories(args.project,directories,recipe["selection"])["pairs"])}
             else:
-                result = editing.assemble_edits(args.project,args.run,args.join_review)
+                result = editing.assemble_edits(args.project,args.run,args.join_review,preview=args.preview,preview_reason=args.preview_reason)
         elif args.command == "prepare":
             result = [{"shot_id":job["shot"]["id"],"job_digest":job["job_digest"],"settings":job["settings"]} for job in prepare(args.project)]
         elif args.command == "reserve":
@@ -246,7 +242,7 @@ def main():
             manifest = joins(args.project,read_json(args.selection))
             result = {"pairs":len(manifest["pairs"]),"review_template":str(args.project / "joins" / "review-template.json")}
         else:
-            result = assemble(args.project,read_json(args.selection),args.join_review)
+            result = assemble(args.project,read_json(args.selection),args.join_review,preview=args.preview,preview_reason=args.preview_reason)
         print(json.dumps(result,ensure_ascii=False,indent=2))
     except (ValueError,KeyError,FileNotFoundError,RuntimeError) as exc:
         parser.exit(1,f"{type(exc).__name__}: {exc}\n")

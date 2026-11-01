@@ -1,12 +1,14 @@
 """Pinned inference adapters. Importing this module requires only the stdlib.
 
-Wan API contract: diffusers v0.40.0, pipelines/wan. Models and dependencies
-must already be staged by the caller; this module never installs packages.
+Wan API contract: diffusers v0.40.0, pipelines/wan. Wan dependencies are
+staged by the caller. H3 executes the pinned setup recipe (including installation
+on a new dependency signature); its installation marker is shared by the runner.
 """
 from __future__ import annotations
 
 from pathlib import Path
 import math
+import hashlib
 import subprocess
 import tempfile
 import time
@@ -110,7 +112,7 @@ def _result(settings, shot, roles, started, steps, **extra):
 
 
 class H3Backend:
-    def __init__(self, settings, progress):
+    def __init__(self, settings, progress, install_state=None):
         self.settings = dict(settings)
         self.settings.setdefault("model_id", "MiniMaxAI/MiniMax-H3")
         task, preset = settings.get("task_mode", "fl2va"), settings.get("model_preset", "turbo8")
@@ -131,7 +133,16 @@ class H3Backend:
         setup = Path(__file__).with_name("h3_setup.py")
         namespace["__file__"] = str(setup)
         progress(phase="loading", backend="h3")
-        exec(compile(setup.read_text(), str(setup), "exec"), namespace)
+        source = setup.read_text()
+        setup_key = hashlib.sha256(source.encode()).hexdigest()
+        if install_state is not None and install_state.get("source_sha256") == setup_key:
+            namespace["_INSTALL_SIGNATURE"] = install_state.get("signature")
+        try:
+            exec(compile(source, str(setup), "exec"), namespace)
+        finally:
+            # Installation can succeed even when subsequent model loading fails.
+            if install_state is not None and namespace.get("_INSTALL_SIGNATURE"):
+                install_state.update(source_sha256=setup_key, signature=namespace["_INSTALL_SIGNATURE"])
         self.namespace, self.pipe = namespace, namespace["pipe"]
         self.config = namespace["selected_config"]()
         if (self.config["task_mode"] != task or self.config["steps"] != expected_steps
@@ -313,11 +324,11 @@ class WanBackend:
         return result
 
 
-def load_backend(settings: dict, progress=lambda **kwargs: None):
+def load_backend(settings: dict, progress=lambda **kwargs: None, *, install_state=None):
     """Load one reusable adapter after the caller installs/stages dependencies."""
     backend = settings.get("backend")
     if backend == "h3":
-        return H3Backend(settings, progress)
+        return H3Backend(settings, progress, install_state=install_state)
     if backend in ("wan22-ti2v", "wan22-i2v-a14b", "wan21-vace", "wan22-animate"):
         return WanBackend(settings, progress)
     raise ValueError(f"Unsupported backend: {backend}")

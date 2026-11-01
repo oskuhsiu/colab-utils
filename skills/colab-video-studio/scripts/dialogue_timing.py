@@ -20,6 +20,7 @@ DEFAULT_POLICY = dict(han_units_per_second=5.0, latin_words_per_second=2.8,
     turn_gap_seconds=0.2, lead_seconds=0.25, tail_seconds=0.35)
 MODES = {
     'spoken': 'Audible in-scene speech with matching mouth articulation.',
+    'silent_mouthed_inner': 'The audience hears one private interior voice while this character silently mouths the same words; no second in-scene spoken voice. Others do not hear it.',
     'inner': 'Private interior voice; the visible character remains silent without speech articulation; others do not hear it.',
     'offscreen': 'An in-scene offscreen speaker; visible listeners remain silent.',
     'telephone': 'Voice from the telephone earpiece; the visible listener remains silent.',
@@ -37,6 +38,29 @@ def _han(c):
     return 0x3400 <= ord(c) <= 0x9fff or 0x20000 <= ord(c) <= 0x323af or 0xf900 <= ord(c) <= 0xfaff
 
 
+def _latin(c):
+    return unicodedata.category(c).startswith('L') and 'LATIN' in unicodedata.name(c, '')
+
+
+def _latin_words(text):
+    # NFC makes precomposed/decomposed spellings count identically. Combining
+    # marks and internal apostrophes/hyphens belong to the preceding word.
+    count = 0
+    in_word = False
+    for index, c in enumerate(text):
+        if _latin(c):
+            if not in_word:
+                count += 1
+            in_word = True
+        elif unicodedata.category(c).startswith('M') and in_word:
+            continue
+        elif c in "'’-" and in_word and index + 1 < len(text) and _latin(text[index + 1]):
+            continue
+        else:
+            in_word = False
+    return count
+
+
 def estimate_utterance(line, policy):
     text = line.get('text')
     if not isinstance(text, str) or not text.strip() or '<d>' in text or '</d>' in text:
@@ -50,23 +74,35 @@ def estimate_utterance(line, policy):
     measured = line.get('measured_utterance_seconds')
     warnings = []
     han = sum(_han(c) for c in text)
-    latin = len(re.findall(r"[A-Za-z]+(?:['’-][A-Za-z]+)*", text))
+    normalized = unicodedata.normalize('NFC', text)
+    latin = _latin_words(normalized)
     numerals = len(re.findall(r'\d+(?:[.,]\d+)*', text))
-    unknown = [c for c in text if unicodedata.category(c).startswith('L') and not _han(c) and not ('A' <= c <= 'Z' or 'a' <= c <= 'z')]
+    unknown = [c for c in normalized if unicodedata.category(c).startswith('L') and not _han(c) and not _latin(c)]
     # Remove ellipses and numeric punctuation before counting phrase pauses.
     ellipses = len(re.findall(r'…+|\.{3,}', text))
     punctuation = re.sub(r'…+|\.{3,}|\d+(?:[.,]\d+)*', '', text)
     pause = (sum(c in ',，、;；:：' for c in punctuation) * policy['comma_pause_seconds']
              + len(re.findall(r'[.!?。！？]+', punctuation)) * policy['sentence_pause_seconds']
              + ellipses * policy['ellipsis_pause_seconds'])
-    if measured is not None:
+    planned = line.get('planned_utterance_seconds')
+    if measured is not None and planned is not None:
+        raise ValueError('Choose measured_utterance_seconds or planned_utterance_seconds, not both')
+    if planned is not None:
+        if not isinstance(line.get('timing_note'), str) or not line['timing_note'].strip():
+            raise ValueError('Manual planning needs a nonempty timing_note; it is not a measurement')
+        speech = number(planned, 'planned_utterance_seconds', positive=True)
+        articulation = None
+        pause = 0.0
+        basis = 'manual planning target including internal pauses; not measured'
+        warnings.append('Manual target is unmeasured: '+line['timing_note'])
+    elif measured is not None:
         speech = number(measured, 'measured_utterance_seconds', positive=True)
         articulation = None
         pause = 0.0  # Already included in the measurement; never count twice.
         basis = 'measured utterance including internal pauses'
     else:
         if unknown:
-            raise ValueError('Unsupported writing system: supply measured_utterance_seconds for this line')
+            raise ValueError('Unsupported writing system: supply measured_utterance_seconds or an explicitly unmeasured planned_utterance_seconds with timing_note')
         if not han + latin + numerals:
             raise ValueError('No speech units: use a non-speech action/reaction budget instead')
         articulation = han / (policy['han_units_per_second'] * rate) + (latin + numerals) / (policy['latin_words_per_second'] * rate)
@@ -90,11 +126,12 @@ def plan_timing(spec, *, constraints=None):
     """Keep speech targets independent of an explicit long clip or model minimum.
 
     action_end_seconds is a parallel scene-clock requirement. Sequential actions
-    before speech use not_before_seconds; reaction_seconds follows the last line.
+    before speech use not_before_seconds; explicit start_seconds permits overlap.
+    reaction_seconds follows the latest line end and its pause.
     """
     if not isinstance(spec, dict):
         raise ValueError('dialogue_timing must be an object')
-    allowed = {'utterances', 'policy', 'action_end_seconds', 'reaction_seconds', 'clip_seconds', 'constraints'}
+    allowed = {'utterances', 'policy', 'action_end_seconds', 'reaction_seconds', 'clip_seconds', 'constraints', 'timing_mode'}
     if set(spec) - allowed:
         raise ValueError('Unknown timing fields: '+', '.join(sorted(set(spec)-allowed)))
     policy = dict(DEFAULT_POLICY)
@@ -121,23 +158,34 @@ def plan_timing(spec, *, constraints=None):
     lines = spec.get('utterances', [])
     if not isinstance(lines, list) or any(not isinstance(line, dict) for line in lines):
         raise ValueError('utterances must be an ordered list')
-    cursor = policy['lead_seconds'] if lines else 0.0
+    timing_mode = spec.get('timing_mode', 'sequential')
+    if timing_mode not in ('sequential', 'explicit'):
+        raise ValueError('timing_mode must be sequential or explicit')
+    cursor = policy['lead_seconds'] if lines and timing_mode == 'sequential' else 0.0
     utterances = []
     for index, line in enumerate(lines):
         if not isinstance(line, dict):
             raise ValueError('Each utterance must be an object')
-        allowed_line = {'speaker','text','language','voice_mode','delivery','rate_multiplier','measured_utterance_seconds','not_before_seconds','pause_after_seconds'}
+        allowed_line = {'speaker','text','language','voice_mode','delivery','rate_multiplier','measured_utterance_seconds','not_before_seconds','pause_after_seconds','planned_utterance_seconds','timing_note','start_seconds'}
         if set(line) - allowed_line:
             raise ValueError('Unknown utterance fields: '+', '.join(sorted(set(line)-allowed_line)))
         item = estimate_utterance(line, policy)
-        earliest = number(line.get('not_before_seconds', 0), 'not_before_seconds')
-        start = max(cursor, earliest)
+        if timing_mode == 'explicit':
+            if 'start_seconds' not in line or 'not_before_seconds' in line:
+                raise ValueError('Explicit timing needs start_seconds on every line, without not_before_seconds')
+            start = earliest = number(line['start_seconds'], 'start_seconds')
+        else:
+            if 'start_seconds' in line:
+                raise ValueError('start_seconds requires timing_mode explicit; overlapping lines must be intentional')
+            earliest = number(line.get('not_before_seconds', 0), 'not_before_seconds')
+            start = max(cursor, earliest)
         item.update(start_seconds=start, end_seconds=start+item['speech_seconds'],
                     pause_after_seconds=number(line.get('pause_after_seconds',0), 'pause_after_seconds'),
-                    wait_before_seconds=max(0, earliest-cursor))
-        item['turn_gap_seconds_after'] = (policy['turn_gap_seconds'] if index+1 < len(lines) and line['speaker'] != lines[index+1].get('speaker') else 0.0)
+                    wait_before_seconds=max(0, earliest-cursor) if timing_mode == 'sequential' else 0.0)
+        item['turn_gap_seconds_after'] = (policy['turn_gap_seconds'] if timing_mode == 'sequential' and index+1 < len(lines) and line['speaker'] != lines[index+1].get('speaker') else 0.0)
         utterances.append(item)
-        cursor = item['end_seconds'] + item['pause_after_seconds'] + item['turn_gap_seconds_after']
+        end = item['end_seconds'] + item['pause_after_seconds'] + item['turn_gap_seconds_after']
+        cursor = max(cursor, end) if timing_mode == 'explicit' else end
     action_end = number(spec.get('action_end_seconds',0), 'action_end_seconds')
     reaction = number(spec.get('reaction_seconds',0), 'reaction_seconds')
     content_end = max(action_end, cursor+reaction)
@@ -155,7 +203,7 @@ def plan_timing(spec, *, constraints=None):
         raise ValueError('Clip is too short for complete speech/actions/reaction/tail; do not squeeze the utterances')
     frames = int(limits['frame_offset'] + limits['frame_step'] * max(0, math.ceil((requested*limits['fps']-limits['frame_offset']-1e-9)/limits['frame_step'])))
     native = frames/limits['fps']
-    return dict(schema_version=1, policy=policy, constraints=limits, utterances=utterances,
+    return dict(schema_version=1, timing_mode=timing_mode, policy=policy, constraints=limits, utterances=utterances,
         speech_total_seconds=sum(x['speech_seconds'] for x in utterances),
         action_end_seconds=action_end, reaction_seconds=reaction, required_content_seconds=required,
         requested_duration_seconds=requested, native_frames=frames, native_seconds=native,
@@ -174,10 +222,12 @@ def pacing_prompt(base_prompt, timing):
     if not match:
         raise ValueError('A native H3 prompt needs overall_soundscape before adding speech timing')
     lines = ['[Dialogue pacing] Speech follows the soft cadence targets below, independent of video length. Complete each phrase naturally; remaining action, listening and reactions are silent.']
+    if timing.get('timing_mode') == 'explicit':
+        lines[0] = '[Dialogue pacing] Follow the explicit soft scene-clock targets below. Overlapping intervals intentionally overlap; do not serialize them or stretch speech to fill the clip. Verify that the selected model can realize this intent.'
     for item in timing['utterances']:
         lines.append(f"At about {item['start_seconds']:.2f}s, {item['speaker']} delivers this line in about {item['speech_seconds']:.2f}s including internal phrase pauses. {MODES[item['voice_mode']]} {item['delivery']} <d>[{item['language']}] {item['text']}</d>")
         if item['pause_after_seconds']:
-            lines.append(f"Then allow {item['pause_after_seconds']:.2f}s of intentional silent pause/reaction.")
+            lines.append(f"After this line, {item['speaker']} has {item['pause_after_seconds']:.2f}s of intentional silence/reaction; other explicitly scheduled speakers may continue.")
     return base_prompt[:match.start()].rstrip()+'\n\n'+'\n'.join(lines)+'\n\n'+base_prompt[match.start():].lstrip()
 
 

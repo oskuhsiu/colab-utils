@@ -4,9 +4,9 @@ FastH3 Omni 新增：[ComfyUI notebook](notebooks/ComfyUI_Colab.ipynb) 的 `h3-o
 
 參考方案查核：[YZ 金魚 workflow 與 HyperFlow-Infinity](research/h3_workflow_hyperflow_20261028.md)。前者是 hybrid／12步／SelfLift 配方；後者已使用本地H3，包含固定身份圖、原始latent交接與場景記憶，目前沒有勝過Continuum的同條件比較，也尚未移植至單卡notebook。
 
-ComfyUI 新入口：[獨立 Colab notebook](notebooks/ComfyUI_Colab.ipynb)、[操作說明](doc/COMFYUI_WORKSPACE.md)。整合 H3 Continuum 與實驗性原生 Ref2VA-VSA；預設不下載模型、不生成。新增 [A100 40GB／Continuum 三組 one-shot 實測](projects/ninja-continuum-a10040-20261019/RESULTS.md)與[同步比較頁](projects/ninja-continuum-a10040-20261019/comparison.html)：Ref Turbo4、Ref Turbo8、Ref Turbo4＋VSA，各36秒、6段、三張人物參照。Notebook UI 尚未實測。Veda 暫緩，保留[來源研究](research/comfy_h3_extensions_20261019.md)。
+ComfyUI 新入口：[獨立 Colab notebook](notebooks/ComfyUI_Colab.ipynb)、[操作說明](doc/COMFYUI_WORKSPACE.md)。整合 H3 Continuum 與實驗性原生 Ref2VA-VSA；預設不下載模型、不生成。新增 A100 40GB／Continuum 三組 one-shot 實測（歷史證據未隨此 source-only repo 發佈：`projects/ninja-continuum-a10040-20261019/RESULTS.md`）與同步比較頁（歷史證據未隨此 source-only repo 發佈：`projects/ninja-continuum-a10040-20261019/comparison.html`）：Ref Turbo4、Ref Turbo8、Ref Turbo4＋VSA，各36秒、6段、三張人物參照。Notebook UI 尚未實測。Veda 暫緩，保留[來源研究](research/comfy_h3_extensions_20261019.md)。
 
-L4 後續：[Continuum＋Ref Turbo4＋VSA 真人 one-shot](projects/ninja-continuum-live-l4-20261019/RESULTS.md)、[兩支原片與檢查頁](projects/ninja-continuum-live-l4-20261019/review.html)。各20秒、4×5秒；同款INT8母模配動態分層卸載與INT8 video VAE，在L4完成，顯存觀測峰值15.39／15.77GiB。分路跳躍與枝條回彈仍有內容限制，依要求保留原生一次生成結果。
+L4 後續：Continuum＋Ref Turbo4＋VSA 真人 one-shot（歷史證據未隨此 source-only repo 發佈：`projects/ninja-continuum-live-l4-20261019/RESULTS.md`）、兩支原片與檢查頁（歷史證據未隨此 source-only repo 發佈：`projects/ninja-continuum-live-l4-20261019/review.html`）。各20秒、4×5秒；同款INT8母模配動態分層卸載與INT8 video VAE，在L4完成，顯存觀測峰值15.39／15.77GiB。分路跳躍與枝條回彈仍有內容限制，依要求保留原生一次生成結果。
 
 Spark-H3：[加速、VRAM 與相容性評估](research/spark_h3_20261019.md)。目前正式套件支援 ComfyUI 0.38–0.40／CUDA 13.0，未納入這份 0.42 工作台；缺少與 Veda 同條件的峰值 VRAM 比較。
 
@@ -16,7 +16,7 @@ FastH3 T4：[研究與實測結果](doc/FAST_H3_T4.md)，包含相容性、影�
 
 AI 圖片／影片放大：[操作與研究](doc/AI_UPSCALER.md)、[圖片 2× 工作流](workflows/ai_upscale_image_2x.json)、[影片 2× 工作流](workflows/ai_upscale_video_2x.json)、[FastH3 + 2× 工作流](workflows/fast_h3_l4_upscale_2x.json)、[Colab notebook](notebooks/AI_Media_Upscaler_Colab.ipynb)。預設 Real-ESRGAN 原生 2×，另有 4×／anime 模型及逐幀低記憶體 CLI。
 
-影片模型性價比：[A100 實測、CU 與畫面證據](doc/VIDEO_MODEL_CP_BENCHMARK.md)、[原始研究](doc/VIDEO_MODEL_TRIALS_RESEARCH_20261011.md)、[可播放比較頁](projects/video-model-cp-20261011/comparison.html)。包含 H3 加速變種、Kandinsky 6 與生成後 2× 放大的成本比較。
+影片模型性價比：[A100 實測、CU 與畫面證據](doc/VIDEO_MODEL_CP_BENCHMARK.md)、[原始研究](doc/VIDEO_MODEL_TRIALS_RESEARCH_20261011.md)、可播放比較頁（歷史證據未隨此 source-only repo 發佈：`projects/video-model-cp-20261011/comparison.html`）。包含 H3 加速變種、Kandinsky 6 與生成後 2× 放大的成本比較。
 
 研究總結：[三組效益推薦與畫質優先方案](doc/VIDEO_MODEL_RECOMMENDATIONS.md)：整合A100／INT8 Larry＋2×、A100／W6A8 Larry、L4／FastH3，以及原生768p畫質組與原始量測證據。
 
@@ -24,9 +24,11 @@ AI 圖片／影片放大：[操作與研究](doc/AI_UPSCALER.md)、[圖片 2× �
 
 C01 標準 T4：[Kandinsky 6 Lite 實測](doc/KANDINSKY6_LITE_T4.md)，已完成288p含音訊5秒影片，記錄分階段低RAM流程、品質問題及CU歸零後的存活結果。
 
-Colab 影片製作的新入口：[`colab-video-studio`](skills/colab-video-studio/SKILL.md) 以人物基準、分鏡／控制素材、逐段 Colab 推論、時間證據驗收與合成取代臨時批次腳本。支援 H3、Wan2.2 5B、VACE 與 Wan-Animate adapter；[研究依據](research/video-workflow-sources.md)與[實際短測／限制](projects/video-studio-benchmark-20260930/README.md)另行保存。新任務從這個 skill 開始，下方保留原 H3 notebook 的使用與歷史證據。
+Colab 影片製作的新入口：[`colab-video-studio`](skills/colab-video-studio/SKILL.md) 以人物基準、分鏡／控制素材、逐段 Colab 推論、時間證據驗收與合成取代臨時批次腳本。支援 H3、Wan2.2 5B、VACE 與 Wan-Animate adapter；[研究依據](research/video-workflow-sources.md)與實際短測／限制（歷史證據未隨此 source-only repo 發佈：`projects/video-studio-benchmark-20260930/README.md`）另行保存。新任務從這個 skill 開始，下方保留原 H3 notebook 的使用與歷史證據。
 
 ## 專案 skills
+
+Fresh clone 後先執行 `python3 scripts/install_repo_skills.py` 建立本 repo 的發現連結；此指令不安裝套件、不改全域設定、不覆蓋既有不同目標。可用 `--check` 唯讀核對。
 
 原始內容統一放在 `skills/`，以 `.agents/skills/<name> -> ../../skills/<name>` 的相對符號連結供此 repo 使用。新增 Colab／影片 skill 時沿用此方式，保留 repo 作用域；不連到 `~/.codex/skills/` 或 `~/.agents/skills/`。Codex 支援 repo 內的符號連結，見[官方說明](https://learn.chatgpt.com/docs/build-skills#where-codex-loads-local-skills)。
 
@@ -42,11 +44,11 @@ Colab 影片製作的新入口：[`colab-video-studio`](skills/colab-video-studi
 MiniMax-H3 on Colab A100
 ========================
 
-The completed clip is [gorilla_rocket_bf16_15s_480p.mp4](artifacts/minimax-h3/gorilla_rocket_bf16_15s_480p.mp4).
+The completed clip is gorilla_rocket_bf16_15s_480p.mp4（歷史證據未隨此 source-only repo 發佈：`artifacts/minimax-h3/gorilla_rocket_bf16_15s_480p.mp4`）.
 The gorilla lifts the rocket, throws it overhead, and the camera follows it into space.
 
 The reusable notebook is [notebooks/MiniMax_H3_A100.ipynb](notebooks/MiniMax_H3_A100.ipynb).
-The [executed notebook](notebooks/MiniMax_H3_A100_output.ipynb) includes the video
+The executed notebook（歷史證據未隨此 source-only repo 發佈：`notebooks/MiniMax_H3_A100_output.ipynb`） includes the video
 and the successful run's outputs.
 The reusable notebook now has Colab dropdowns for **LightX2V Turbo 8-step,
 4-step v1.2, 4-step v1.0, and original 50-step**, plus **BF16, pruned INT8
@@ -57,10 +59,10 @@ Ref2VA supports native BF16 and both NF4 variants with Original 50-step or
 the dedicated Ref2VA Turbo 8-step adapter; Ref2VA INT8 is not integrated.
 Native BF16 Ref2VA Turbo8 has generated media-verified 7-second, 1312×736 clips
 on an A100 80GB. This verifies the workload, not story-quality acceptance.
-The revised [Mid-Autumn preview](projects/midautumn-h3/revision-02/README.md) uses
+The revised Mid-Autumn preview（歷史證據未隨此 source-only repo 發佈：`projects/midautumn-h3/revision-02/README.md`） uses
 native FL2VA BF16 Turbo4 v1.2 with first/last-frame guidance.
 Offline tests separately verify component and processor routing.
-See [MODEL_OPTIONS.md](MODEL_OPTIONS.md) for sources, community feedback,
+See [MODEL_OPTIONS.md](plan/MODEL_OPTIONS.md) for sources, community feedback,
 recommendations, hardware labels, and candidates requiring another backend.
 
 Start with [USAGE.md](USAGE.md) for launch commands, prompt examples, image
@@ -154,14 +156,13 @@ This verifies the listed original-model workload on an **80 GB A100**. New
 Turbo/quantized combinations, first/last-image generation, and continuation have
 source and offline workflow checks, but no new GPU generation or quality test.
 The result does not establish performance on a 40 GB A100, with Turbo, or at
-higher resolutions. The historical executed notebook is preserved unchanged.
+higher resolutions. The historical executed notebook is not included in this source-only checkout; the workload claims above are historical, not independently reproducible from the published artifacts.
 
-Offline checks: `python3 -m unittest discover -s tests -v`. These use synthetic
-pipeline/media objects and cannot establish real GPU memory use or video quality.
+Offline checks: `python3 -m unittest discover -s tests -v`. These exercise local workflow, cache, dialogue and evidence contracts using synthetic inputs; they do not establish real GPU memory use or generated content quality. CI runs the same offline suite. No test allocates a runtime or contacts a model API.
 
-Evidence: [metrics](artifacts/minimax-h3/metrics_bf16.json),
-[resource samples](artifacts/minimax-h3/resources_bf16.json),
-[local media check](artifacts/minimax-h3/local_ffprobe.json),
-[environment versions](artifacts/minimax-h3/environment_versions.json),
-[CU and setup record](artifacts/minimax-h3/local_setup.json), and
-[scene preview](artifacts/minimax-h3/contact_sheet.png).
+Evidence: metrics（歷史證據未隨此 source-only repo 發佈：`artifacts/minimax-h3/metrics_bf16.json`）,
+resource samples（歷史證據未隨此 source-only repo 發佈：`artifacts/minimax-h3/resources_bf16.json`）,
+local media check（歷史證據未隨此 source-only repo 發佈：`artifacts/minimax-h3/local_ffprobe.json`）,
+environment versions（歷史證據未隨此 source-only repo 發佈：`artifacts/minimax-h3/environment_versions.json`）,
+CU and setup record（歷史證據未隨此 source-only repo 發佈：`artifacts/minimax-h3/local_setup.json`）, and
+scene preview（歷史證據未隨此 source-only repo 發佈：`artifacts/minimax-h3/contact_sheet.png`）.
