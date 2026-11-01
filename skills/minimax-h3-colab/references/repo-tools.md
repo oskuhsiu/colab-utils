@@ -6,7 +6,8 @@
 | --- | --- | --- |
 | 原 H3／FastH3 共用 notebook | `notebooks/MiniMax_H3_A100.ipynb` | 讀 cell IDs、tags、BACKEND、所需表單與 validator；具體問題才取相關函式 |
 | FastH3 獨立 notebook | `notebooks/FastH3_ComfyUI_L4.ipynb` | FastH3 notebook 操作 |
-| Pika H3 Flex | `scripts/pika_h3.py`、`notebooks/Pika_H3_Flex_Colab.ipynb` | 指定 `pika` 時讀 [Pika 契約](pika-h3-flex.md)；`plan/install/generate/status`，與 Omni／Studio 分開 |
+| Pika H3 Flex | [Pika 契約內的既有 ComfyUI workflow 與批次入口](pika-h3-flex.md) | 指定 `pika` 先讀預設路由、精度範圍與實測限制；沿用所選 workflow 的工作與收據 |
+| Pika 官方 BF16 CLI | `scripts/pika_h3.py`、`notebooks/Pika_H3_Flex_Colab.ipynb` | 明確選用官方 CLI／BF16／對照時讀 [獨立工具分支](pika-h3-flex.md)；`plan/install/generate/status` |
 | Notebook 匯出 | `scripts/export_cells.py` | `setup`／`clip` tags 匯出到指定 `--output`；不執行匯出源碼 |
 | 原生 Omni 快速部署 | `scripts/colab_video_bootstrap.py`、`scripts/comfyui_environment.py` | [預備包／離線環境／首鏡銜接](../../../doc/COLAB_QUICK_DEPLOY.md)；沿用原 project adapter，不配置 VM、不另建 job 身分 |
 | Omni Context Windows（實驗） | `scripts/comfyui_workflows.py`、`notebooks/ComfyUI_Colab.ipynb` | 指定 Context Windows 時讀 [實際視窗／prompt region 與20／30秒比較計畫](../../../doc/H3_CONTEXT_WINDOWS.md)；使用新 Core pin；短段有重複台詞等已知限制，20／30秒比較未執行 |

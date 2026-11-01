@@ -1,8 +1,23 @@
 # Pika H3 Flex 工具
 
-指定 `pika` 時讀此頁；`omni` 指既有 [ComfyUI workspace](../../../doc/COMFYUI_WORKSPACE.md) 的 FastH3 Omni／`h3-omni-int8`。Pika 使用獨立官方 CLI，不是 Studio 的 `settings.backend`，也不是把 Omni 步數改成六步。
+指定 `pika` 時讀此頁。依使用者偏好，往後未另指定實作或精度的 `pika`，預選 **ComfyUI 的原 H3 INT8 底模＋對應 Pika H3 Flex BF16 LoRA**。明確要求官方獨立 CLI、BF16 或精度對照時，才使用下方的獨立工具分支。`omni` 仍指 FastH3 Omni／`h3-omni-int8`；兩者的模型與採樣設定分開。
 
-## 入口與版本
+## 預設：ComfyUI H3 INT8＋Pika
+
+沿用 [ComfyUI workspace](../../../doc/COMFYUI_WORKSPACE.md)，依輸入選原 H3 `ref2va` 或 `fl2va` INT8 checkpoint，再接同家族的 Pika LoRA。Ref2VA 使用 repo 維護的 [Pika INT8 API starter](../../../workflows/comfyui_h3/pika-h3-ref2va-int8.api.json)，將 `reference.png`、提示與尺寸換成當次輸入，再由 `scripts/comfyui_workspace.py` 的 API 提交／等待／取回介面執行。接線依 [Comfy 官方 Ref2VA 範本](https://github.com/Comfy-Org/workflow_templates/blob/c067929d7e9cc0f3fd15be348fa1a1d85da15946/templates/video_pika_h3_flex_ref2va.json)核對；當次預算、批次排程與保存依共用製作流程處理。
+
+- 量化範圍：starter 使用 INT8 H3 Ref2VA、NVFP4/AWQ Qwen3-VL encoder、INT8 video VAE、FP32 audio VAE、BF16 Pika Ref2VA LoRA；「預選 INT8」指 H3 底模，並非所有元件都用 INT8。首尾幀控制使用 [FL2VA INT8 API starter](../../../workflows/comfyui_h3/pika-h3-fl2va-int8.api.json)及對應的原 H3 FL2VA INT8／Pika FL2VA LoRA，依其實際範本核對端點輸入。
+- 採樣沿用 [Comfy 官方 Pika adapter 設定](https://huggingface.co/Comfy-Org/MiniMax-H3/discussions/70)：`lcm`、`ManualSigmas = 1.0, 0.972973, 0.923077, 0.8, 0.571429, 0.333333, 0.0`、六次模型評估、CFG 1、LoRA strength 1。只接對應 Pika adapter；普通 Euler 六步或額外 Turbo／Omni adapter 不等價。
+- 尺寸、幀數與 reference resize 依實際 ComfyUI 節點及 job 核對，不能直接套獨立 CLI 的 aspect buckets；starter 使用 `ref_image_size="match"`。Prompt 仍依 [Pika 官方指南](https://github.com/Pika-Labs/Pika-H3-Flex/blob/64d81b2e98aa8aa1cf078b07a6ef3aaeae1033da/docs/prompt-guidance.md) 綁定有序素材，Ref2VA 使用六欄及 `<Picture N>`／`<Subject N>`。
+- 容量、速度及內容品質依當次配置與產物驗證。量化 ComfyUI 與官方 BF16 CLI 不是逐位等價實作；當次實測資料保存在 project／research，不作 skill 的工具入口。
+
+此路徑使用 ComfyUI 的 queue／history／workflow 與當次保存收據；共用[資源生命週期](../../colab-video-studio/references/runtime-monitoring.md)。目前沒有名為 `pika-int8` 的 repo 通用 preset，以 API starter 編譯當次 job；`h3-omni-int8` 是另一模型的入口。
+
+## 明確選用：官方 BF16 獨立 CLI
+
+以下設定與量測只適用此分支。
+
+### 入口與版本
 
 - Repo CLI：`scripts/pika_h3.py`，本機 Python 3.10+／標準函式庫；`plan`、`prepare()`、`status` 不安裝、不下載、不啟動 GPU。
 - [獨立 notebook](../../../notebooks/Pika_H3_Flex_Colab.ipynb)：內嵌工具；預設 `INSTALL_PIKA=False`、`RUN_GENERATION=False`。依當次授權在目標 runtime 明確執行；不配置 GPU 或呼叫付費 API。
@@ -10,7 +25,7 @@
 
 此接入只做離線契約及模擬程序檢查；GPU 推論／性能／畫質為 `not_run`。官方測試單張 H100 80GB，本工具尚未驗證 A100／L4／T4。官方 480p／5s sampling 約 66–69 GiB；offload 長片 sampling 約 29–32 GiB GPU，host memory 曾接近 94 GiB，encoder／VAEs 另有峰值，不能當整體最低需求。兩種 task 家族合計約 210 GB base＋5.5 GB adapters，另留依賴與暫存。配置前核實 GPU／host RAM／磁碟。來源：[官方硬體測試](https://github.com/Pika-Labs/Pika-H3-Flex/blob/64d81b2e98aa8aa1cf078b07a6ef3aaeae1033da/docs/hardware.md)。
 
-## 模式與輸入
+### 模式與輸入
 
 | task | 實際條件 |
 | --- | --- |
@@ -28,7 +43,7 @@ Prompt 依 [Pika 官方指南](https://github.com/Pika-Labs/Pika-H3-Flex/blob/64
 
 官方採樣使用 `1000/750/500/250/100/40/0` knots、video/audio shift 12/3 與中間 fresh noise，由官方套件處理。普通 Euler 六步不等價；不另疊 Turbo／Omni LoRA。4K、分離 audio stems 與 prompt enhancement 是 hosted 服務，本工具未接入。來源：[固定版 README](https://github.com/Pika-Labs/Pika-H3-Flex/tree/64d81b2e98aa8aa1cf078b07a6ef3aaeae1033da)。
 
-## 操作與產物
+### 操作與產物
 
 安裝／生成在已授權的 NVIDIA runtime 執行。本機可先做離線計畫；同 runtime 的安裝與生成依序執行。
 

@@ -1,4 +1,4 @@
-Pika H3 Flex 新增：[獨立 Colab notebook](notebooks/Pika_H3_Flex_Colab.ipynb)、[CLI](scripts/pika_h3.py) 與[操作說明](skills/minimax-h3-colab/references/pika-h3-flex.md)。指定 `pika` 使用固定版官方六步推論，支援文字、首尾圖與多模態 references；指定 `omni` 沿用下方 FastH3 Omni。預設不安裝、不下載權重、不生成；已做離線檢查，GPU／畫質驗證尚未執行。
+Pika H3 Flex：指定 `pika` 預選 H3 INT8 底模＋對應 Pika adapter，使用 repo 維護的 [Ref2VA API starter](workflows/comfyui_h3/pika-h3-ref2va-int8.api.json) 與[操作說明](skills/minimax-h3-colab/references/pika-h3-flex.md)。明確選用官方 BF16 CLI 時使用[獨立 Colab notebook](notebooks/Pika_H3_Flex_Colab.ipynb)或 [CLI](scripts/pika_h3.py)；`omni` 沿用下方 FastH3 Omni。預設不配置資源、不安裝、不下載權重、不生成；實際容量與內容依當次產物驗證。
 
 FastH3 Omni 新增：[ComfyUI notebook](notebooks/ComfyUI_Colab.ipynb) 的 `h3-omni-int8` 選項（原生 Ref2VA、8步、INT8模型與含視覺塔的INT8 encoder），並可切換 `REF_IMAGE_SIZE=max/match`，表單預設 `max`。[使用方式](doc/COMFYUI_WORKSPACE.md)、[模型與 hybrid 研究](research/h3_omni_20261028.md)。此新增路徑完成離線檢查，未做 GPU 生成／人物相似度對照。
 
