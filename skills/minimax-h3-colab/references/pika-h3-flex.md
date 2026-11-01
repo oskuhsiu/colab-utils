@@ -13,6 +13,8 @@
 
 此路徑使用 ComfyUI 的 queue／history／workflow 與當次保存收據；共用[資源生命週期](../../colab-video-studio/references/runtime-monitoring.md)。目前沒有名為 `pika-int8` 的 repo 通用 preset，以 API starter 編譯當次 job；`h3-omni-int8` 是另一模型的入口。
 
+新對白、心聲或旁白 job 在提交前必走 [對白估時與語速](../../video-production/references/dialogue-pacing.md) 的原生 ComfyUI 入口：先換好當次視覺／動作 base，再以 `dialogue_timing.py compile-api` 產生帶逐句發聲目標和正確 frames 的 API graph，將其輸出交給上述既有提交介面。保留 timing report，核對沒有把模型5秒下限或長鏡頭當成說話時長；native cadence 仍須由實際輸出聆聽驗證。
+
 ## 明確選用：官方 BF16 獨立 CLI
 
 以下設定與量測只適用此分支。

@@ -11,6 +11,8 @@ python3 "$VIDEO_SKILL/scripts/studio.py" init \
 
 完成 `assets/` 與 `plan.json` 後：
 
+新對白／心聲／旁白製作先完成 [對白估時與語速](../../video-production/references/dialogue-pacing.md) 的預算與編譯。Studio 原生 H3 shot 使用 `audio="native"`、`duration_seconds="auto"` 與結構化 `dialogue_timing`；`prepare` 會把逐句目標、生成長度及 `dialogue_timing_result` 寫入 immutable job。刻意固定片長可用數字，發聲目標仍獨立。原生 ComfyUI／Pika 則先用該頁的 `dialogue_timing.py compile-api` 產生實際提交的 API graph 及 report，再進既有批次入口。兩者都在 GPU 配置前核對，不能只在分鏡留下估時。
+
 ```bash
 python3 "$VIDEO_SKILL/scripts/studio.py" prepare --project "$PROJECT_DIR"
 python3 "$VIDEO_SKILL/scripts/studio.py" reserve --project "$PROJECT_DIR" --shot s01

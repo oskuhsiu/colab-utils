@@ -156,6 +156,21 @@ def compile_job(project, shot_id):
     shot = dict(shots[ids.index(shot_id)])
     settings, fps = settings_for(plan, shot)
     duration = shot.get("duration_seconds")
+    if "dialogue_timing" in shot:
+        from dialogue_timing import H3_CONSTRAINTS, pacing_prompt, plan_timing
+        if settings["backend"] != "h3" or shot.get("audio") != "native":
+            raise ValueError("Compiled dialogue_timing currently requires native H3 audio; use the offline planner for separate-audio timing")
+        if not isinstance(shot["dialogue_timing"], dict):
+            raise ValueError("dialogue_timing must be an object")
+        timing_spec = dict(shot["dialogue_timing"])
+        if duration not in (None, "auto"):
+            if "clip_seconds" in timing_spec and timing_spec["clip_seconds"] != duration:
+                raise ValueError("Shot duration and dialogue clip_seconds conflict")
+            timing_spec["clip_seconds"] = duration
+        timing = plan_timing(timing_spec, constraints=H3_CONSTRAINTS)
+        duration = timing["requested_duration_seconds"]
+        shot.update(duration_seconds=duration, dialogue_timing_result=timing,
+                    prompt=pacing_prompt(shot["prompt"], timing))
     if isinstance(duration, bool) or not isinstance(duration, (int, float)) or not math.isfinite(duration) or not 1 <= duration <= 15:
         raise ValueError("duration_seconds must be finite and in 1..15")
     if settings["backend"] == "h3" and (int(duration) != duration or duration < 5):
