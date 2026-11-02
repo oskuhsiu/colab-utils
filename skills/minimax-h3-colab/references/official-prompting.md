@@ -60,7 +60,7 @@ non_diegetic_music:
 
 ## 本地表演與發聲方式交接
 
-含角色表演或內心話時，生成前依 [情緒與表演](../../video-production/references/emotion-and-performance.md) 判定劇本所需的 E0–E4 強度，分開 felt／shown 的進程，決定具體表演錨點、逐句 `delivery`、`voice_mode`、嘴型及聲音聽感／可聽對象。這是本地製作標註，不是新增 H3 欄位、特殊 tag 或 guidance 對照表；在既有畫面與語音描述中表達，實際能力另驗。
+含角色表演或內心話時，生成前依 [情緒與表演](../../video-production/references/emotion-and-performance.md) 把動機、觸發與反應寫成連續行為，決定具體表演錨點、逐句 `delivery`、`voice_mode`、嘴型及聲音聽感／可聽對象；需要比較強弱時再用 E0–E4 與 felt／shown 協助交接，不要求每鏡重填分級表。這是本地製作標註，不是新增 H3 欄位、特殊 tag 或 guidance 對照表；在既有畫面與語音描述中表達，實際能力另驗。
 
 把逐句的語速、重音、停頓、氣息與情緒變化寫進當句發聲描述，與動作、表情和時點接上；Ref2VA 放在 `detailed_description`，Base 放在 `integrated_multimodal_description`，維持各自原有欄位。共用角色文字保留聲線身份，當句表演照分鏡轉入；核最終序列化文字，而非只檢查 metadata 有 `delivery`。表演、模式、音效及聲音處理寫在台詞 tag 外，`<d>[語言] ...</d>` 只放實際要聽到的文本。
 
@@ -94,7 +94,7 @@ On recognizing the figure at the doorway, <Subject 1> abruptly stops typing, fix
 
 口說描述對應角色的同步發音動作。心聲／旁白可用畫外 voiceover 形式承載，但須另外說明其敘事層、聲音與嘴型；實際人在畫外出聲則描述其位置與遮擋，不將它混作在鏡角色心聲。非發音限制僅作用於相關角色與時窗，同鏡其他口說角色仍正常發音。
 
-以下為最終 prompt 的當句局部寫法示例，完整 prompt 仍需原有六欄及正確來源綁定；同一句台詞只寫一次。採 timing compiler 時，不直接把這些含 `<d>` 的片段貼入 base，先核對其支援模式：一般心聲用 `inner`，畫外口說的本地 `offscreen_spoken` 對應 `offscreen`；目前 `silent_mouthed_inner` 不在其模式清單內，不能靜默降成嘴型相反的 `inner`。無聲說話示例只說明目標表演，不代表現有 compiler 已能編譯該模式：
+以下為最終 prompt 的當句局部寫法示例，完整 prompt 仍需原有六欄及正確來源綁定；同一句台詞只寫一次。採 timing compiler 時，不直接把這些含 `<d>` 的片段貼入 base，先核對其支援模式：一般心聲用 `inner`，畫外口說的本地 `offscreen_spoken` 對應 `offscreen`；`silent_mouthed_inner` 可把同一句心聲與無聲嘴型編入提示，不能靜默降成嘴型相反的 `inner`。compiler 支援的是提示意圖，不代表 H3 已能可靠演出，仍須按實際聲畫驗證：
 
 心聲（觀眾有聲，角色無該句發音嘴型）：
 
