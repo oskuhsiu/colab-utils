@@ -30,6 +30,32 @@ def _hash(path):
     return hasher.hexdigest()
 
 
+def backend_cache_key(settings, code):
+    """Content identity, not the attempt-specific transport paths of LoRAs."""
+    stable = dict(settings)
+    stable["loras"] = []
+    for adapter in settings.get("loras", []):
+        if not re.fullmatch(r"[0-9a-f]{64}", adapter.get("sha256", "")):
+            raise ValueError("A verified LoRA SHA-256 is required for model reuse")
+        stable["loras"].append({k: v for k, v in adapter.items() if k != "path"})
+    return json.dumps(dict(settings=stable, code=code), sort_keys=True)
+
+
+def cached_backend(key, loader, release=lambda: None):
+    """Invalidate both halves before loading; failed replacement is never reusable."""
+    if globals().get("_VIDEO_BACKEND_KEY") == key and globals().get("_VIDEO_BACKEND") is not None:
+        return globals()["_VIDEO_BACKEND"], True
+    globals()["_VIDEO_BACKEND_KEY"] = None
+    globals()["_VIDEO_BACKEND"] = None
+    release()
+    backend = loader()
+    if backend is None:
+        raise RuntimeError("Backend loader returned no model")
+    globals()["_VIDEO_BACKEND"] = backend
+    globals()["_VIDEO_BACKEND_KEY"] = key
+    return backend, False
+
+
 def _install_wan(root):
     signature = "diffusers0.40-transformers5.16.1-accelerate1.12.0"
     if globals().get("_VIDEO_WAN_INSTALL") == signature:
@@ -42,6 +68,7 @@ def _install_wan(root):
             pass
     path = root / "torch-constraints.txt"
     path.write_text("\n".join(constraints))
+    globals()["_VIDEO_H3_INSTALL_STATE"] = {}
     subprocess.run([sys.executable, "-m", "pip", "install", "--disable-pip-version-check",
         "-c", str(path), "diffusers==0.40.0", "transformers==5.16.1", "accelerate==1.12.0",
         "sentencepiece", "ftfy", "safetensors==0.8.0", "imageio-ffmpeg==0.6.0"], check=True)
@@ -110,22 +137,26 @@ def run_job(job_path):
         progress(phase="installing")
         if settings["backend"] != "h3":
             _install_wan(root)
-        key = json.dumps(dict(settings=settings, code=job["code"]), sort_keys=True)
-        if globals().get("_VIDEO_BACKEND_KEY") != key:
-            globals()["_VIDEO_BACKEND"] = None
+        key = backend_cache_key(settings, job["code"])
+        def release():
             gc.collect()
             torch.cuda.empty_cache()
+        def load():
             source = root / "scripts" / "backends.py"
             spec = importlib.util.spec_from_file_location("video_backends_"+job["job_digest"][:12], source)
             module = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(module)
-            globals()["_VIDEO_BACKEND"] = module.load_backend(settings, progress)
-            globals()["_VIDEO_BACKEND_KEY"] = key
-        else:
+            if settings["backend"] == "h3":
+                # A dependency installation may alter the other backend's environment.
+                globals()["_VIDEO_WAN_INSTALL"] = None
+            install_state = globals().setdefault("_VIDEO_H3_INSTALL_STATE", {})
+            return module.load_backend(settings, progress, install_state=install_state)
+        backend, reused = cached_backend(key, load, release)
+        if reused:
             progress(phase="reusing_model")
         torch.cuda.reset_peak_memory_stats()
         audio_track = inputs.pop("audio_track", None)
-        generated = globals()["_VIDEO_BACKEND"].render(job["shot"], inputs, output, progress)
+        generated = backend.render(job["shot"], inputs, output, progress)
         if generated["revision"] != settings["revision"] or generated["model_id"] != settings["model_id"] or generated["steps"] != settings["steps"] or generated["seed"] != job["shot"]["seed"]:
             raise ValueError("Actual generation configuration differs from immutable job")
         if audio_track:

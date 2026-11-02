@@ -39,7 +39,7 @@
 - **聲音**：分清逐句發聲方式、表演、嘴型、可聽對象、環境音與配樂，標出說話者及對應時點。聲線身份跨鏡保留，語氣依當場情緒變化。依模型是否支援原生語音與所需控制，決定送入生成或留給後製。
 - **參考綁定**：從資產 ID 追到實際檔案、用途和輸入順序，再轉成所選 backend 的語法。H3 使用 [H3 提示契約](../../minimax-h3-colab/references/official-prompting.md)；Studio 使用 [資料與執行契約](../../colab-video-studio/references/workflow.md)。
 
-上游的 `@名稱` 由其應用程式替換成圖片參照，其 `read_*`／`save_*`／`update_storyboard` 也是該後端工具。此 repo 不提供這些呼叫或自動替換；在本地編譯 job 時完成實際綁定。專案風格也須送入最終提示或已驗證的模型設定，不能假設有上游的自動注入。
+上游的 `@名稱` 由其應用程式替換成圖片參照，其 `read_*`／`save_*`／`update_storyboard` 也是該後端工具。此 repo 不提供那些呼叫或任意 `@名稱` 猜測替換；可用 [Studio 的確定引用解析器](../../colab-video-studio/references/reference-audio.md) 將 typed ID／名稱／variant／view 編譯到實際 inputs 與 H3 picture 次序，缺少或同名時拒絕而非挑第一張。專案風格也須送入最終提示或已驗證的模型設定，不能假設有上游的自動注入。
 
 提交前逐項比對分鏡標註與最終提示，確認強度對應的具體反應、`delivery`、發聲方式和嘴型等意圖實際傳入，避免編譯器漏讀欄位後只剩共用語氣。強度碼及其他前製欄位不會自動變成 backend 參數。
 

@@ -1,6 +1,8 @@
 """Immutable shot jobs and evidence-bound reviews. Python standard library only."""
 from __future__ import annotations
 
+from contextlib import contextmanager
+import copy
 import hashlib
 import json
 import math
@@ -154,12 +156,17 @@ def compile_job(project, shot_id):
     if len(ids) != len(set(ids)) or shot_id not in ids:
         raise ValueError("Shot identifiers must be unique; requested shot must exist")
     shot = dict(shots[ids.index(shot_id)])
+    if "audio_timeline" in shot:
+        raise ValueError("audio_timeline is compiler-owned; source plans must use a validated audio_artifact and dialogue_timing")
     settings, fps = settings_for(plan, shot)
+    from reference_resolver import resolve_shot
+    shot = resolve_shot(plan, shot, settings)
+    audio_asset = plan.get("assets", {}).get(shot.get("inputs", {}).get("audio_track"), {})
+    if audio_asset.get("audio_artifact") and "dialogue_timing" not in shot:
+        raise ValueError("An imported audio artifact requires dialogue_timing to check current text/speaker/voice dependencies")
     duration = shot.get("duration_seconds")
     if "dialogue_timing" in shot:
         from dialogue_timing import H3_CONSTRAINTS, pacing_prompt, plan_timing
-        if settings["backend"] != "h3" or shot.get("audio") != "native":
-            raise ValueError("Compiled dialogue_timing currently requires native H3 audio; use the offline planner for separate-audio timing")
         if not isinstance(shot["dialogue_timing"], dict):
             raise ValueError("dialogue_timing must be an object")
         timing_spec = dict(shot["dialogue_timing"])
@@ -167,10 +174,30 @@ def compile_job(project, shot_id):
             if "clip_seconds" in timing_spec and timing_spec["clip_seconds"] != duration:
                 raise ValueError("Shot duration and dialogue clip_seconds conflict")
             timing_spec["clip_seconds"] = duration
-        timing = plan_timing(timing_spec, constraints=H3_CONSTRAINTS)
+        if shot.get("audio") == "separate":
+            from audio_artifacts import bind_timing
+            asset_id = shot.get("inputs", {}).get("audio_track")
+            if not isinstance(asset_id, str) or not plan.get("assets", {}).get(asset_id, {}).get("audio_artifact"):
+                raise ValueError("Separate dialogue_timing requires an audio_track with an imported audio_artifact")
+            timing_spec, timeline = bind_timing(project, plan, asset_id, timing_spec)
+            constraints = H3_CONSTRAINTS if settings["backend"] == "h3" else dict(
+                min_seconds=1, max_seconds=15, step_seconds=1/fps, fps=fps, frame_step=4, frame_offset=1)
+            timing = plan_timing(timing_spec, constraints=constraints)
+            for line in timing["utterances"]:
+                for key in ("voice_mode", "delivery", "rate_multiplier"):
+                    line.pop(key, None)
+                line["basis"] = "Supplied utterance boundaries within measured PCM WAV; not detected speech"
+            timing["limitations"] = ("Recorded audio timing only; no voice, mouth or acting instructions were compiled. "
+                                     "Put visual intent in shot.prompt and review the actual sound and picture.")
+            timeline["duration_seconds"] = timing["requested_duration_seconds"]
+            shot["audio_timeline"] = timeline
+        else:
+            if settings["backend"] != "h3" or shot.get("audio") != "native":
+                raise ValueError("Compiled dialogue_timing requires native H3 or a separate imported audio artifact")
+            timing = plan_timing(timing_spec, constraints=H3_CONSTRAINTS)
+            shot["prompt"] = pacing_prompt(shot["prompt"], timing)
         duration = timing["requested_duration_seconds"]
-        shot.update(duration_seconds=duration, dialogue_timing_result=timing,
-                    prompt=pacing_prompt(shot["prompt"], timing))
+        shot.update(duration_seconds=duration, dialogue_timing_result=timing)
     if isinstance(duration, bool) or not isinstance(duration, (int, float)) or not math.isfinite(duration) or not 1 <= duration <= 15:
         raise ValueError("duration_seconds must be finite and in 1..15")
     if settings["backend"] == "h3" and (int(duration) != duration or duration < 5):
@@ -235,7 +262,7 @@ def compile_job(project, shot_id):
         if asset_id in selected:
             return
         value = dict(assets[asset_id])
-        if value.get("role") not in ("identity", "keyframe", "scene", "style", "control", "pose", "face", "mask", "audio", "video", "wardrobe"):
+        if value.get("role") not in ("identity", "keyframe", "scene", "prop", "style", "control", "pose", "face", "mask", "audio", "video", "wardrobe"):
             raise ValueError(f"Unsupported asset role for {asset_id}")
         path = local_path(project, value["path"])
         if not path.is_file() or value.get("status") != "ready":
@@ -277,7 +304,8 @@ def compile_job(project, shot_id):
             asset(name)
             if assets[name].get("source") != "original":
                 raise ValueError("Identity baselines cannot be earlier rendered video frames")
-        char_specs.append(char)
+        from reference_resolver import generation_character
+        char_specs.append(generation_character(char))
         # At least one actual input must retain lineage to this character's baseline.
         def descends(name):
             return name in origins or any(descends(p) for p in assets[name].get("derived_from", []))
@@ -287,6 +315,13 @@ def compile_job(project, shot_id):
                                and set(origins) & set(adapter.get("identity_assets",[])) for adapter in settings["loras"])
         if not any(descends(name) for name in actual) and not trained_identity:
             raise ValueError(f"No actual model input links to character {char_id}'s identity baseline")
+    if "audio_timeline" in shot:
+        timeline = shot["audio_timeline"]
+        audio = selected.get(inputs.get("audio_track"), {})
+        if (timeline["asset_id"] != inputs.get("audio_track")
+                or timeline["audio"]["sha256"] != audio.get("sha256")
+                or timeline["audio"]["path"] != audio.get("path")):
+            raise ValueError("Audio changed between artifact validation and input snapshot; reload/reimport before continuing")
     backend = settings["backend"]
     roles = set(inputs) - {"audio_track"}
     allowed = {
@@ -344,10 +379,72 @@ def compile_job(project, shot_id):
     code = {name: sha256(SCRIPT_DIR / name) for name in ("backends.py", "remote.py", "h3_setup.py")}
     job = dict(schema_version=1, project_id=plan["project_id"], request=plan["request"],
                settings=settings, shot=shot, assets=selected, characters=char_specs,
-               budget=plan["budget"], code=code)
-    job["job_digest"] = digest(job)
+               budget=plan["budget"], code=code, generation_digest_version=2)
+    job["generation_digest"] = generation_digest(job)
+    job["job_digest"] = job["generation_digest"]
     return job
 
+
+
+def generation_digest(job, *, version=None):
+    """Content identity, independent of spend policy and evidence sampling.
+
+    Keep the immutable job snapshot for provenance. This projection also lets
+    pre-separation attempts be compared without rewriting their receipts.
+    """
+    value = copy.deepcopy(job)
+    version = job.get("generation_digest_version", 1) if version is None else version
+    if version not in (1, 2):
+        raise ValueError("Unsupported generation digest version")
+    for key in ("job_digest", "generation_digest", "budget", "review_spec_digest"):
+        value.pop(key, None)
+    value.pop("generation_digest_version", None)
+    for key in ("qa", "criteria"):
+        value["shot"].pop(key, None)
+    # The final prompt/duration and actual asset bytes already contain all
+    # model inputs. Lookup aliases and subtitle alignment must not force GPU
+    # regeneration. Current artifact validation still rejects stale speech.
+    if version == 2:
+        for key in ("reference_bindings", "audio_timeline", "dialogue_timing", "dialogue_timing_result"):
+            value["shot"].pop(key, None)
+        from reference_resolver import generation_character
+        value["characters"] = [generation_character(character) for character in value.get("characters", [])]
+        for asset in value.get("assets", {}).values():
+            asset.pop("audio_artifact", None)
+    return digest(value)
+
+
+def review_spec(job):
+    return {"criteria": job["shot"]["criteria"], "qa": job["shot"].get("qa", {})}
+
+
+def current_review_job(directory):
+    """Read current QA for raw attempts; edited segments retain their recipe."""
+    directory = Path(directory).resolve()
+    snapshot = read_json(directory / "job.json")
+    if directory.parent.name == "attempts" and (directory.parent.parent / "plan.json").is_file():
+        verify_current(directory.parent.parent, directory)
+        current = compile_job(directory.parent.parent, snapshot["shot"]["id"])
+        snapshot["shot"]["criteria"] = current["shot"]["criteria"]
+        snapshot["shot"]["qa"] = current["shot"].get("qa", {})
+        if "audio_timeline" in current["shot"]:
+            snapshot["shot"]["audio_timeline"] = current["shot"]["audio_timeline"]
+    return snapshot
+
+
+@contextmanager
+def reservation_lock(path):
+    """An OS-held lock releases on process death; never unlink its inode."""
+    try:
+        import fcntl
+    except ImportError as exc:
+        raise RuntimeError("Reservation locking requires a POSIX host (Linux/macOS)") from exc
+    with Path(path).open("a+") as handle:
+        fcntl.flock(handle.fileno(), fcntl.LOCK_EX)
+        try:
+            yield
+        finally:
+            fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
 
 def validate_job_media(project, job):
     """Validate decoded modality, not merely the filename extension."""
@@ -392,59 +489,188 @@ def reserve(project, shot_id):
     root.mkdir(parents=True, exist_ok=True)
     # Exclusive lock serializes the budget check across local controllers.
     lock = root / ".reserve.lock"
-    with lock.open("x"):
-        try:
-            existing = [read_json(p) for p in root.glob("*/receipt.json")]
-            budget = job["budget"]
-            if len(existing) >= budget["max_total_attempts"] or sum(r["shot_id"] == shot_id for r in existing) >= budget["max_attempts_per_shot"]:
-                raise ValueError("Attempt budget exhausted; revise the explicit project budget before new work")
-            attempt_id = identifier(shot_id[:50] + "_" + uuid.uuid4().hex[:12])
-            directory = root / attempt_id
-            directory.mkdir(exist_ok=False)
-            write_json(directory / "job.json", job)
-            write_json(directory / "receipt.json", dict(attempt_id=attempt_id, shot_id=shot_id,
-                job_digest=job["job_digest"], state="reserved", reserved_utc=datetime.now(timezone.utc).isoformat()))
-        finally:
-            lock.unlink()
+    with reservation_lock(lock):
+        # The plan may have changed while waiting for another controller.
+        job = compile_job(project, shot_id)
+        validate_job_media(project, job)
+        existing = [read_json(p) for p in root.glob("*/receipt.json")]
+        budget = job["budget"]
+        if len(existing) >= budget["max_total_attempts"] or sum(r["shot_id"] == shot_id for r in existing) >= budget["max_attempts_per_shot"]:
+            raise ValueError("Attempt budget exhausted; revise the explicit project budget before new work")
+        attempt_id = identifier(shot_id[:50] + "_" + uuid.uuid4().hex[:12])
+        directory = root / attempt_id
+        directory.mkdir(exist_ok=False)
+        write_json(directory / "job.json", job)
+        write_json(directory / "receipt.json", dict(attempt_id=attempt_id, shot_id=shot_id,
+            job_digest=job["job_digest"], state="reserved", reserved_utc=datetime.now(timezone.utc).isoformat()))
     return directory, job
 
 
+
+def _current_submission_budget(project, directory):
+    """Reservations consume the cap, including uncertain and failed attempts.
+
+    Lowering a cap below already reserved work blocks further submissions. Never
+    silently discard reservations or increase authorization to make work fit.
+    """
+    snapshot = verify_current(project, directory)
+    budget = compile_job(project, snapshot["shot"]["id"])["budget"]
+    existing = [read_json(path) for path in (project / "attempts").glob("*/receipt.json")]
+    per_shot = sum(receipt["shot_id"] == snapshot["shot"]["id"] for receipt in existing)
+    if len(existing) > budget["max_total_attempts"] or per_shot > budget["max_attempts_per_shot"]:
+        raise ValueError("Current attempt budget is below existing reservations; submission blocked. "
+                         "Reconcile reservations and explicit budget authorization before spending.")
+    return snapshot, dict(budget)
+
+
+def admit_submission(project, attempt, session):
+    """Claim one reserved attempt under the same lock as budget reservation."""
+    project = Path(project).resolve()
+    directory = project / "attempts" / identifier(attempt)
+    identifier(session)
+    with reservation_lock(project / "attempts/.reserve.lock"):
+        receipt = read_json(directory / "receipt.json")
+        if receipt.get("state") != "reserved":
+            raise ValueError("Only an unsubmitted reserved attempt may be submitted. Fetch/reconcile existing work.")
+        job, budget = _current_submission_budget(project, directory)
+        if (receipt.get("attempt_id") != attempt or receipt.get("job_digest") != job["job_digest"]
+                or receipt.get("shot_id") != job["shot"]["id"]):
+            raise ValueError("Reservation receipt does not match this immutable attempt")
+        receipt.update(state="uploading", session=session,
+            remote_directory=f"/content/video-studio/{job['project_id']}/{attempt}",
+            submission_id=uuid.uuid4().hex, submission_budget=budget,
+            submission_claimed_utc=datetime.now(timezone.utc).isoformat())
+        write_json(directory / "receipt.json", receipt)
+    return job, receipt
+
+
+def confirm_submission(project, attempt, submission_id):
+    """Re-read authorization after upload, immediately before remote execution."""
+    project = Path(project).resolve()
+    directory = project / "attempts" / identifier(attempt)
+    with reservation_lock(project / "attempts/.reserve.lock"):
+        receipt = read_json(directory / "receipt.json")
+        if receipt.get("state") != "uploading" or receipt.get("submission_id") != submission_id:
+            raise ValueError("Submission claim changed; reconcile before remote execution")
+        _, budget = _current_submission_budget(project, directory)
+        receipt.update(state="submitted", execution_budget=budget,
+            execution_admitted_utc=datetime.now(timezone.utc).isoformat())
+        write_json(directory / "receipt.json", receipt)
+    return receipt
+
+
+def mark_submission_uncertain(project, attempt, submission_id):
+    project = Path(project).resolve()
+    directory = project / "attempts" / identifier(attempt)
+    with reservation_lock(project / "attempts/.reserve.lock"):
+        receipt = read_json(directory / "receipt.json")
+        if receipt.get("submission_id") == submission_id and receipt.get("state") in ("uploading", "submitted"):
+            receipt["state"] = "needs_reconcile"
+            write_json(directory / "receipt.json", receipt)
+
+
+def verify_job_snapshot(job):
+    if job.get("provenance") or "generation_digest" not in job:
+        expected = digest({key: value for key, value in job.items() if key != "job_digest"})
+    else:
+        expected = generation_digest(job)
+        if job["generation_digest"] != expected:
+            raise ValueError("Attempt generation snapshot changed")
+    if job.get("job_digest") != expected:
+        raise ValueError("Attempt job digest does not match its snapshot")
+
+
+def verify_media_provenance(directory):
+    """Bind editable/reviewable bytes to a generation or conforming receipt."""
+    directory = Path(directory).resolve()
+    job = read_json(directory / "job.json")
+    verify_job_snapshot(job)
+    if job.get("provenance", {}).get("method") == "ffmpeg_conform":
+        receipt = read_json(directory / "receipt.json")
+        if receipt.get("method") != "ffmpeg_conform":
+            raise ValueError("Missing conforming receipt")
+        if "video_sha256" not in receipt:
+            # Older conformed segments bind their media hash in the recipe.
+            recipe = read_json(directory.parent.parent / "recipe.json")
+            if digest({k: v for k, v in recipe.items() if k != "recipe_digest"}) != recipe.get("recipe_digest"):
+                raise ValueError("Legacy edit recipe changed")
+            segment = recipe["segments"][job["shot"]["id"]]
+            if segment["job_digest"] != job["job_digest"]:
+                raise ValueError("Legacy edit recipe belongs to a different segment")
+            receipt = dict(receipt, video_sha256=segment["video_sha"])
+    else:
+        receipt = read_json(directory / "result/receipt.json")
+        if receipt.get("status") != "generated" or receipt.get("attempt_id") != directory.name:
+            raise ValueError("Result has no matching successful generation receipt")
+    if receipt.get("job_digest") != job["job_digest"] or receipt.get("video_sha256") != sha256(directory / "result/video.mp4"):
+        raise ValueError("Video differs from its immutable generation/conforming receipt")
+    return job
+
 def verify_current(project, directory):
     snapshot = read_json(Path(directory) / "job.json")
+    verify_job_snapshot(snapshot)
     current = compile_job(project, snapshot["shot"]["id"])
-    if snapshot["job_digest"] != current["job_digest"]:
+    if generation_digest(snapshot, version=2) != generation_digest(current, version=2):
         raise ValueError("Attempt no longer matches current request/assets/settings/code")
     return snapshot
 
 
-def verify_evidence(directory):
+def evidence_snapshot(directory):
+    """Validate one manifest and bind its exact bytes, spec and job together."""
     directory = Path(directory)
-    job = read_json(directory / "job.json")
-    manifest = read_json(directory / "evidence" / "manifest.json")
+    job = verify_media_provenance(directory)
+    manifest_path = directory / "evidence" / "manifest.json"
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes)
     if manifest["job_digest"] != job["job_digest"] or manifest["video_sha256"] != sha256(directory / "result" / "video.mp4"):
         raise ValueError("Evidence does not describe this job/video")
+    expected_spec = review_spec(current_review_job(directory))
+    recorded_spec = manifest.get("review_spec", review_spec(job))
+    if recorded_spec != expected_spec:
+        raise ValueError("Evidence uses an outdated review specification; inspect the same video again")
+    if "review_spec_digest" in manifest and manifest["review_spec_digest"] != digest(recorded_spec):
+        raise ValueError("Evidence review specification changed")
     for item in manifest["items"]:
         path = local_path(directory / "evidence", item["path"])
         if sha256(path) != item["sha256"]:
             raise ValueError(f"Evidence changed: {item['id']}")
-    return manifest
+    if manifest_path.read_bytes() != manifest_bytes:
+        raise ValueError("Evidence changed while taking review snapshot")
+    return dict(manifest=manifest, job=job,
+                evidence_sha256=hashlib.sha256(manifest_bytes).hexdigest())
+
+
+def verify_evidence(directory):
+    return evidence_snapshot(directory)["manifest"]
+
+
+def snapshot_template(snapshot):
+    job, manifest = snapshot["job"], snapshot["manifest"]
+    result = dict(schema_version=1, job_digest=job["job_digest"], video_sha256=manifest["video_sha256"],
+        evidence_sha256=snapshot["evidence_sha256"],
+        reviewer={"kind": "agent", "name": "", "model": ""},
+        criteria=[dict(id=c["id"], verdict="unknown", evidence=[], reason="") for c in manifest.get("review_spec", review_spec(job))["criteria"]],
+        limitations=["Review is limited to supplied frames/audio evidence; unexplored intervals remain uncertain."])
+    if "review_spec_digest" in manifest:
+        result["review_spec_digest"] = manifest["review_spec_digest"]
+    return result
 
 
 def review_template(directory):
-    directory = Path(directory)
-    job = read_json(directory / "job.json")
-    manifest = verify_evidence(directory)
-    return dict(schema_version=1, job_digest=job["job_digest"], video_sha256=manifest["video_sha256"],
-        evidence_sha256=sha256(directory / "evidence" / "manifest.json"),
-        reviewer={"kind": "agent", "name": "", "model": ""},
-        criteria=[dict(id=c["id"], verdict="unknown", evidence=[], reason="") for c in job["shot"]["criteria"]],
-        limitations=["Review is limited to supplied frames/audio evidence; unexplored intervals remain uncertain."])
+    return snapshot_template(evidence_snapshot(directory))
+
+
+def require_snapshot_current(directory, snapshot):
+    current = evidence_snapshot(directory)
+    if current["evidence_sha256"] != snapshot["evidence_sha256"]:
+        raise ValueError("Evidence changed since review snapshot")
 
 
 def validate_review(directory, review, require_pass=False):
     directory = Path(directory)
-    template = review_template(directory)
-    for key in ("job_digest", "video_sha256", "evidence_sha256"):
+    snapshot = evidence_snapshot(directory)
+    template = snapshot_template(snapshot)
+    for key in ("job_digest", "video_sha256", "evidence_sha256", *(["review_spec_digest"] if "review_spec_digest" in template else [])):
         if review.get(key) != template[key]:
             raise ValueError(f"Review has stale {key}")
     if not review.get("reviewer", {}).get("name"):
@@ -453,7 +679,7 @@ def validate_review(directory, review, require_pass=False):
     actual = [c["id"] for c in review.get("criteria", [])]
     if len(actual) != len(set(actual)) or set(actual) != expected:
         raise ValueError("Review must cover every criterion exactly once")
-    manifest = verify_evidence(directory)
+    manifest = snapshot["manifest"]
     valid = {item["id"] for item in manifest["items"]}
     passed = True
     for criterion in review["criteria"]:
@@ -466,21 +692,25 @@ def validate_review(directory, review, require_pass=False):
         passed &= criterion["verdict"] == "pass"
     if require_pass and not passed:
         raise ValueError("Failed/unknown criteria block final assembly")
+    require_snapshot_current(directory, snapshot)
     return passed
 
 
 def accept_review(directory, review_path):
     directory = Path(directory)
     review = read_json(review_path)
-    passed = validate_review(directory, review)
-    write_json(directory / "review.json", review)
-    receipt = read_json(directory / "receipt.json")
-    receipt["state"] = "passed" if passed else "failed_review"
-    write_json(directory / "receipt.json", receipt)
+    # Serialize acceptance with inspect publication so a refreshed manifest cannot
+    # be assigned a passing receipt from the prior evidence version.
+    with reservation_lock(directory / "evidence" / ".publish.lock"):
+        passed = validate_review(directory, review)
+        write_json(directory / "review.json", review)
+        receipt = read_json(directory / "receipt.json")
+        receipt["state"] = "passed" if passed else "failed_review"
+        write_json(directory / "receipt.json", receipt)
     return receipt
 
 
-def selected_attempts(project, selection):
+def selected_attempts(project, selection, require_pass=True):
     project = Path(project).resolve()
     plan = read_json(project / "plan.json")
     expected = [shot["id"] for shot in plan["shots"]]
@@ -492,6 +722,12 @@ def selected_attempts(project, selection):
         job = verify_current(project, directory)
         if job["shot"]["id"] != shot_id:
             raise ValueError("Selection refers to a different shot")
-        validate_review(directory, read_json(directory / "review.json"), require_pass=True)
+        if require_pass:
+            validate_review(directory, read_json(directory / "review.json"), require_pass=True)
+        else:
+            # Editing/preview needs real, technically valid media, not a quality pass.
+            from media import verify_video
+            verify_media_provenance(directory)
+            verify_video(directory / "result/video.mp4", job["shot"])
         directories.append(directory)
     return directories

@@ -1,0 +1,25 @@
+name: Offline skill contracts
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install media test dependency
+        run: sudo apt-get update && sudo apt-get install -y ffmpeg
+      - name: Verify repository skill installation
+        run: |
+          python scripts/install_repo_skills.py
+          python scripts/install_repo_skills.py --check
+      - name: Run offline contracts (no accounts or GPU)
+        run: python -m unittest discover -s tests -v

@@ -95,6 +95,55 @@ class TimingContracts(unittest.TestCase):
   with self.assertRaisesRegex(ValueError,'measured'):self.t.plan_timing(s)
   s['utterances'][0].update(measured_utterance_seconds=1,language='Arabic')
   self.assertEqual(self.t.plan_timing(s)['speech_total_seconds'],1)
+ def test_unicode_latin_normalization_and_word_boundaries(self):
+  import unicodedata
+  text="café Müller l’été co-operate Straße"
+  composed=self.t.plan_timing(self.spec(text))
+  decomposed=self.t.plan_timing(self.spec(unicodedata.normalize('NFD', text)))
+  self.assertEqual(composed['utterances'][0]['units']['latin_words'],5)
+  self.assertEqual(composed['speech_total_seconds'],decomposed['speech_total_seconds'])
+  self.assertEqual(decomposed['utterances'][0]['text'],unicodedata.normalize('NFD', text))
+ def test_unsupported_script_can_use_honest_manual_target(self):
+  s=self.spec('مرحبا');line=s['utterances'][0]
+  line.update(planned_utterance_seconds=1.3,timing_note='Unmeasured rehearsal target',language='Arabic')
+  p=self.t.plan_timing(s)
+  self.assertEqual(p['speech_total_seconds'],1.3)
+  self.assertIn('not measured',p['utterances'][0]['basis'])
+  self.assertTrue(p['utterances'][0]['warnings'])
+  line['measured_utterance_seconds']=1.3
+  with self.assertRaisesRegex(ValueError,'not both'):self.t.plan_timing(s)
+  del line['measured_utterance_seconds'];del line['timing_note']
+  with self.assertRaisesRegex(ValueError,'timing_note'):self.t.plan_timing(s)
+ def test_explicit_overlap_uses_latest_end_not_last_line_or_sum(self):
+  s=dict(timing_mode='explicit',reaction_seconds=.5,utterances=[
+   dict(speaker='A',text='A sentence.',start_seconds=.5,measured_utterance_seconds=4),
+   dict(speaker='B',text='Yes!',start_seconds=1,measured_utterance_seconds=1)])
+  p=self.t.plan_timing(s);a,b=p['utterances']
+  self.assertEqual(b['start_seconds'],1)
+  self.assertLess(b['start_seconds'],a['end_seconds'])
+  self.assertEqual(a['turn_gap_seconds_after'],0)
+  self.assertAlmostEqual(p['required_content_seconds'],5.35)
+  self.assertEqual(p['requested_duration_seconds'],6)
+  self.assertIn('intentionally overlap',self.t.pacing_prompt(BASE,p))
+ def test_explicit_zero_start_does_not_inherit_sequential_lead(self):
+  p=self.t.plan_timing(dict(timing_mode='explicit',utterances=[dict(speaker='A',text='Hi',start_seconds=0,measured_utterance_seconds=.1)]))
+  self.assertAlmostEqual(p['required_content_seconds'],.45)
+ def test_explicit_timing_rejects_ambiguous_or_missing_start(self):
+  s=self.spec();s['utterances'][0]['start_seconds']=0
+  with self.assertRaisesRegex(ValueError,'timing_mode explicit'):self.t.plan_timing(s)
+  s['timing_mode']='explicit';s['utterances'][0]['not_before_seconds']=1
+  with self.assertRaisesRegex(ValueError,'without not_before'):self.t.plan_timing(s)
+  del s['utterances'][0]['not_before_seconds'];del s['utterances'][0]['start_seconds']
+  with self.assertRaisesRegex(ValueError,'every line'):self.t.plan_timing(s)
+  s['timing_mode']='automatic'
+  with self.assertRaisesRegex(ValueError,'sequential or explicit'):self.t.plan_timing(s)
+ def test_silent_mouthed_inner_preserves_one_inner_voice_and_mouth_intent(self):
+  s=self.spec();s['utterances'][0]['voice_mode']='silent_mouthed_inner'
+  p=self.t.plan_timing(s);prompt=self.t.pacing_prompt(BASE,p)
+  self.assertEqual(prompt.count(SHORT),1)
+  self.assertIn('silently mouths',prompt)
+  self.assertIn('no second in-scene spoken voice',prompt)
+  self.assertIn('actual model speech can deviate',p['limitations'])
  def test_api_compiler_preserves_models_sampling_references_and_input(self):
   graph=json.loads((ROOT/'workflows/comfyui_h3/pika-h3-ref2va-int8.api.json').read_text());graph['11']['inputs']['prompt']=graph['11']['inputs']['prompt'].replace('No text or dialogue.','No generated text.');original=copy.deepcopy(graph)
   compiled,p=self.t.compile_api(graph,self.spec())
