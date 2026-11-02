@@ -170,6 +170,15 @@ def main():
     init.add_argument("--project",required=True,type=Path)
     init.add_argument("--request",required=True)
     init.add_argument("--kind",choices=("provided-person","photoreal","stylized"),default="photoreal")
+    audio_import = sub.add_parser("audio-import", help="Measure an existing PCM WAV and record supplied timing; no TTS/ASR")
+    audio_import.add_argument("--project", required=True, type=Path)
+    audio_import.add_argument("--file", required=True, type=Path, help="Audio import specification JSON")
+    audio_import.add_argument("--output", required=True, help="New project-relative manifest path")
+    audio_srt = sub.add_parser("audio-srt", help="Export supplied sentence timings from the current shot or edit clock")
+    audio_srt.add_argument("--project", required=True, type=Path)
+    audio_srt.add_argument("--shot", required=True)
+    audio_srt.add_argument("--run", help="Optional existing edit run; use its validated trimmed/retimed timeline")
+    audio_srt.add_argument("--output", required=True, help="New project-relative SRT path")
     for name in ("prepare","reserve","submit","fetch","status","inspect","review","joins","assemble",
                  "edit-prepare","edit-inspect","edit-joins","edit-assemble"):
         command = sub.add_parser(name)
@@ -208,6 +217,31 @@ def main():
             write_json(args.project / "plan.json",value)
             (args.project / "assets").mkdir()
             result = {"project":str(args.project),"state":"draft", "next":"Supply/review anchors and edit shots/criteria, then prepare"}
+        elif args.command == "audio-import":
+            from audio_artifacts import create_artifact
+            manifest = create_artifact(args.project, read_json(args.project / "plan.json"), read_json(args.file))
+            target = local_path(args.project, args.output)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with target.open("x", encoding="utf-8") as stream:
+                json.dump(manifest, stream, ensure_ascii=False, indent=2)
+                stream.write("\n")
+            result = {"artifact": str(target), "state": "measured_not_listened", "audio": manifest["audio"]}
+        elif args.command == "audio-srt":
+            from audio_artifacts import srt_from_timeline
+            if args.run:
+                import editing
+                timeline = editing.current_audio_timeline(args.project, args.run, args.shot)
+            else:
+                job = compile_job(args.project, args.shot)
+                if "audio_timeline" not in job["shot"]:
+                    raise ValueError("Shot has no imported audio timeline; do not invent alignment from planning targets")
+                timeline = job["shot"]["audio_timeline"]
+            content = srt_from_timeline(timeline)
+            target = local_path(args.project, args.output)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            with target.open("x", encoding="utf-8") as stream:
+                stream.write(content)
+            result = {"srt": str(target), "state": "supplied_timing_not_listening_proof"}
         elif args.command.startswith("edit-"):
             import editing
             if args.command == "edit-prepare":
@@ -244,7 +278,7 @@ def main():
         else:
             result = assemble(args.project,read_json(args.selection),args.join_review,preview=args.preview,preview_reason=args.preview_reason)
         print(json.dumps(result,ensure_ascii=False,indent=2))
-    except (ValueError,KeyError,FileNotFoundError,RuntimeError) as exc:
+    except (ValueError,KeyError,OSError,RuntimeError) as exc:
         parser.exit(1,f"{type(exc).__name__}: {exc}\n")
 
 

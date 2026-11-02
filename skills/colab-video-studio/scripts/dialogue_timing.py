@@ -116,10 +116,16 @@ def estimate_utterance(line, policy):
     delivery = line.get('delivery', '')
     if not isinstance(delivery, str):
         raise ValueError('delivery must be text')
-    return dict(speaker=line['speaker'], text=text, language=language, voice_mode=mode, delivery=delivery,
+    result = dict(speaker=line['speaker'], text=text, language=language, voice_mode=mode, delivery=delivery,
         rate_multiplier=rate, units=dict(han=han, latin_words=latin, numeric_tokens=numerals),
         articulation_seconds=articulation, punctuation_pause_seconds=pause,
         speech_seconds=speech, basis=basis, warnings=warnings)
+    for key in ('id', 'voice_id', 'voice_description'):
+        if key in line:
+            if not isinstance(line[key], str) or (key != 'voice_description' and not line[key].strip()):
+                raise ValueError(f'{key} must be text')
+            result[key] = line[key]
+    return result
 
 
 def plan_timing(spec, *, constraints=None):
@@ -166,7 +172,7 @@ def plan_timing(spec, *, constraints=None):
     for index, line in enumerate(lines):
         if not isinstance(line, dict):
             raise ValueError('Each utterance must be an object')
-        allowed_line = {'speaker','text','language','voice_mode','delivery','rate_multiplier','measured_utterance_seconds','not_before_seconds','pause_after_seconds','planned_utterance_seconds','timing_note','start_seconds'}
+        allowed_line = {'speaker','text','language','voice_mode','delivery','rate_multiplier','measured_utterance_seconds','not_before_seconds','pause_after_seconds','planned_utterance_seconds','timing_note','start_seconds','id','voice_id','voice_description'}
         if set(line) - allowed_line:
             raise ValueError('Unknown utterance fields: '+', '.join(sorted(set(line)-allowed_line)))
         item = estimate_utterance(line, policy)
@@ -225,7 +231,8 @@ def pacing_prompt(base_prompt, timing):
     if timing.get('timing_mode') == 'explicit':
         lines[0] = '[Dialogue pacing] Follow the explicit soft scene-clock targets below. Overlapping intervals intentionally overlap; do not serialize them or stretch speech to fill the clip. Verify that the selected model can realize this intent.'
     for item in timing['utterances']:
-        lines.append(f"At about {item['start_seconds']:.2f}s, {item['speaker']} delivers this line in about {item['speech_seconds']:.2f}s including internal phrase pauses. {MODES[item['voice_mode']]} {item['delivery']} <d>[{item['language']}] {item['text']}</d>")
+        voice = (' Voice identity intent: '+item['voice_description'].strip()+'.') if item.get('voice_description', '').strip() else ''
+        lines.append(f"At about {item['start_seconds']:.2f}s, {item['speaker']} delivers this line in about {item['speech_seconds']:.2f}s including internal phrase pauses. {MODES[item['voice_mode']]}{voice} {item['delivery']} <d>[{item['language']}] {item['text']}</d>")
         if item['pause_after_seconds']:
             lines.append(f"After this line, {item['speaker']} has {item['pause_after_seconds']:.2f}s of intentional silence/reaction; other explicitly scheduled speakers may continue.")
     return base_prompt[:match.start()].rstrip()+'\n\n'+'\n'.join(lines)+'\n\n'+base_prompt[match.start():].lstrip()

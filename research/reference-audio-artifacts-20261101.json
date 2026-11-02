@@ -1,0 +1,42 @@
+{
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.57-x86_64-with-glibc2.41"
+  },
+  "fixture": {
+    "seconds": 15,
+    "sample_rate_hz": 48000,
+    "channels": 2,
+    "sample_width_bytes": 2,
+    "wav_bytes": 2880044,
+    "manifest_bytes": 1563,
+    "selected_image_refs": 3,
+    "spoken_content": "synthetic PCM silence; no speech or generated quality test"
+  },
+  "warm_cache": true,
+  "resolve_shot": {
+    "iterations": 1000,
+    "median_ms": 0.078,
+    "p95_ms": 0.188
+  },
+  "audio_import_validation": {
+    "iterations": 100,
+    "median_ms": 6.339,
+    "p95_ms": 8.219
+  },
+  "audio_manifest_load_validation": {
+    "iterations": 100,
+    "median_ms": 6.24,
+    "p95_ms": 7.364
+  },
+  "compile_with_references_and_artifact": {
+    "iterations": 100,
+    "median_ms": 10.61,
+    "p95_ms": 12.652
+  },
+  "compile_same_assets_legacy_no_artifact": {
+    "iterations": 100,
+    "median_ms": 3.792,
+    "p95_ms": 5.029
+  }
+}
