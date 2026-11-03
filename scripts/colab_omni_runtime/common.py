@@ -95,6 +95,8 @@ def shot_id(value):
 
 def graph_for_job(job):
     """Bind Picture N to reference_images[N-1] without changing Subject tags."""
+    if "dialogue_timing" in job:
+        raise ValueError("Compile raw dialogue_timing with dialogue_timing.py compile-job before preparing/submitting Omni; this runner consumes final prompt text")
     identity = shot_id(job['shot_id'])
     if job.get('preset', BUNDLE) != BUNDLE:
         raise ValueError('This adapter requires the native h3-omni-int8 preset')

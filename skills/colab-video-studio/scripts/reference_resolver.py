@@ -123,7 +123,9 @@ def resolve_shot(plan, shot, settings):
     prompt = shot.get("prompt", "")
     if not isinstance(prompt, str):
         raise ValueError("A final model-specific prompt must be text")
-    if "@{" in prompt:
+    def resolve_prompt(prompt):
+        if "@{" not in prompt:
+            return prompt
         if settings.get("backend") != "h3":
             raise ValueError("Picture prompt tokens are supported only by the H3 adapter; other backends may use resolved inputs without tokens")
         roles = ["references"] if settings.get("task_mode") == "ref2va" else [r for r in ("first_frame", "last_frame") if r in inputs]
@@ -142,9 +144,16 @@ def resolve_shot(plan, shot, settings):
         prompt = TOKEN.sub(replace, prompt)
         if "@{" in prompt:
             raise ValueError("Malformed or unsupported reference token; use @{kind:ID/variant/view}")
-        shot["prompt"] = prompt
+        return prompt
+    if "prompt" in shot:
+        shot["prompt"] = resolve_prompt(prompt)
     timing = shot.get("dialogue_timing")
     if isinstance(timing, dict):
+        beats = timing.get("action_beats", [])
+        if isinstance(beats, list):
+            for beat in beats:
+                if isinstance(beat, dict) and isinstance(beat.get("description"), str):
+                    beat["description"] = resolve_prompt(beat["description"])
         for line in timing.get("utterances", []):
             if "speaker_ref" not in line:
                 continue

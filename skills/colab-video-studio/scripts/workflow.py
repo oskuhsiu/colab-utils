@@ -166,7 +166,7 @@ def compile_job(project, shot_id):
         raise ValueError("An imported audio artifact requires dialogue_timing to check current text/speaker/voice dependencies")
     duration = shot.get("duration_seconds")
     if "dialogue_timing" in shot:
-        from dialogue_timing import H3_CONSTRAINTS, pacing_prompt, plan_timing
+        from dialogue_timing import H3_CONSTRAINTS, action_prompt, pacing_prompt, plan_timing
         if not isinstance(shot["dialogue_timing"], dict):
             raise ValueError("dialogue_timing must be an object")
         timing_spec = dict(shot["dialogue_timing"])
@@ -174,28 +174,31 @@ def compile_job(project, shot_id):
             if "clip_seconds" in timing_spec and timing_spec["clip_seconds"] != duration:
                 raise ValueError("Shot duration and dialogue clip_seconds conflict")
             timing_spec["clip_seconds"] = duration
+        constraints = H3_CONSTRAINTS if settings["backend"] == "h3" else dict(
+            min_seconds=1, max_seconds=15, step_seconds=1/fps, fps=fps, frame_step=4, frame_offset=1)
+        has_speech = bool(timing_spec.get("utterances"))
         if shot.get("audio") == "separate":
             from audio_artifacts import bind_timing
             asset_id = shot.get("inputs", {}).get("audio_track")
             if not isinstance(asset_id, str) or not plan.get("assets", {}).get(asset_id, {}).get("audio_artifact"):
                 raise ValueError("Separate dialogue_timing requires an audio_track with an imported audio_artifact")
             timing_spec, timeline = bind_timing(project, plan, asset_id, timing_spec)
-            constraints = H3_CONSTRAINTS if settings["backend"] == "h3" else dict(
-                min_seconds=1, max_seconds=15, step_seconds=1/fps, fps=fps, frame_step=4, frame_offset=1)
             timing = plan_timing(timing_spec, constraints=constraints)
             for line in timing["utterances"]:
                 for key in ("voice_mode", "delivery", "rate_multiplier"):
                     line.pop(key, None)
                 line["basis"] = "Supplied utterance boundaries within measured PCM WAV; not detected speech"
-            timing["limitations"] = ("Recorded audio timing only; no voice, mouth or acting instructions were compiled. "
-                                     "Put visual intent in shot.prompt and review the actual sound and picture.")
+            timing["limitations"] = ("Recorded audio timing; no voice or mouth instructions were compiled. "
+                                     "Action windows are prompt intent only. Review the actual sound and picture.")
             timeline["duration_seconds"] = timing["requested_duration_seconds"]
             shot["audio_timeline"] = timeline
+            shot["prompt"] = action_prompt(shot["prompt"], timing, native_h3=settings["backend"] == "h3")
         else:
-            if settings["backend"] != "h3" or shot.get("audio") != "native":
+            if has_speech and (settings["backend"] != "h3" or shot.get("audio") != "native"):
                 raise ValueError("Compiled dialogue_timing requires native H3 or a separate imported audio artifact")
-            timing = plan_timing(timing_spec, constraints=H3_CONSTRAINTS)
-            shot["prompt"] = pacing_prompt(shot["prompt"], timing)
+            timing = plan_timing(timing_spec, constraints=constraints)
+            shot["prompt"] = (pacing_prompt(shot["prompt"], timing) if has_speech else
+                              action_prompt(shot["prompt"], timing, native_h3=settings["backend"] == "h3"))
         duration = timing["requested_duration_seconds"]
         shot.update(duration_seconds=duration, dialogue_timing_result=timing)
     if isinstance(duration, bool) or not isinstance(duration, (int, float)) or not math.isfinite(duration) or not 1 <= duration <= 15:

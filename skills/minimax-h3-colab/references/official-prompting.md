@@ -54,6 +54,8 @@ non_diegetic_music:
 
 本地分鏡依 [段內時間線與具體表演](../../video-production/references/intrashot-staging.md) 細化動作、注意力與對話輪替，並寫入 `detailed_description`（Base 則為 `integrated_multimodal_description`）。同一連續鏡頭的時間窗保留在同一 `[Shot N]` 內；只有實際切鏡才新增 Shot。把人物在對誰說、看向誰／物件及聽者如何反應寫進描述，不以參考圖的正面姿勢替代當場互動。這是本地提示寫法，不新增 backend 欄位或時間硬控制。
 
+需要明確局部快慢時可用 [action_beats](../../video-production/references/dialogue-pacing.md#局部動作窗) 編入上述動態欄位，無台詞亦適用。物理動作速度不跟隨慢推鏡、安靜氣氛或整段片長；刻意慢鏡頭以該窗的播放意圖明示，保留正常速度與緩慢實時操作。原生 ComfyUI 用 `compile-api`；獨立 Omni JSON runner 用同頁的 `compile-job`，核對實際提交的 graph，而非只看未送出的分鏡。這些窗口不是 H3 的逐幀控制訊號。
+
 說話在主時間軸用 `<Subject N> (S1) ... <d>[語言] 原台詞</d>`。S 編號依本段實際發聲順序並跨鏡沿用，不等於 Subject 編號；未發聲者不加 S。跨片段需要聲線一致時另保存角色→聲音描述。旁白可用 `says in an off-screen voiceover` 描述；畫面人物的發音動作須另依下述本地發聲方式指定。跨鏡台詞用 `<scenetrans>`，片尾截斷用 `<cutoff>`。
 
 `overall_soundscape` 描述環境、物理動作與非語言聲音；`<d>` 台詞留在主時間軸。`non_diegetic_music` 描述觀眾聽到的配樂，無配樂寫 `N/A`。

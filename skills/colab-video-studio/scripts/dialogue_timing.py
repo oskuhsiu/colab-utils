@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Offline speech budgets and native H3/Pika API compilation; stdlib only.
+"""Offline speech/action timing and native H3/Pika compilation; stdlib only.
 
 Rates are editable planning assumptions, not measured language/model constants.
 A measured utterance duration takes precedence and includes its internal pauses.
@@ -137,7 +137,7 @@ def plan_timing(spec, *, constraints=None):
     """
     if not isinstance(spec, dict):
         raise ValueError('dialogue_timing must be an object')
-    allowed = {'utterances', 'policy', 'action_end_seconds', 'reaction_seconds', 'clip_seconds', 'constraints', 'timing_mode'}
+    allowed = {'utterances', 'policy', 'action_end_seconds', 'reaction_seconds', 'clip_seconds', 'constraints', 'timing_mode', 'action_beats'}
     if set(spec) - allowed:
         raise ValueError('Unknown timing fields: '+', '.join(sorted(set(spec)-allowed)))
     policy = dict(DEFAULT_POLICY)
@@ -192,7 +192,9 @@ def plan_timing(spec, *, constraints=None):
         utterances.append(item)
         end = item['end_seconds'] + item['pause_after_seconds'] + item['turn_gap_seconds_after']
         cursor = max(cursor, end) if timing_mode == 'explicit' else end
-    action_end = number(spec.get('action_end_seconds',0), 'action_end_seconds')
+    beats = action_beats(spec.get('action_beats', []))
+    action_end = max(number(spec.get('action_end_seconds',0), 'action_end_seconds'),
+                     max((beat['end_seconds'] for beat in beats), default=0))
     reaction = number(spec.get('reaction_seconds',0), 'reaction_seconds')
     content_end = max(action_end, cursor+reaction)
     required = content_end + policy['tail_seconds']
@@ -209,24 +211,81 @@ def plan_timing(spec, *, constraints=None):
         raise ValueError('Clip is too short for complete speech/actions/reaction/tail; do not squeeze the utterances')
     frames = int(limits['frame_offset'] + limits['frame_step'] * max(0, math.ceil((requested*limits['fps']-limits['frame_offset']-1e-9)/limits['frame_step'])))
     native = frames/limits['fps']
-    return dict(schema_version=1, timing_mode=timing_mode, policy=policy, constraints=limits, utterances=utterances,
+    return dict(schema_version=1, timing_mode=timing_mode, policy=policy, constraints=limits, utterances=utterances, action_beats=beats,
         speech_total_seconds=sum(x['speech_seconds'] for x in utterances),
         action_end_seconds=action_end, reaction_seconds=reaction, required_content_seconds=required,
         requested_duration_seconds=requested, native_frames=frames, native_seconds=native,
         remaining_silent_seconds=max(0,native-content_end),
-        limitations='Planning targets and prompt intent only; actual model speech can deviate. Verify naturalness by listening and complete-word ASR/tail checks on future output.')
+        limitations='Planning targets and prompt intent only; actual model speech can deviate, as can action timing. Verify motion at normal playback speed and speech by listening and complete-word ASR/tail checks on future output.')
+
+
+def action_beats(value):
+    """Validate authored local windows, never infer speed from event keywords.
+
+    Times are screen seconds. Real-time slow movement and intentional slow-motion
+    playback are different; neither camera speed nor speech sets these windows.
+    Overlaps are allowed (concurrent actors/actions), but input order is explicit.
+    """
+    if not isinstance(value, list):
+        raise ValueError('action_beats must be an ordered list')
+    result = []
+    for beat in value:
+        if not isinstance(beat, dict) or set(beat) - {'start_seconds', 'end_seconds', 'description', 'playback'}:
+            raise ValueError('Each action beat needs start_seconds, end_seconds, description and optional playback')
+        start = number(beat.get('start_seconds'), 'action start_seconds')
+        end = number(beat.get('end_seconds'), 'action end_seconds', positive=True)
+        if end <= start or (result and start < result[-1]['start_seconds']):
+            raise ValueError('Action windows must have positive duration and ordered start times; overlap is allowed')
+        description = beat.get('description')
+        if not isinstance(description, str) or not description.strip():
+            raise ValueError('Each action beat needs a concrete nonempty description')
+        if '<d>' in description or '</d>' in description:
+            raise ValueError('Keep spoken text in utterances, not action descriptions')
+        if '@{' in description:
+            raise ValueError('Resolve action reference tokens through Studio or use actual provider Subject/Picture labels before compiling')
+        playback = beat.get('playback', 'real_time')
+        if playback not in ('real_time', 'slow_motion'):
+            raise ValueError('Action playback must be real_time or intentional slow_motion')
+        result.append(dict(start_seconds=start, end_seconds=end, description=description.strip(), playback=playback))
+    return result
+
+
+def action_prompt(base_prompt, timing, *, native_h3=True):
+    """Compile only action intent, also usable with silent/separate audio shots."""
+    beats = timing.get('action_beats', [])
+    if not beats:
+        return base_prompt
+    if not isinstance(base_prompt, str) or not base_prompt.strip():
+        raise ValueError('A nonempty base prompt is required')
+    if '[Action timing]' in base_prompt:
+        raise ValueError('Base prompt already contains action timing; compile from the uncompiled source')
+    lines = ['[Action timing] All action and speech windows share the clip clock. Camera speed, speech duration and total clip length must not stretch these local action windows. Complete each described phase within its window; do not repeat it to fill the clip. Overlapping windows are concurrent.']
+    for beat in beats:
+        playback = ('Real-time movement at the described physical speed, not slowed playback.'
+                    if beat['playback'] == 'real_time' else
+                    'Intentional slow-motion presentation in this window only; these are screen-time targets.')
+        lines.append(f"From about {beat['start_seconds']}s to {beat['end_seconds']}s: {beat['description']} {playback}")
+    block = '\n'.join(lines)
+    if not native_h3:
+        return base_prompt.rstrip()+'\n\n'+block
+    return _insert_native_timing(base_prompt, block)
+
+
+def _insert_native_timing(base_prompt, block):
+    match = re.search(r'(?m)^\s*overall_soundscape\s*:', base_prompt)
+    if not match:
+        raise ValueError('A native H3 prompt needs overall_soundscape before adding timing')
+    return base_prompt[:match.start()].rstrip()+'\n\n'+block+'\n\n'+base_prompt[match.start():].lstrip()
 
 
 def pacing_prompt(base_prompt, timing):
     if not timing['utterances']:
-        return base_prompt
+        return action_prompt(base_prompt, timing)
     if '<d>' in base_prompt or '[Dialogue pacing]' in base_prompt:
         raise ValueError('Base prompt already contains dialogue/timing; move spoken lines to utterances to avoid conflicting or repeated timing')
     if re.search(r'\bno\s+(?:(?:text|subtitles)\s+or\s+)?(?:dialogue|speech)\b', base_prompt, re.I):
         raise ValueError("Base prompt forbids speech; replace the silent starter example with this shot's visual/action-only prompt")
-    match = re.search(r'(?m)^\s*overall_soundscape\s*:', base_prompt)
-    if not match:
-        raise ValueError('A native H3 prompt needs overall_soundscape before adding speech timing')
+    base_prompt = action_prompt(base_prompt, timing)
     lines = ['[Dialogue pacing] Speech follows the soft cadence targets below, independent of video length. Complete each phrase naturally; remaining action, listening and reactions are silent.']
     if timing.get('timing_mode') == 'explicit':
         lines[0] = '[Dialogue pacing] Follow the explicit soft scene-clock targets below. Overlapping intervals intentionally overlap; do not serialize them or stretch speech to fill the clip. Verify that the selected model can realize this intent.'
@@ -235,7 +294,7 @@ def pacing_prompt(base_prompt, timing):
         lines.append(f"At about {item['start_seconds']:.2f}s, {item['speaker']} delivers this line in about {item['speech_seconds']:.2f}s including internal phrase pauses. {MODES[item['voice_mode']]}{voice} {item['delivery']} <d>[{item['language']}] {item['text']}</d>")
         if item['pause_after_seconds']:
             lines.append(f"After this line, {item['speaker']} has {item['pause_after_seconds']:.2f}s of intentional silence/reaction; other explicitly scheduled speakers may continue.")
-    return base_prompt[:match.start()].rstrip()+'\n\n'+'\n'.join(lines)+'\n\n'+base_prompt[match.start():].lstrip()
+    return _insert_native_timing(base_prompt, '\n'.join(lines))
 
 
 def compile_api(graph, spec):
@@ -253,26 +312,56 @@ def compile_api(graph, spec):
     return result, timing
 
 
+def compile_omni_job(job):
+    """Compile offline; the sealed Omni runner continues consuming final text.
+
+    No compiler dependency is added to remote/recovery packages. The source job
+    and separate report retain the structured intent; output has no raw timing.
+    """
+    if not isinstance(job, dict) or not isinstance(job.get('dialogue_timing'), dict):
+        raise ValueError('compile-job requires an Omni job with dialogue_timing')
+    result = copy.deepcopy(job)
+    if result.get('preset', 'h3-omni-int8') != 'h3-omni-int8':
+        raise ValueError('compile-job supports only the native h3-omni-int8 job adapter')
+    spec = result.pop('dialogue_timing')
+    duration = result.get('duration_seconds')
+    if duration not in (None, 'auto'):
+        if 'clip_seconds' in spec and spec['clip_seconds'] != duration:
+            raise ValueError('Job duration and timing clip_seconds conflict')
+        spec['clip_seconds'] = duration
+    timing = plan_timing(spec, constraints=H3_CONSTRAINTS)
+    result['prompt'] = pacing_prompt(result['prompt'], timing)
+    result['duration_seconds'] = timing['requested_duration_seconds']
+    return result, timing
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     sub = parser.add_subparsers(dest='action',required=True)
-    for action in ('plan','compile-api'):
+    for action in ('plan','compile-api','compile-job'):
         p = sub.add_parser(action)
-        p.add_argument('--input',type=Path,required=True,help='Structured timing JSON')
+        p.add_argument('--input',type=Path,required=True,help='Omni job JSON for compile-job; structured timing JSON otherwise')
         if action=='compile-api':
             p.add_argument('--workflow',type=Path,required=True)
+        if action!='plan':
             p.add_argument('--output',type=Path,required=True)
             p.add_argument('--report',type=Path,required=True)
     args=parser.parse_args();spec=json.loads(args.input.read_text(encoding='utf-8'))
     if args.action=='plan':
         print(json.dumps(plan_timing(spec),ensure_ascii=False,indent=2));return
-    if args.output.resolve() in {args.workflow.resolve(),args.input.resolve()} or args.report.resolve() in {args.workflow.resolve(),args.input.resolve(),args.output.resolve()}:
-        parser.error('Keep input, compiled graph and timing report at distinct paths')
-    graph,timing=compile_api(json.loads(args.workflow.read_text(encoding='utf-8')),spec)
+    sources = {args.input.resolve()}
+    if args.action == 'compile-api':
+        sources.add(args.workflow.resolve())
+    if args.output.resolve() in sources or args.report.resolve() in sources | {args.output.resolve()}:
+        parser.error('Keep inputs, compiled output and timing report at distinct paths')
+    if args.action == 'compile-api':
+        graph,timing=compile_api(json.loads(args.workflow.read_text(encoding='utf-8')),spec)
+    else:
+        graph,timing=compile_omni_job(spec)
     for path in (args.output,args.report):
         if path.exists():parser.error('Preserve existing output; choose a new revision: '+str(path))
     for path,value in ((args.output,graph),(args.report,timing)):
         path.parent.mkdir(parents=True,exist_ok=True);path.write_text(json.dumps(value,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
-    print(json.dumps({'workflow':str(args.output),'timing_report':str(args.report),'requested_seconds':timing['requested_duration_seconds'],'native_seconds':timing['native_seconds']},ensure_ascii=False))
+    print(json.dumps({'workflow' if args.action == 'compile-api' else 'job':str(args.output),'timing_report':str(args.report),'requested_seconds':timing['requested_duration_seconds'],'native_seconds':timing['native_seconds']},ensure_ascii=False))
 
 if __name__=='__main__':main()

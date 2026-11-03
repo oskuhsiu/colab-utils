@@ -99,6 +99,8 @@ request + characters + source assets
 
 情緒種類、felt／shown 強度及劇本依據可作為 shot 的附加內容標註，隨 immutable job 保存並交給審查；任意 plan 頂層標註不會自動進入 job。生成 adapter 讀取的是編譯後 `shot.prompt` 與既定輸入，不會自動將情緒級別轉成表演或推論參數。使用 `dialogue_timing` 時，將逐句語氣放入 `utterances[].delivery`，強度標註不放入 timing 物件／utterance。依 [內容與分鏡](story-planning.md#將情緒強度交給生成與驗收) 核對編譯後 prompt、可觀察的 `criteria` 與必要事件窗，維持既有 schema。
 
+`dialogue_timing.action_beats` 是可選的 [局部動作窗](../../video-production/references/dialogue-pacing.md#局部動作窗)：每項 `start_seconds`／`end_seconds`／`description`，可加 `playback`。它與台詞共用片內時鐘但不互相拉長；無台詞可省略 `utterances`，保留 `audio="none"`。Studio 會把動作寫進 H3 或 Wan 的最終 prompt；已匯入獨立音軌的路徑也編譯動作，不再加入原生台詞或重排錄音。H3 用原有動態欄位，Wan 用一般提示文字，各沿用自身 frame 格。`description` 的 typed references 與 base prompt 一樣只解析實際已供圖；其他入口使用已解析的 provider labels。這不是物理硬控制，`motion_precision="strict"` 仍須控制素材與對應 backend。
+
 `settings.backend` 與可選 shot.settings 合併。immutable revision、native fps、輸出／模型 frames 由編譯器固定。`budget.max_total_attempts`、`max_attempts_per_shot` 是當次明確試驗範圍，不是這個 skill 的所有任務共用額度。預算變化不自動再生成；每次重試仍以新 reserve 執行。提交會在鎖內重新核對當前額度、建立唯一 claim，並在上傳完成、遠端執行前再核對一次。已預約、失敗或結果不明的 attempt 仍消耗額度；若後來降低上限到既有預約數以下，新的提交會 fail closed，不上傳／不執行（上傳期間降低則不執行）。此時明確對帳當次授權，不刪除歷史來繞過額度；已生成影片仍可取證／審查／剪輯。
 
 `qa.event_windows` 每個 action criterion 都需指定 start/end，預設8fps，快速事件可提高至 native fps。`qa.regions` 用原影片像素 `[x,y,width,height]`；可用多個區間檢查臉／手／道具，裁切不會創造原片沒有的細節。
