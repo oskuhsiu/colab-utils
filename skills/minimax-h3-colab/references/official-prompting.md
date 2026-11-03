@@ -54,13 +54,15 @@ non_diegetic_music:
 
 本地分鏡依 [段內時間線與具體表演](../../video-production/references/intrashot-staging.md) 細化動作、注意力與對話輪替，並寫入 `detailed_description`（Base 則為 `integrated_multimodal_description`）。同一連續鏡頭的時間窗保留在同一 `[Shot N]` 內；只有實際切鏡才新增 Shot。把人物在對誰說、看向誰／物件及聽者如何反應寫進描述，不以參考圖的正面姿勢替代當場互動。這是本地提示寫法，不新增 backend 欄位或時間硬控制。
 
+需要明確局部快慢時可用 [action_beats](../../video-production/references/dialogue-pacing.md#局部動作窗) 編入上述動態欄位，無台詞亦適用。物理動作速度不跟隨慢推鏡、安靜氣氛或整段片長；刻意慢鏡頭以該窗的播放意圖明示，保留正常速度與緩慢實時操作。原生 ComfyUI 用 `compile-api`；獨立 Omni JSON runner 用同頁的 `compile-job`，核對實際提交的 graph，而非只看未送出的分鏡。這些窗口不是 H3 的逐幀控制訊號。
+
 說話在主時間軸用 `<Subject N> (S1) ... <d>[語言] 原台詞</d>`。S 編號依本段實際發聲順序並跨鏡沿用，不等於 Subject 編號；未發聲者不加 S。跨片段需要聲線一致時另保存角色→聲音描述。旁白可用 `says in an off-screen voiceover` 描述；畫面人物的發音動作須另依下述本地發聲方式指定。跨鏡台詞用 `<scenetrans>`，片尾截斷用 `<cutoff>`。
 
 `overall_soundscape` 描述環境、物理動作與非語言聲音；`<d>` 台詞留在主時間軸。`non_diegetic_music` 描述觀眾聽到的配樂，無配樂寫 `N/A`。
 
 ## 本地表演與發聲方式交接
 
-含角色表演或內心話時，生成前依 [情緒與表演](../../video-production/references/emotion-and-performance.md) 判定劇本所需的 E0–E4 強度，分開 felt／shown 的進程，決定具體表演錨點、逐句 `delivery`、`voice_mode`、嘴型及聲音聽感／可聽對象。這是本地製作標註，不是新增 H3 欄位、特殊 tag 或 guidance 對照表；在既有畫面與語音描述中表達，實際能力另驗。
+含角色表演或內心話時，生成前依 [情緒與表演](../../video-production/references/emotion-and-performance.md) 把動機、觸發與反應寫成連續行為，決定具體表演錨點、逐句 `delivery`、`voice_mode`、嘴型及聲音聽感／可聽對象；需要比較強弱時再用 E0–E4 與 felt／shown 協助交接，不要求每鏡重填分級表。這是本地製作標註，不是新增 H3 欄位、特殊 tag 或 guidance 對照表；在既有畫面與語音描述中表達，實際能力另驗。
 
 把逐句的語速、重音、停頓、氣息與情緒變化寫進當句發聲描述，與動作、表情和時點接上；Ref2VA 放在 `detailed_description`，Base 放在 `integrated_multimodal_description`，維持各自原有欄位。共用角色文字保留聲線身份，當句表演照分鏡轉入；核最終序列化文字，而非只檢查 metadata 有 `delivery`。表演、模式、音效及聲音處理寫在台詞 tag 外，`<d>[語言] ...</d>` 只放實際要聽到的文本。
 
@@ -94,7 +96,7 @@ On recognizing the figure at the doorway, <Subject 1> abruptly stops typing, fix
 
 口說描述對應角色的同步發音動作。心聲／旁白可用畫外 voiceover 形式承載，但須另外說明其敘事層、聲音與嘴型；實際人在畫外出聲則描述其位置與遮擋，不將它混作在鏡角色心聲。非發音限制僅作用於相關角色與時窗，同鏡其他口說角色仍正常發音。
 
-以下為最終 prompt 的當句局部寫法示例，完整 prompt 仍需原有六欄及正確來源綁定；同一句台詞只寫一次。採 timing compiler 時，不直接把這些含 `<d>` 的片段貼入 base，先核對其支援模式：一般心聲用 `inner`，畫外口說的本地 `offscreen_spoken` 對應 `offscreen`；目前 `silent_mouthed_inner` 不在其模式清單內，不能靜默降成嘴型相反的 `inner`。無聲說話示例只說明目標表演，不代表現有 compiler 已能編譯該模式：
+以下為最終 prompt 的當句局部寫法示例，完整 prompt 仍需原有六欄及正確來源綁定；同一句台詞只寫一次。採 timing compiler 時，不直接把這些含 `<d>` 的片段貼入 base，先核對其支援模式：一般心聲用 `inner`，畫外口說的本地 `offscreen_spoken` 對應 `offscreen`；`silent_mouthed_inner` 可把同一句心聲與無聲嘴型編入提示，不能靜默降成嘴型相反的 `inner`。compiler 支援的是提示意圖，不代表 H3 已能可靠演出，仍須按實際聲畫驗證：
 
 心聲（觀眾有聲，角色無該句發音嘴型）：
 
